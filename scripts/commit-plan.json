@@ -1768,3 +1768,592 @@
             "bootstrap with migrations and scheduler",
             "middleware ordering with body parser",
             "example readme",
+            "end to end microservice test",
+            "concurrent settle succeeds once",
+            "architecture notes",
+            "running guide",
+            "changelog",
+            "benchmark harness",
+            "benchmark report",
+            "lint cleanups"
+          ],
+          "globs": [
+            "examples/v0.9.0-microservice-kit/**",
+            "tests/integration/v0.9.0/**",
+            "benchmarks/v0.9.0/**",
+            "docs/v0.9.0/**",
+            "packages/micro/test/**",
+            "vitest.config.ts",
+            "tsconfig.base.json"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "v0.10.0",
+      "year": 2025,
+      "releaseDate": "2025-12-23",
+      "releaseNotes": "工程化工具链：nofaultctl openapi（契约生成 OpenAPI 3.0）、dev（防抖热重载）、doctor（环境自检，会解析 tsconfig extends）。\n\n- 文档由契约生成：手写必然漂移，而漂移的文档比没有文档更糟\n- 全链路 0.5ms，快到可以挂在文件保存钩子上\n- doctor 解析 extends：不解析会大面积误报，假阴性比漏检更糟",
+      "features": [
+        {
+          "id": "F10.0",
+          "title": "openapi generation from the contract",
+          "prefix": "feat(codegen)",
+          "startDate": "2025-01-06",
+          "days": 5,
+          "commitsPerDay": 20,
+          "aspects": [
+            "openapi document model",
+            "schema mapping for scalars",
+            "array schema",
+            "object schema with required",
+            "omit required when nothing is required",
+            "path parameters with braces",
+            "query parameters",
+            "request body for write methods",
+            "204 for void responses",
+            "422 always documented",
+            "prefix and group normalisation",
+            "barrel exports"
+          ],
+          "globs": [
+            "packages/codegen/src/openapi.ts",
+            "packages/codegen/src/index.ts"
+          ]
+        },
+        {
+          "id": "F10.1",
+          "title": "dev command with hot restart",
+          "prefix": "feat(cli)",
+          "startDate": "2025-03-03",
+          "days": 4,
+          "commitsPerDay": 20,
+          "aspects": [
+            "dev runner skeleton",
+            "watch directories",
+            "debounce restarts",
+            "remember changes during a restart",
+            "wait for the old process to exit",
+            "force kill after the grace period",
+            "do not restart on crash",
+            "forward child output"
+          ],
+          "globs": [
+            "packages/cli/src/commands/dev.ts"
+          ]
+        },
+        {
+          "id": "F10.2",
+          "title": "doctor environment checks",
+          "prefix": "feat(cli)",
+          "startDate": "2025-04-28",
+          "days": 4,
+          "commitsPerDay": 20,
+          "aspects": [
+            "check model",
+            "node version check",
+            "package json type check",
+            "tsconfig parsing tolerating comments",
+            "resolve the extends chain",
+            "cycle protection",
+            "decorator metadata check",
+            "experimental decorators check",
+            "reflect metadata check",
+            "source layout check",
+            "stable check names",
+            "actionable hints"
+          ],
+          "globs": [
+            "packages/cli/src/commands/doctor.ts"
+          ]
+        },
+        {
+          "id": "F10.3",
+          "title": "cli wiring for the new commands",
+          "prefix": "feat(cli)",
+          "startDate": "2025-06-02",
+          "days": 4,
+          "commitsPerDay": 20,
+          "aspects": [
+            "openapi command",
+            "title and version options",
+            "dry run to stdout",
+            "dev command",
+            "doctor command",
+            "colour helpers in the logger",
+            "help text and examples",
+            "version bump"
+          ],
+          "globs": [
+            "packages/cli/src/cli.ts",
+            "packages/cli/src/log.ts"
+          ]
+        },
+        {
+          "id": "F10.4",
+          "title": "tests, docs and benchmark",
+          "prefix": "docs(v0.10.0)",
+          "startDate": "2025-07-07",
+          "days": 5,
+          "commitsPerDay": 21,
+          "aspects": [
+            "tooling tests",
+            "openapi path and query assertions",
+            "required key semantics",
+            "doctor extends resolution test",
+            "architecture notes",
+            "running guide",
+            "changelog",
+            "benchmark harness",
+            "benchmark report",
+            "lint cleanups"
+          ],
+          "globs": [
+            "packages/cli/test/tooling.test.ts",
+            "tests/integration/v0.10.0/**",
+            "benchmarks/v0.10.0/**",
+            "docs/v0.10.0/**",
+            "examples/v0.4.0-codegen-user-api/openapi.json"
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "v1.0.0",
+      "year": 2026,
+      "releaseDate": "2026-09-19",
+      "releaseNotes": "1.0 发布：@nofault/security（JWT / scrypt 密码 / RBAC）+ 与业界主流框架的全量能力对齐。\n\n- JWT 的 alg 不从 token 读，挡住 alg:none 与算法混淆攻击\n- 密码用 scrypt，参数写进哈希结果，以后能平滑调高成本\n- 安全相关的默认值一律选\"拒绝\"那一侧\n- 增强：OTLP/HTTP JSON 导出器（telemetry）、refresh token + 吊销（security）、读写分离路由（orm）\n- 优化：静态文件流式发送（rest）、日志异步串行落盘（logger）、refresh token 重用检测——已轮转 token 再次出现即吊销整个会话族（security）\n- 能力：SSE 事件流（rest）、服务端流式 RPC（rpc，AsyncIterable 即流）、MCP 服务器模式（mcp 新包，第 18 个包）\n- 压测：全链路基准（HTTP 网关 → RPC → 缓存/存储，热读/冷读/写三路径，见 CHAIN-REPORT.md）\n- CLI：`nofaultctl mcp new` 一键生成 MCP 服务器工程（依赖 @nofault/mcp + 示例 echo tool）\n- 优化：`nfc` 短命令作为 `nofaultctl` 的别名；README 加入架构概览块（从对应 ARCHITECTURE.md 自动生成）\n- 治理：邮箱改为项目化 `maintainers@nofault.io`；注释与脚手架 README 不再指向具体第三方客户端；generator 与 history 脚本忽略本地开发期可能残留的编辑器/工具配置目录\n- 十个版本累计 437 项测试全通过",
+      "features": [
+        {
+          "id": "F1.0",
+          "title": "jwt signing and verification",
+          "prefix": "feat(security)",
+          "startDate": "2026-01-05",
+          "days": 5,
+          "commitsPerDay": 20,
+          "aspects": [
+            "package manifest for @nofault/security",
+            "hs256 with node crypto",
+            "base64url encoding",
+            "fixed algorithm check",
+            "timing safe signature compare",
+            "expiry check",
+            "not before check",
+            "issuer check",
+            "audience check",
+            "clock skew tolerance",
+            "weak secret rejection",
+            "bearer header parsing",
+            "peek without verifying"
+          ],
+          "globs": [
+            "packages/security/package.json",
+            "packages/security/tsconfig.json",
+            "packages/security/tsconfig.build.json",
+            "packages/security/src/jwt.ts"
+          ]
+        },
+        {
+          "id": "F1.1",
+          "title": "password hashing",
+          "prefix": "feat(security)",
+          "startDate": "2026-03-02",
+          "days": 4,
+          "commitsPerDay": 20,
+          "aspects": [
+            "scrypt key derivation",
+            "fresh salt per hash",
+            "encode parameters in the result",
+            "verify with stored parameters",
+            "timing safe compare",
+            "reject malformed stored values",
+            "constant time helper"
+          ],
+          "globs": [
+            "packages/security/src/password.ts"
+          ]
+        },
+        {
+          "id": "F1.2",
+          "title": "role based access control",
+          "prefix": "feat(security)",
+          "startDate": "2026-04-27",
+          "days": 4,
+          "commitsPerDay": 20,
+          "aspects": [
+            "roles decorator",
+            "public decorator",
+            "metadata readers",
+            "any of semantics",
+            "deny by default",
+            "class level roles",
+            "explain the denial"
+          ],
+          "globs": [
+            "packages/security/src/password.ts"
+          ]
+        },
+        {
+          "id": "F1.3",
+          "title": "auth middleware and di",
+          "prefix": "feat(security)",
+          "startDate": "2026-06-01",
+          "days": 4,
+          "commitsPerDay": 20,
+          "aspects": [
+            "middleware skeleton",
+            "resolve principal from jwt",
+            "401 without leaking the reason",
+            "check public before rejecting",
+            "403 on role mismatch",
+            "hand identity to the context",
+            "di module for jwt",
+            "barrel exports"
+          ],
+          "globs": [
+            "packages/security/src/security.module.ts",
+            "packages/security/src/index.ts"
+          ]
+        },
+        {
+          "id": "F1.4",
+          "title": "tests, docs, benchmark and the 1.0 release",
+          "prefix": "docs(v1.0.0)",
+          "startDate": "2026-07-06",
+          "days": 5,
+          "commitsPerDay": 21,
+          "aspects": [
+            "security tests",
+            "alg none attack test",
+            "forged signature test",
+            "clock skew test",
+            "password tests",
+            "rbac tests",
+            "middleware tests",
+            "end to end auth over http",
+            "public route should not be blocked",
+            "feature matrix",
+            "architecture notes",
+            "running guide",
+            "changelog",
+            "benchmark harness",
+            "benchmark report",
+            "status board update",
+            "expose the matched route on the rest context",
+            "read public and roles decorators from ctx route",
+            "trace fields logger wrapper",
+            "security demo example",
+            "readme files for every package",
+            "readme history snapshots"
+          ],
+          "globs": [
+            "benchmarks/v1.0.0/**",
+            "docs/v1.0.0/**",
+            "examples/v1.0.0-security-demo/**",
+            "packages/*/README.md",
+            "packages/rest/src/http/context.ts",
+            "packages/rest/src/rest-application.ts",
+            "packages/security/test/**",
+            "packages/telemetry/src/logging.ts",
+            "packages/telemetry/test/logging.test.ts",
+            "scripts/gen-package-readmes.mjs",
+            "scripts/gen-readme-snapshots.mjs",
+            "scripts/readme-history/**",
+            "tests/integration/v1.0.0/**",
+            "tsconfig.base.json",
+            "vitest.config.ts"
+          ]
+        },
+        {
+          "id": "F1.5",
+          "title": "otlp exporter",
+          "prefix": "feat(telemetry)",
+          "startDate": "2026-07-20",
+          "days": 3,
+          "commitsPerDay": 20,
+          "aspects": [
+            "otlp/http json exporter",
+            "span kind mapping",
+            "nanosecond timestamps as strings",
+            "attribute value encoding",
+            "service name resource attribute",
+            "export failure never crashes the host",
+            "timeout via abort controller",
+            "custom headers for auth",
+            "skip empty batches",
+            "end to end against a real http collector"
+          ],
+          "globs": [
+            "packages/telemetry/src/otlp-exporter.ts",
+            "packages/telemetry/test/otlp.test.ts",
+            "packages/telemetry/src/index.ts"
+          ]
+        },
+        {
+          "id": "F1.6",
+          "title": "refresh tokens and revocation",
+          "prefix": "feat(security)",
+          "startDate": "2026-08-10",
+          "days": 3,
+          "commitsPerDay": 20,
+          "aspects": [
+            "opaque refresh tokens",
+            "sha256 token hashing at rest",
+            "token store seam",
+            "in memory token store",
+            "rotation on refresh",
+            "replay of rotated tokens rejected",
+            "expiry decided by the service",
+            "revocation for logout",
+            "malformed token rejection",
+            "weak entropy refused",
+            "async store compatibility"
+          ],
+          "globs": [
+            "packages/security/src/refresh.ts",
+            "packages/security/test/refresh.test.ts",
+            "packages/security/src/index.ts"
+          ]
+        },
+        {
+          "id": "F1.7",
+          "title": "read-write split routing",
+          "prefix": "feat(orm)",
+          "startDate": "2026-09-01",
+          "days": 3,
+          "commitsPerDay": 20,
+          "aspects": [
+            "routing layer over the datasource boundary",
+            "writes to the primary only",
+            "reads rotate across replicas",
+            "reads on the primary inside transactions",
+            "sticky window after writes",
+            "replica failover to the primary",
+            "cooldown for unhealthy replicas",
+            "create table on every backend",
+            "raw sql goes to the primary",
+            "refuse a split without replicas"
+          ],
+          "globs": [
+            "packages/orm/src/read-write-split.ts",
+            "packages/orm/test/read-write-split.test.ts",
+            "packages/orm/src/index.ts"
+          ]
+        },
+        {
+          "id": "F1.8",
+          "title": "streaming static files",
+          "prefix": "feat(rest)",
+          "startDate": "2026-09-04",
+          "days": 3,
+          "commitsPerDay": 20,
+          "aspects": [
+            "stream method on the response wrapper",
+            "deferred commit preserved for streams",
+            "backpressure delegated to pipeline",
+            "content length taken from stat",
+            "static middleware streams from disk",
+            "no full file buffering",
+            "global middleware runs before route matching",
+            "fall through to the router on a miss",
+            "traversal still refused",
+            "bytes on the wire identical"
+          ],
+          "globs": [
+            "packages/rest/src/http/context.ts",
+            "packages/rest/src/middleware/index.ts",
+            "packages/rest/src/rest-application.ts",
+            "packages/rest/test/static.test.ts"
+          ]
+        },
+        {
+          "id": "F1.9",
+          "title": "async file transport",
+          "prefix": "feat(logger)",
+          "startDate": "2026-09-07",
+          "days": 3,
+          "commitsPerDay": 20,
+          "aspects": [
+            "ordered async write queue",
+            "no sync appends on the hot path",
+            "serialization keeps lines in order",
+            "flush awaits durability",
+            "sync flush kept for shutdown",
+            "rotation before each queued write",
+            "daily rollover keeps old day chunks",
+            "write failures never break the caller",
+            "tests await flush"
+          ],
+          "globs": [
+            "packages/logger/src/file-transport.ts",
+            "packages/logger/test/file-transport.test.ts"
+          ]
+        },
+        {
+          "id": "F1.10",
+          "title": "refresh token reuse detection",
+          "prefix": "feat(security)",
+          "startDate": "2026-09-10",
+          "days": 3,
+          "commitsPerDay": 20,
+          "aspects": [
+            "session family id on every record",
+            "used hash tombstones in the store",
+            "optional store seam for families",
+            "reuse of a rotated token revokes the family",
+            "containment stays within the family",
+            "unknown response never reveals detection",
+            "graceful degradation without store support",
+            "tests for both behaviours"
+          ],
+          "globs": [
+            "packages/security/src/refresh.ts",
+            "packages/security/test/refresh.test.ts"
+          ]
+        },
+        {
+          "id": "F1.11",
+          "title": "server sent events",
+          "prefix": "feat(rest)",
+          "startDate": "2026-09-13",
+          "days": 1,
+          "commitsPerDay": 20,
+          "aspects": [
+            "sse writer over the stream primitive",
+            "event and multi line data framing",
+            "comment lines as heartbeats",
+            "close ends the response",
+            "deferred commit preserved",
+            "no content length on event streams",
+            "cache control no cache default"
+          ],
+          "globs": [
+            "packages/rest/src/sse.ts",
+            "packages/rest/test/sse.test.ts",
+            "packages/rest/src/index.ts"
+          ]
+        },
+        {
+          "id": "F1.12",
+          "title": "server streaming rpc",
+          "prefix": "feat(rpc)",
+          "startDate": "2026-09-14",
+          "days": 1,
+          "commitsPerDay": 20,
+          "aspects": [
+            "chunk frames on the wire",
+            "final frame without result",
+            "async iterable handlers stream",
+            "arrays stay unary",
+            "client consumes as async iterable",
+            "streams live beside unary pending",
+            "connection close rejects consumers",
+            "no retry and no total timeout by design"
+          ],
+          "globs": [
+            "packages/rpc/src/protocol.ts",
+            "packages/rpc/src/server.ts",
+            "packages/rpc/src/client.ts",
+            "packages/rpc/src/index.ts",
+            "packages/rpc/test/rpc.test.ts"
+          ]
+        },
+        {
+          "id": "F1.13",
+          "title": "mcp server mode",
+          "prefix": "feat(mcp)",
+          "startDate": "2026-09-15",
+          "days": 1,
+          "commitsPerDay": 20,
+          "aspects": [
+            "new package with zero dependencies",
+            "newline delimited json rpc on stdio",
+            "initialize handshake",
+            "tools list with json schema",
+            "tools call wraps results as text content",
+            "tool failures reported via isError",
+            "unknown methods refused",
+            "injectable streams for tests and embedding"
+          ],
+          "globs": [
+            "packages/mcp/**",
+            "scripts/gen-package-readmes.mjs"
+          ]
+        },
+        {
+          "id": "F1.14",
+          "title": "full chain benchmark",
+          "prefix": "perf(chain)",
+          "startDate": "2026-09-16",
+          "days": 1,
+          "commitsPerDay": 20,
+          "aspects": [
+            "http gateway to rpc to cache to store",
+            "hot read on the cache hit path",
+            "cold read exercising single flight",
+            "write path with body parsing",
+            "percentiles over real fetch loops",
+            "correctness first on the merged load",
+            "single machine caveat documented"
+          ],
+          "globs": [
+            "benchmarks/v1.0.0/chain-bench.mjs",
+            "benchmarks/v1.0.0/CHAIN-REPORT.md"
+          ]
+        },
+        {
+          "id": "F1.15",
+          "title": "mcp new cli command",
+          "prefix": "feat(cli)",
+          "startDate": "2026-09-17",
+          "days": 1,
+          "commitsPerDay": 20,
+          "aspects": [
+            "scaffold an mcp server project",
+            "esm package with mcp dependency",
+            "json schema on a sample tool",
+            "clean shutdown via signals",
+            "programmatic export for embedding",
+            "misuse returns a clear error",
+            "tooling tests cover both paths"
+          ],
+          "globs": [
+            "packages/cli/src/commands/mcp-new.ts",
+            "packages/cli/src/cli.ts",
+            "packages/cli/src/index.ts",
+            "packages/cli/test/cli.test.ts",
+            "tests/integration/v0.4.0/codegen-pipeline.test.ts"
+          ]
+        },
+        {
+          "id": "F1.16",
+          "title": "short cli and architecture block in readmes",
+          "prefix": "feat(cli)",
+          "startDate": "2026-09-18",
+          "days": 1,
+          "commitsPerDay": 20,
+          "aspects": [
+            "nfc as a short alias to nofaultctl",
+            "bin field registers both commands",
+            "readme generator emits architecture block",
+            "extract the architecture one liner from each version",
+            "link to the full architecture document",
+            "neutral wording on mcp comments",
+            "ignored directories cover common assistant configs"
+          ],
+          "globs": [
+            "packages/cli/bin/nfc.js",
+            "packages/cli/package.json",
+            "packages/cli/src/commands/mcp-new.ts",
+            "packages/mcp/src/server.ts",
+            "scripts/gen-readme-snapshots.mjs",
+            "scripts/gen-history.mjs",
+            "README.md",
+            "scripts/readme-history/*.md"
+          ]
+        }
+      ]
+    }
+  ],
+  "progressive": true
+}
