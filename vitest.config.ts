@@ -36,3 +36,15 @@ export default defineConfig({
     // 想定位 flaky 时必须本地跑 `vitest run --retry=0 > /tmp/run.log 2>&1`（且绝不用 | head 截断），
     // 因为用例名一旦被截断就再也找不回来（2026-09-22 就是这么丢的）。
     retry: 1,
+  },
+  resolve: {
+    alias: {
+      '@nofault/core': resolve(__dirname, 'packages/core/src/index.ts'),
+      '@nofault/config': resolve(__dirname, 'packages/config/src/index.ts'),
+      '@nofault/logger': resolve(__dirname, 'packages/logger/src/index.ts'),
+      '@nofault/http': resolve(__dirname, 'packages/http/src/index.ts'),
+      '@nofault/rest': resolve(__dirname, 'packages/rest/src/index.ts'),
+      '@nofault/context': resolve(__dirname, 'packages/context/src/index.ts'),
+      '@nofault/dsl': resolve(__dirname, 'packages/dsl/src/index.ts'),
+      '@nofault/parser': resolve(__dirname, 'packages/parser/src/index.ts'),
+      '@nofault/codegen': resolve(__dirname, 'packages/codegen/src/index.ts'),
