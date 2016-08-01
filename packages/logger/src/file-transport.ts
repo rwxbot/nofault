@@ -42,3 +42,25 @@ export class FileTransport implements LogTransport {
   constructor(options: FileTransportOptions) {
     this.options = { maxFiles: 5, ...options };
     this.currentDay = today();
+    this.currentPath = this.resolvePath();
+    this.ensureFile();
+  }
+
+  private resolvePath(): string {
+    const { filePath, daily } = this.options;
+    if (!daily) return filePath;
+    const ext = extname(filePath);
+    const base = basename(filePath, ext);
+    return join(dirname(filePath), `${base}.${this.currentDay}${ext || '.log'}`);
+  }
+
+  private ensureFile(): void {
+    const dir = dirname(this.currentPath);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    if (!existsSync(this.currentPath)) {
+      closeSync(openSync(this.currentPath, 'a'));
+    }
+  }
+
+  write(line: string, _record: LogRecord): void {
+    // 跨天：旧一天的尾巴先排进队列（此刻仍指向旧路径），再切新文件
