@@ -64,3 +64,24 @@ export class FileTransport implements LogTransport {
 
   write(line: string, _record: LogRecord): void {
     // 跨天：旧一天的尾巴先排进队列（此刻仍指向旧路径），再切新文件
+    if (this.options.daily && today() !== this.currentDay) {
+      void this.flush().catch(() => undefined);
+      this.currentDay = today();
+      this.currentPath = this.resolvePath();
+      this.ensureFile();
+      this.rotateIfNeeded();
+    }
+
+    this.buffer.push(line);
+    if (this.buffer.length >= (this.options.flushEvery ?? 1)) {
+      void this.flush().catch(() => undefined);
+    }
+  }
+
+  /** 把当前缓冲排进异步写队列；await 返回值即"这一批已落盘"（失败会拒绝） */
+  async flush(): Promise<void> {
+    if (this.buffer.length === 0) return this.queue;
+    const chunk = this.buffer.join('\n') + '\n';
+    this.buffer = [];
+    this.rotateIfNeeded();
+    const target = this.currentPath;
