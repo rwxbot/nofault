@@ -107,3 +107,25 @@ export class FileTransport implements LogTransport {
    * 同步兜底：进程退出前把缓冲立刻写到磁盘。
    *
    * ⚠️ **行序的固有取舍**：若调用时队列中仍有在途异步写（`pendingWrites > 0`），
+   * 本方法会把"更晚产生"的这批数据同步落盘，而更早的那批异步写**随后**才追加到文件尾，
+   * 于是文件里的行序与产生顺序不符。这是同步 API 无法消除的限制
+   * ——异步写的完成时机不可预测，同步方法不能等待它，也不能取消它。
+   *
+   * 因此：**优雅关停请用 `await close()`**；`flushSync()` 只用于"`async` 已不可用"的硬退出路径，
+   * 语义是"宁可接受行序风险，也要保住数据"。
+   */
+  flushSync(): void {
+    if (this.buffer.length === 0) return;
+    const chunk = this.buffer.join('\n') + '\n';
+    this.buffer = [];
+    this.rotateIfNeeded();
+    appendFileSync(this.currentPath, chunk, 'utf8');
+  }
+
+  private rotateIfNeeded(): void {
+    const maxSize = this.options.maxSize ?? 0;
+    if (maxSize <= 0) return;
+    if (!existsSync(this.currentPath)) return;
+    if (statSync(this.currentPath).size < maxSize) return;
+
+    // name.log → name.1.log → name.2.log ...
