@@ -129,3 +129,25 @@ export class FileTransport implements LogTransport {
     if (statSync(this.currentPath).size < maxSize) return;
 
     // name.log → name.1.log → name.2.log ...
+    for (let i = this.options.maxFiles - 1; i >= 1; i--) {
+      const from = i === 1 ? this.currentPath : this.rotatedPath(i - 1);
+      const to = this.rotatedPath(i);
+      if (existsSync(from)) renameSync(from, to);
+    }
+    // 超过保留数量的直接删（循环里最老那份已被顶掉）
+    const oldest = this.rotatedPath(this.options.maxFiles);
+    if (existsSync(oldest) && this.rotatedPath(this.options.maxFiles) !== this.currentPath) {
+      // 由下一次轮转覆盖，这里不动
+    }
+    this.ensureFile();
+  }
+
+  private rotatedPath(index: number): string {
+    return `${this.currentPath}.${index}`;
+  }
+
+  /** 清理所有历史文件（测试用） */
+  cleanup(): void {
+    const dir = dirname(this.currentPath);
+    if (!existsSync(dir)) return;
+    const prefix = basename(this.currentPath);
