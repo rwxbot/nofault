@@ -85,3 +85,25 @@ export class FileTransport implements LogTransport {
     this.buffer = [];
     this.rotateIfNeeded();
     const target = this.currentPath;
+    this.pendingWrites += 1;
+    this.queue = this.queue
+      .then(() => appendFile(target, chunk, 'utf8'))
+      .finally(() => {
+        this.pendingWrites -= 1;
+      });
+    return this.queue;
+  }
+
+  /**
+   * 优雅关停：把剩余缓冲排进队列并等队列排空 —— **行序有保证**。
+   *
+   * 需要严格保序（或想拿到写入失败）的关停路径一律用 `await close()`，不要用 `flushSync()`。
+   */
+  async close(): Promise<void> {
+    await this.flush();
+  }
+
+  /**
+   * 同步兜底：进程退出前把缓冲立刻写到磁盘。
+   *
+   * ⚠️ **行序的固有取舍**：若调用时队列中仍有在途异步写（`pendingWrites > 0`），
