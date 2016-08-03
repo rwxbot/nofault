@@ -88,3 +88,33 @@ describe('FileTransport', () => {
       await t.flush();
 
       // 跨过本地午夜（不是 UTC 午夜，也不是本地早上 8 点）
+      vi.setSystemTime(new Date(2026, 8, 21, 0, 0, 30));
+      t.write('after', record);
+      await t.flush();
+
+      expect(readdirSync(dir).sort()).toEqual(['app.2026-09-20.log', 'app.2026-09-21.log']);
+      expect(readFileSync(join(dir, 'app.2026-09-20.log'), 'utf8')).toBe('before\n');
+      expect(readFileSync(join(dir, 'app.2026-09-21.log'), 'utf8')).toBe('after\n');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('rotates by size and keeps at most maxFiles', async () => {
+    const dir = tmpdir_();
+    const file = join(dir, 'rot.log');
+    const t = new FileTransport({ filePath: file, maxSize: 50, maxFiles: 3 });
+    const record = { timestamp: '', level: LogLevel.INFO, levelName: 'info', message: 'x' };
+    for (let i = 0; i < 20; i++) {
+      t.write('x'.repeat(20), record);
+    }
+    await t.flush();
+    const files = readdirSync(dir).sort();
+    expect(files.length).toBeLessThanOrEqual(4); // rot.log + 最多 3 份历史
+    expect(files).toContain('rot.log');
+  });
+
+  it('buffers when flushEvery > 1 and flushes on demand', async () => {
+    const dir = tmpdir_();
+    const file = join(dir, 'buf.log');
+    const t = new FileTransport({ filePath: file, flushEvery: 3 });
