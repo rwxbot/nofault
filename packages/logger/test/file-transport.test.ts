@@ -118,3 +118,33 @@ describe('FileTransport', () => {
     const dir = tmpdir_();
     const file = join(dir, 'buf.log');
     const t = new FileTransport({ filePath: file, flushEvery: 3 });
+    const record = { timestamp: '', level: LogLevel.INFO, levelName: 'info', message: 'x' };
+    t.write('a', record);
+    t.write('b', record);
+    expect(readFileSync(file, 'utf8')).toBe('');
+    await t.flush();
+    expect(readFileSync(file, 'utf8')).toBe('a\nb\n');
+  });
+
+  it('cleanup removes the log files', async () => {
+    const dir = tmpdir_();
+    const file = join(dir, 'clean.log');
+    const t = new FileTransport({ filePath: file });
+    t.write('x', { timestamp: '', level: LogLevel.INFO, levelName: 'info', message: 'x' });
+    await t.flush().catch(() => undefined);
+    t.cleanup();
+    expect(readdirSync(dir)).toHaveLength(0);
+  });
+});
+
+describe('Logger sampling', () => {
+  it('drops debug/trace when rate is 0 but keeps info and above', () => {
+    const t = new MemoryTransport();
+    const log = new Logger({ level: LogLevel.TRACE, transports: [t], sampling: { rate: 0 } });
+    log.trace('dropped');
+    log.debug('dropped');
+    log.info('kept');
+    log.warn('kept');
+    log.error('kept');
+    expect(t.records.map((r) => r.levelName)).toEqual(['info', 'warn', 'error']);
+  });
