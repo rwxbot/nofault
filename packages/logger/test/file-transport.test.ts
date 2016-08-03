@@ -148,3 +148,32 @@ describe('Logger sampling', () => {
     log.error('kept');
     expect(t.records.map((r) => r.levelName)).toEqual(['info', 'warn', 'error']);
   });
+
+  it('keeps everything when rate is 1', () => {
+    const t = new MemoryTransport();
+    const log = new Logger({ level: LogLevel.TRACE, transports: [t], sampling: { rate: 1 } });
+    log.debug('a');
+    log.debug('b');
+    expect(t.records).toHaveLength(2);
+  });
+
+  it('samples probabilistically around the given rate', () => {
+    const t = new MemoryTransport();
+    const log = new Logger({ level: LogLevel.TRACE, transports: [t], sampling: { rate: 0.5 } });
+    const N = 4000;
+    for (let i = 0; i < N; i++) log.debug('x');
+    const ratio = t.records.length / N;
+    // 0.5 ± 0.1 —— 用 Math.random 的正态近似，给足余量避免偶发失败
+    expect(ratio).toBeGreaterThan(0.4);
+    expect(ratio).toBeLessThan(0.6);
+  });
+
+  it('honours sampleBelow so info can be sampled too', () => {
+    const t = new MemoryTransport();
+    const log = new Logger({ level: LogLevel.TRACE, transports: [t], sampling: { rate: 0, sampleBelow: LogLevel.WARN } });
+    log.debug('dropped');
+    log.info('dropped');
+    log.warn('kept');
+    expect(t.records.map((r) => r.levelName)).toEqual(['warn']);
+  });
+});
