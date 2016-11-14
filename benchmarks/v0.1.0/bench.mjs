@@ -118,3 +118,43 @@ function summarize(latencies, elapsedSec) {
     requests: sorted.length,
     seconds: Number(elapsedSec.toFixed(2)),
     rps: Number((sorted.length / elapsedSec).toFixed(1)),
+    meanMs: Number((total / Math.max(1, sorted.length)).toFixed(3)),
+    p50Ms: Number(q(0.5).toFixed(3)),
+    p95Ms: Number(q(0.95).toFixed(3)),
+    p99Ms: Number(q(0.99).toFixed(3)),
+    maxMs: Number((sorted[sorted.length - 1] ?? 0).toFixed(3)),
+  };
+}
+
+/** 取 RPS 居中的那一轮，避免取到冷启动或噪声轮 */
+function pickMedianRound(rounds) {
+  const sorted = [...rounds].sort((a, b) => a.rps - b.rps);
+  return sorted[Math.floor(sorted.length / 2)];
+}
+
+// ---------------------------------------------------------------- main
+async function main() {
+  console.log(
+    `[bench] duration=${opts.duration}s connections=${opts.connections} warmup=${opts.warmup}s rounds=${opts.rounds} node=${process.version} platform=${process.platform}/${process.arch}`,
+  );
+
+  const baseline = await startBaseline();
+  const nofault = await startNofault();
+  try {
+    const baseRuns = [];
+    const nfRuns = [];
+    for (let r = 1; r <= opts.rounds; r++) {
+      process.stdout.write(`[bench] round ${r}/${opts.rounds} ... `);
+      const base = await run(baseline.port, opts);
+      const nf = await run(nofault.port, opts);
+      baseRuns.push(base);
+      nfRuns.push(nf);
+      console.log(`baseline=${base.rps} rps, nofault=${nf.rps} rps`);
+    }
+
+    const base = pickMedianRound(baseRuns);
+    const nf = pickMedianRound(nfRuns);
+    const gap = (((base.rps - nf.rps) / base.rps) * 100).toFixed(1);
+
+    console.table({
+      'raw node:http (baseline)': {
