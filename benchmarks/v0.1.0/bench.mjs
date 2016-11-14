@@ -78,3 +78,43 @@ function once(port, path, agents) {
     const start = process.hrtime.bigint();
     const req = request({ host: '127.0.0.1', port, path, agent }, (response) => {
       response.on('data', () => {});
+      response.on('end', () => res(Number(process.hrtime.bigint() - start) / 1e6));
+    });
+    req.on('error', () => res(-1));
+    req.end();
+  });
+}
+
+async function run(port, { duration, connections, warmup }) {
+  const agents = Array.from(
+    { length: Math.max(1, Math.ceil(connections / 16)) },
+    () => new Agent({ keepAlive: true, maxSockets: 16, maxFreeSockets: 16 }),
+  );
+
+  const warmEnd = Date.now() + warmup * 1000;
+  while (Date.now() < warmEnd) await once(port, '/hello?name=world', agents);
+
+  const latencies = [];
+  const end = Date.now() + duration * 1000;
+  const started = Date.now();
+  await Promise.all(
+    Array.from({ length: connections }, () => (async () => {
+      while (Date.now() < end) {
+        const l = await once(port, '/hello?name=world', agents);
+        if (l >= 0) latencies.push(l);
+      }
+    })()),
+  );
+  const elapsed = (Date.now() - started) / 1000;
+  for (const a of agents) a.destroy();
+  return summarize(latencies, elapsed);
+}
+
+function summarize(latencies, elapsedSec) {
+  const sorted = [...latencies].sort((a, b) => a - b);
+  const q = (p) => (sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0);
+  const total = sorted.reduce((s, v) => s + v, 0);
+  return {
+    requests: sorted.length,
+    seconds: Number(elapsedSec.toFixed(2)),
+    rps: Number((sorted.length / elapsedSec).toFixed(1)),
