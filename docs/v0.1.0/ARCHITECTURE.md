@@ -111,3 +111,30 @@ main.ts
        └─ createServer(...).listen()
 
   SIGTERM → beforeApplicationShutdown → onModuleDestroy → onApplicationShutdown
+            （HTTP 层先停止监听，再等待在途请求排空，最多 5s）
+```
+
+---
+
+## 5. 关键设计决策（ADR 摘要）
+
+| 决策 | 选择 | 理由 |
+| --- | --- | --- |
+| 注入元数据 | `emitDecoratorMetadata` + `reflect-metadata` | 与 NestJS 生态一致，DX 最好 |
+| 测试转译器 | **swc**（不是 esbuild） | esbuild 不支持 `emitDecoratorMetadata`，构造函数按类型注入会失效 |
+| 示例运行方式 | `tsc` 编译后 `node dist/main.js` | 同样因为装饰器元数据；`tsx`/esbuild 不可用 |
+| HTTP 适配器绑定 | 平台包提供 `createHttpApplication()` | 内核保持纯净，避免 core ↔ http 循环依赖 |
+| 构建顺序 | 自研拓扑排序脚本逐个 `tsc -p` | dev（指向 src）与 build（指向 dist）需要两套解析规则，项目引用反而更绕 |
+| 可见性 | 模块 exports 白名单 + 全局模块 | 与 NestJS 语义一致，报错信息可直接定位缺失的 import |
+
+完整决策记录见 `../../ai-doc/03-architecture/ADR-0001-ioc-and-toolchain.md`。
+
+---
+
+## 6. 已知限制（下一版解决）
+
+1. 路由是 `switch` 手写 —— v0.2.0 引入 Radix 树 + 装饰器路由
+2. 没有参数绑定与校验 —— v0.2.0 引入 DTO + 校验管道
+3. 没有异常过滤器 —— v0.2.0 引入 `@Catch()` 与统一错误码
+4. REQUEST 作用域预留但未启用 —— v0.3.0 引入 `AsyncLocalStorage` 请求上下文后启用
+5. 配置不支持热更新 —— v0.3.0 引入 watch
