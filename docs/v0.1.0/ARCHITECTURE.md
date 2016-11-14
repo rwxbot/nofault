@@ -26,3 +26,32 @@ v0.1.0 只回答一个问题：**如何让"声明式的类"被框架托管起来
 ![nofault v0.1.0 架构图](./ARCHITECTURE.svg)
 
 Mermaid 版（便于在支持 Mermaid 的阅读器里查看）：
+
+```mermaid
+graph TD
+    subgraph APP["应用层 · 用户代码"]
+        A1[AppModule]
+        A2[GreeterService]
+        A3[config/app.yaml]
+        A4[router.ts 手写路由]
+    end
+
+    subgraph BOOT["引导层"]
+        B1[NofaultFactory.create]
+        B2[NofaultApplication.init / listen]
+        B3[enableShutdownHooks]
+    end
+
+    subgraph CORE["@nofault/core 内核"]
+        C1[ModuleScanner<br/>DFS 遍历模块图]
+        C2[NofaultContainer<br/>注册表]
+        C3[Injector<br/>构造/属性注入]
+        C4[InstanceWrapper<br/>作用域与缓存]
+        C5[ModuleRef<br/>可见性]
+        C6[生命周期编排]
+        C1 --> C2 --> C3 --> C4
+        C2 --- C5
+        C4 --- C6
+    end
+
+    subgraph PLAT["平台与配套"]
