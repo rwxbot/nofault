@@ -55,3 +55,31 @@ graph TD
     end
 
     subgraph PLAT["平台与配套"]
+        P1["@nofault/config"]
+        P2["@nofault/logger"]
+        P3["@nofault/http<br/>NodeHttpAdapter"]
+    end
+
+    subgraph RT["运行时"]
+        R1[node:http]
+        R2[reflect-metadata]
+        R3[SIGTERM/SIGINT]
+    end
+
+    A1 --> B1
+    A2 --> B1
+    B1 --> B2 --> B3
+    B2 --> C1
+    B2 --> P3
+    C3 -.依赖注入.-> A2
+    P1 -.提供配置.-> A2
+    P3 --> R1
+    C1 --> R2
+    B3 --> R3
+```
+
+---
+
+## 3. 模块职责
+
+| 包 | 职责 | 关键类型 |
