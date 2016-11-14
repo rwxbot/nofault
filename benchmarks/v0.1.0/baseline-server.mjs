@@ -15,3 +15,9 @@ const server = createServer((req, res) => {
       message: name ? `Hello from nofault, ${name}!` : 'Hello from nofault!',
       app: 'hello-kernel',
     });
+    res.writeHead(200, { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) });
+    res.end(body);
+    return;
+  }
+  res.writeHead(404).end('404');
+});
