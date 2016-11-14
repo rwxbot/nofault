@@ -158,3 +158,41 @@ async function main() {
 
     console.table({
       'raw node:http (baseline)': {
+        rps: base.rps,
+        mean: base.meanMs,
+        p50: base.p50Ms,
+        p95: base.p95Ms,
+        p99: base.p99Ms,
+        max: base.maxMs,
+      },
+      'nofault v0.1.0': {
+        rps: nf.rps,
+        mean: nf.meanMs,
+        p50: nf.p50Ms,
+        p95: nf.p95Ms,
+        p99: nf.p99Ms,
+        max: nf.maxMs,
+      },
+    });
+    console.log(`[bench] throughput gap vs baseline: ${gap}% (正数表示 nofault 更慢)`);
+    console.log(`[bench] rps baseline rounds: [${baseRuns.map((r) => r.rps).join(', ')}]`);
+    console.log(`[bench] rps nofault  rounds: [${nfRuns.map((r) => r.rps).join(', ')}]`);
+
+    if (opts.report) {
+      writeFileSync(
+        join(here, 'results.json'),
+        JSON.stringify(
+          { opts, baseline: base, nofault: nf, rounds: { baseline: baseRuns, nofault: nfRuns }, gapPercent: Number(gap) },
+          null,
+          2,
+        ),
+      );
+      console.log('[bench] wrote results.json');
+    }
+  } finally {
+    nofault.child.kill('SIGTERM');
+    baseline.child.kill('SIGTERM');
+  }
+}
+
+await main();
