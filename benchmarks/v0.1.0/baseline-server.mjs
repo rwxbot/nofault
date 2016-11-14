@@ -21,3 +21,7 @@ const server = createServer((req, res) => {
   }
   res.writeHead(404).end('404');
 });
+
+server.listen(0, '127.0.0.1', () => {
+  process.stdout.write(JSON.stringify({ port: server.address().port }) + '\n');
+});
