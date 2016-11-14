@@ -51,3 +51,15 @@
 2. p99 与 max 略有差异（4.484 vs 4.542 / 7.765 vs 6.375），主要来自 GC 与进程调度噪声，
    非框架路径引入。
 3. 本版**未**引入路由树、中间件、校验等请求路径开销；
+   v0.2.0 之后每一版都需要重新测量，观察这些能力各自的边际成本。
+
+## 复现
+
+```bash
+cd nofault-all/nofault
+pnpm build
+cd examples/v0.1.0-hello-kernel && npx tsc -p tsconfig.json && cd -
+node scripts/run-bench.mjs v0.1.0 --duration=10 --connections=64 --rounds=5 --report
+```
+
+原始数据在 `results.json`。
