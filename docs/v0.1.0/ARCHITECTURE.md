@@ -83,3 +83,31 @@ graph TD
 ## 3. 模块职责
 
 | 包 | 职责 | 关键类型 |
+| --- | --- | --- |
+| `@nofault/core` | IoC 容器、模块扫描、生命周期 | `NofaultFactory`、`NofaultApplication`、`NofaultContainer`、`Injector`、`InstanceWrapper`、`ModuleRef` |
+| `@nofault/config` | 配置加载与环境覆盖 | `ConfigModule`、`ConfigService`、`loadConfigFile`、`applyEnvOverrides` |
+| `@nofault/logger` | 结构化日志 | `Logger`、`ConsoleTransport`、`MemoryTransport` |
+| `@nofault/http` | `node:http` 适配器 | `NodeHttpAdapter`、`createHttpApplication`、`sendJson` |
+
+---
+
+## 4. 启动时序
+
+```
+main.ts
+  └─ createHttpApplication(AppModule)
+       ├─ new NodeHttpAdapter()
+       └─ NofaultFactory.create()
+            ├─ ModuleScanner.scan(AppModule)       // DFS 注册模块图
+            ├─ Container.createProviders()         // Provider → InstanceWrapper（惰性）
+            ├─ 逐个 wrapper.resolve()              // 真正实例化（TRANSIENT 跳过）
+            ├─ Container.lock()
+            ├─ onModuleInit()
+            └─ onApplicationBootstrap()
+
+  app.use(router)      // 挂载 handler 链
+  app.listen(port)
+       ├─ adapter.useHandler(chain)
+       └─ createServer(...).listen()
+
+  SIGTERM → beforeApplicationShutdown → onModuleDestroy → onApplicationShutdown
