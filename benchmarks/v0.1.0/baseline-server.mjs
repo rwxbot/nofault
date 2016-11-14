@@ -10,3 +10,8 @@ import { createServer } from 'node:http';
 const server = createServer((req, res) => {
   const url = new URL(req.url ?? '/', 'http://127.0.0.1');
   if (url.pathname === '/hello') {
+    const name = url.searchParams.get('name');
+    const body = JSON.stringify({
+      message: name ? `Hello from nofault, ${name}!` : 'Hello from nofault!',
+      app: 'hello-kernel',
+    });
