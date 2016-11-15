@@ -105,3 +105,38 @@ export class Demo {
 ```
 
 ## 7. 全局模块
+
+```ts
+@Global()
+@Module({ providers: [MetricsService], exports: [MetricsService] })
+export class MetricsModule {}
+```
+
+注册一次后，任何模块都能注入 `MetricsService`，无需重复 import。
+
+## 8. 配置读取
+
+```ts
+const port = config.get<number>('server.port');           // number | undefined
+const host = config.get<string>('server.host', '0.0.0.0'); // string（有默认值）
+const dsn  = config.getOrThrow<string>('db.dsn');          // 缺失即抛 ConfigError
+```
+
+环境变量覆盖规则：`NOFAULT_SERVER__PORT=8080` → `server.port = 8080`
+（双下划线表示层级，单下划线表示键内下划线）。
+
+## 9. 日志
+
+```ts
+import { createLogger, LogLevel, MemoryTransport } from '@nofault/logger';
+
+const log = createLogger({ level: LogLevel.INFO, context: 'order' });
+log.info('created', { orderId: 1 });      // 结构化字段
+log.error('failed', { orderId: 1 }, err); // 自动序列化错误堆栈
+const child = log.child('payment');       // context 变成 order:payment
+```
+
+测试里用 `MemoryTransport` 收集记录做断言：
+
+```ts
+const t = new MemoryTransport();
