@@ -79,3 +79,22 @@ pnpm bench v0.1.0 --duration=10 --connections=64 --warmup=2 --rounds=3 --report
 - `--report` 会把结果写入 `benchmarks/v0.1.0/results.json`
 
 ## Lint / 格式化
+
+```bash
+pnpm lint
+pnpm lint:fix
+pnpm format
+```
+
+## 目录导航
+
+```
+packages/core       内核：IoC / 模块 / 生命周期
+packages/config     配置
+packages/logger     日志
+packages/http       node:http 适配器
+examples/v0.1.0-hello-kernel   可运行示例
+tests/integration/v0.1.0       集成测试
+benchmarks/v0.1.0              压测与报告
+docs/v0.1.0                    文档
+```
