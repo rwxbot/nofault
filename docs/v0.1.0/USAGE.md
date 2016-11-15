@@ -34,3 +34,38 @@ import { ConfigModule } from '@nofault/config';
 @Module({
   imports: [ConfigModule.forRoot({ path: './config/app.yaml' })],
   providers: [GreeterService],
+  exports: [GreeterService],
+})
+export class AppModule {}
+```
+
+`ConfigModule.forRoot()` 默认注册为**全局模块**，所以任何模块的服务都能直接注入 `ConfigService`。
+
+## 3. 启动应用
+
+```ts
+import 'reflect-metadata';                       // 必须最先 import
+import { createHttpApplication } from '@nofault/http';
+import { AppModule } from './app.module';
+import { GreeterService } from './greeter.service';
+
+const app = await createHttpApplication(AppModule, { name: 'demo' });
+const greeter = await app.get(GreeterService);
+
+app.use((req, res) => {
+  res.statusCode = 200;
+  res.end(greeter.greet('world'));
+  return true;      // 返回 true = 请求已处理，终止 handler 链
+});
+
+app.enableShutdownHooks();     // SIGTERM / SIGINT 优雅退出
+await app.listen(3000);
+```
+
+## 4. Provider 的五种写法
+
+```ts
+@Module({
+  providers: [
+    UserService,                                        // ① 类简写
+    { provide: 'API_URL', useValue: 'https://x.dev' },   // ② 值
