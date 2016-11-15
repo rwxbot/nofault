@@ -46,3 +46,18 @@
 - pnpm workspace monorepo + 拓扑排序构建脚本
 - Vitest + **swc** 转译（esbuild 不支持 `emitDecoratorMetadata`）
 - ESLint 9 flat config + Prettier
+- `scripts/run-example.mjs`、`scripts/run-bench.mjs`
+
+## 测试
+- 单元测试 30 项：容器 10、生命周期 3、配置 9、日志 8
+- 集成测试 6 项：真实起服务 + 真实发请求
+
+## 性能
+- 相比原生 `node:http` **开销约 0.6%**（在噪声范围内），详见 `benchmarks/v0.1.0/REPORT.md`
+
+## 已知限制
+- 路由为手写 `switch`（v0.2.0 解决）
+- 无参数绑定与校验（v0.2.0）
+- 无异常过滤器（v0.2.0）
+- REQUEST 作用域预留未启用（v0.3.0）
+- 配置不支持热更新（v0.3.0）
