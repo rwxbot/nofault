@@ -24,3 +24,28 @@
   <rect x="328" y="132" width="248" height="50" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
   <text x="452" y="154" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">GreeterService</text>
   <text x="452" y="171" font-size="11" fill="#64748b" text-anchor="middle">@Injectable() + 生命周期钩子</text>
+
+  <rect x="592" y="132" width="216" height="50" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="700" y="154" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">config/app.yaml</text>
+  <text x="700" y="171" font-size="11" fill="#64748b" text-anchor="middle">YAML / JSON / .env</text>
+
+  <rect x="824" y="132" width="312" height="50" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="980" y="154" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">router.ts</text>
+  <text x="980" y="171" font-size="11" fill="#64748b" text-anchor="middle">手写路由（v0.2.0 交给 @nofault/rest）</text>
+
+  <!-- 引导层 -->
+  <rect x="40" y="228" width="1120" height="88" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="56" y="250" font-size="12" font-weight="600" fill="#1d4ed8">引导层 · createHttpApplication()</text>
+  <rect x="64" y="262" width="330" height="40" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="229" y="287" font-size="12.5" fill="#0f172a" text-anchor="middle">NofaultFactory.create(AppModule)</text>
+  <rect x="410" y="262" width="330" height="40" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="575" y="287" font-size="12.5" fill="#0f172a" text-anchor="middle">NofaultApplication.init() → listen()</text>
+  <rect x="756" y="262" width="380" height="40" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="946" y="287" font-size="12.5" fill="#0f172a" text-anchor="middle">enableShutdownHooks() 优雅退出编排</text>
+
+  <!-- 内核 -->
+  <rect x="40" y="344" width="640" height="292" rx="10" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1.5"/>
+  <text x="56" y="366" font-size="12" font-weight="600" fill="#0f766e">内核 · @nofault/core（零框架依赖，只依赖 reflect-metadata）</text>
+
+  <rect x="64" y="382" width="180" height="54" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="154" y="404" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">ModuleScanner</text>
