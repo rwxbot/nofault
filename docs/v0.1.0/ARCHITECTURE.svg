@@ -49,3 +49,28 @@
 
   <rect x="64" y="382" width="180" height="54" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
   <text x="154" y="404" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">ModuleScanner</text>
+  <text x="154" y="422" font-size="11" fill="#64748b" text-anchor="middle">DFS 遍历模块图</text>
+
+  <rect x="264" y="382" width="180" height="54" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="354" y="404" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">NofaultContainer</text>
+  <text x="354" y="422" font-size="11" fill="#64748b" text-anchor="middle">模块/Provider 注册表</text>
+
+  <rect x="464" y="382" width="196" height="54" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="562" y="404" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">Injector</text>
+  <text x="562" y="422" font-size="11" fill="#64748b" text-anchor="middle">构造/属性注入 · 依赖解析</text>
+
+  <rect x="64" y="452" width="596" height="54" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="362" y="474" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">InstanceWrapper</text>
+  <text x="362" y="492" font-size="11" fill="#64748b" text-anchor="middle">作用域 SINGLETON / TRANSIENT / REQUEST · 单例缓存 · 循环依赖检测</text>
+
+  <rect x="64" y="522" width="290" height="54" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="209" y="544" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">ModuleRef</text>
+  <text x="209" y="562" font-size="11" fill="#64748b" text-anchor="middle">providers / imports / exports 可见性</text>
+
+  <rect x="370" y="522" width="290" height="54" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="515" y="544" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">生命周期编排</text>
+  <text x="515" y="562" font-size="11" fill="#64748b" text-anchor="middle">init → bootstrap → shutdown 有序调用</text>
+
+  <text x="64" y="608" font-size="11.5" fill="#0f766e">可见性规则：本模块 → 导入模块的 exports → 全局模块 → 抛 UnknownDependencyError</text>
+
+  <!-- 平台与配套 -->
