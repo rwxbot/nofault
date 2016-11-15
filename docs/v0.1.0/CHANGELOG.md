@@ -30,3 +30,19 @@
 - `snapshot()` 返回深拷贝，防止误改
 
 ### @nofault/logger
+- 六个级别：trace / debug / info / warn / error / fatal
+- 结构化字段（message 给人读，fields 给机器读）
+- `ConsoleTransport`（error/fatal 自动走 stderr）、`MemoryTransport`（测试）
+- JSON / Pretty（带颜色）两种格式
+- `child()` 派生子日志器
+
+### @nofault/http
+- `NodeHttpAdapter`：基于 `node:http`，零第三方依赖
+- 优雅关闭：先停止监听，再等待在途请求排空（上限 5s）
+- `createHttpApplication()`：带适配器的应用工厂
+- `sendJson` / `sendText` / `redirect` / `readJsonBody`（1MB 上限）
+
+### 工程化
+- pnpm workspace monorepo + 拓扑排序构建脚本
+- Vitest + **swc** 转译（esbuild 不支持 `emitDecoratorMetadata`）
+- ESLint 9 flat config + Prettier
