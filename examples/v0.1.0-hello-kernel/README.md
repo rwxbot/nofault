@@ -24,3 +24,15 @@ curl "http://127.0.0.1:3000/hello?name=world"
 
 curl http://127.0.0.1:3000/health
 # {"status":"ok","app":"hello-kernel","uptime":12}
+
+curl -i http://127.0.0.1:3000/nope
+# HTTP/1.1 404 Not Found
+```
+
+环境变量覆盖配置（12-factor）：
+
+```bash
+NOFAULT_APP__GREETING="Hi there" pnpm example v0.1.0-hello-kernel
+curl http://127.0.0.1:3000/hello
+# {"message":"Hi there!","app":"hello-kernel"}
+```
