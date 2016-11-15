@@ -58,3 +58,24 @@ curl -i http://127.0.0.1:3000/nope
 ```
 
 环境变量覆盖配置（12-factor）：
+
+```bash
+NOFAULT_APP__GREETING="Hi there" pnpm example v0.1.0-hello-kernel
+# curl /hello → {"message":"Hi there!","app":"hello-kernel"}
+```
+
+停止：`Ctrl-C`（会走优雅退出，先停止监听再排在途请求）。
+
+## 跑基准测试
+
+```bash
+pnpm bench v0.1.0
+# 自定义参数
+pnpm bench v0.1.0 --duration=10 --connections=64 --warmup=2 --rounds=3 --report
+```
+
+- 被测服务与压测器**分进程**运行，避免互相抢 CPU 导致数据失真
+- 多轮交替测量，取 RPS 中位数轮次
+- `--report` 会把结果写入 `benchmarks/v0.1.0/results.json`
+
+## Lint / 格式化
