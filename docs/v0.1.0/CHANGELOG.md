@@ -14,3 +14,19 @@
 - **模块系统**
   - `@Module()`、`@Global()`、动态模块（`forRoot()` 模式）
   - `ModuleScanner`：DFS 遍历模块图，支持同步与异步动态模块
+- **生命周期**
+  - `onModuleInit` → `onApplicationBootstrap` → `beforeApplicationShutdown` → `onModuleDestroy` → `onApplicationShutdown`
+  - `enableShutdownHooks()` 接管 SIGTERM / SIGINT
+  - `close()` 幂等，重复调用只执行一次
+- **启动器**
+  - `NofaultFactory.create()` / `NofaultFactory.createApplicationContext()`
+  - `NofaultApplication.listen()` / `close()` / `use()` / `getHttpServer()`
+
+### @nofault/config
+- `ConfigModule.forRoot()`（默认全局）+ `ConfigService`
+- 支持 YAML / JSON / `.env`，无扩展名时按内容嗅探
+- 环境变量覆盖：`NOFAULT_SERVER__PORT=8080` → `server.port`
+- `registerAs()` 命名空间配置
+- `snapshot()` 返回深拷贝，防止误改
+
+### @nofault/logger
