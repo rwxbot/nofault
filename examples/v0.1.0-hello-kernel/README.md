@@ -11,3 +11,16 @@ pnpm example v0.1.0-hello-kernel
 
 # 或指定端口
 pnpm example v0.1.0-hello-kernel PORT=3111
+```
+
+## 试一试
+
+```bash
+curl http://127.0.0.1:3000/
+# nofault v0.1.0 hello-kernel. Try GET /hello?name=world or GET /health
+
+curl "http://127.0.0.1:3000/hello?name=world"
+# {"message":"Hello from nofault, world!","app":"hello-kernel"}
+
+curl http://127.0.0.1:3000/health
+# {"status":"ok","app":"hello-kernel","uptime":12}
