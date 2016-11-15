@@ -74,3 +74,27 @@
   <text x="64" y="608" font-size="11.5" fill="#0f766e">可见性规则：本模块 → 导入模块的 exports → 全局模块 → 抛 UnknownDependencyError</text>
 
   <!-- 平台与配套 -->
+  <rect x="700" y="344" width="460" height="292" rx="10" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text x="716" y="366" font-size="12" font-weight="600" fill="#a16207">平台与配套包</text>
+
+  <rect x="724" y="382" width="412" height="60" rx="8" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="930" y="406" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">@nofault/config</text>
+  <text x="930" y="425" font-size="11" fill="#64748b" text-anchor="middle">ConfigModule.forRoot() · ConfigService.get('a.b') · 环境变量覆盖</text>
+
+  <rect x="724" y="456" width="412" height="60" rx="8" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="930" y="480" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">@nofault/logger</text>
+  <text x="930" y="499" font-size="11" fill="#64748b" text-anchor="middle">分级 · 结构化字段 · JSON/Pretty · 可插拔 Transport</text>
+
+  <rect x="724" y="530" width="412" height="60" rx="8" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="930" y="554" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">@nofault/http</text>
+  <text x="930" y="573" font-size="11" fill="#64748b" text-anchor="middle">NodeHttpAdapter · 在途请求排空 · sendJson / sendText</text>
+
+  <!-- 运行时 -->
+  <rect x="40" y="664" width="1120" height="80" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="56" y="686" font-size="12" font-weight="600" fill="#334155">运行时 · Node.js ≥ 20</text>
+  <rect x="64" y="698" width="330" height="34" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="229" y="720" font-size="12.5" fill="#0f172a" text-anchor="middle">node:http createServer</text>
+  <rect x="410" y="698" width="330" height="34" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="575" y="720" font-size="12.5" fill="#0f172a" text-anchor="middle">reflect-metadata（design:paramtypes）</text>
+  <rect x="756" y="698" width="380" height="34" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="946" y="720" font-size="12.5" fill="#0f172a" text-anchor="middle">SIGTERM / SIGINT 信号处理</text>
