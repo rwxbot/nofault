@@ -19,3 +19,22 @@ pnpm build
 # 等价：node scripts/build-packages.mjs
 # 会按依赖拓扑顺序构建：core → config → http → logger
 ```
+
+## 跑测试
+
+```bash
+pnpm test          # 全部测试（36 项，含集成测试）
+pnpm test:cov      # 带覆盖率
+pnpm vitest run packages/core/test/container.test.ts   # 只跑某个文件
+```
+
+> 测试用 **swc** 转译（不是 esbuild）——因为 esbuild 不支持 `emitDecoratorMetadata`，
+> 而 nofault 的构造函数按类型注入依赖 `design:paramtypes`。详见 `vitest.config.ts`。
+
+## 跑示例
+
+```bash
+pnpm example v0.1.0-hello-kernel
+# 自定义端口
+pnpm example v0.1.0-hello-kernel PORT=3111
+```
