@@ -50,3 +50,14 @@ curl http://127.0.0.1:3000/hello
 ## 这个示例证明了什么
 
 1. **构造函数按类型注入**生效 —— `GreeterService` 没写 `@Inject`，靠 `design:paramtypes` 拿到 `ConfigService`
+2. **全局模块**生效 —— 没在 `AppModule.providers` 里声明 `ConfigService`，照样能注入
+3. **生命周期**生效 —— 启动时打印 `greeter ready`，退出时打印 `greeter destroyed`
+4. **优雅退出**生效 —— Ctrl-C 后先停止监听、排在途请求，再销毁 Provider
+
+## 测试
+
+集成测试在 `tests/integration/v0.1.0/hello-kernel.test.ts`，会真实起服务并发请求：
+
+```bash
+pnpm vitest run tests/integration/v0.1.0
+```
