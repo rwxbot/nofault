@@ -38,3 +38,23 @@ pnpm example v0.1.0-hello-kernel
 # 自定义端口
 pnpm example v0.1.0-hello-kernel PORT=3111
 ```
+
+脚本会依次执行：构建 workspace 包 → `tsc` 编译示例 → `node dist/main.js`。
+
+服务起来后：
+
+```bash
+curl http://127.0.0.1:3000/
+# nofault v0.1.0 hello-kernel. Try GET /hello?name=world or GET /health
+
+curl "http://127.0.0.1:3000/hello?name=world"
+# {"message":"Hello from nofault, world!","app":"hello-kernel"}
+
+curl http://127.0.0.1:3000/health
+# {"status":"ok","app":"hello-kernel","uptime":3}
+
+curl -i http://127.0.0.1:3000/nope
+# HTTP/1.1 404 Not Found
+```
+
+环境变量覆盖配置（12-factor）：
