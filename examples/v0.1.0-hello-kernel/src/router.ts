@@ -13,3 +13,10 @@ export function createRouter(greeter: GreeterService): HttpHandler {
   return (req: IncomingMessage, res: ServerResponse) => {
     const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
     const path = url.pathname;
+
+    if (req.method === 'GET' && path === '/') {
+      sendText(res, 200, 'nofault v0.1.0 hello-kernel. Try GET /hello?name=world or GET /health\n');
+      return true;
+    }
+
+    if (req.method === 'GET' && path === '/health') {
