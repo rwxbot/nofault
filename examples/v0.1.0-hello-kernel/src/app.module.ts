@@ -16,3 +16,6 @@ import { GreeterService } from './greeter.service';
     }),
   ],
   providers: [GreeterService],
+  exports: [GreeterService],
+})
+export class AppModule {}
