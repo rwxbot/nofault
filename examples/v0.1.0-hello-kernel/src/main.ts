@@ -9,3 +9,9 @@ const logger = createLogger({ context: 'bootstrap' });
 
 async function bootstrap(): Promise<void> {
   const app = await createHttpApplication(AppModule, { name: 'hello-kernel' });
+  const greeter = await app.get(GreeterService);
+
+  app.use(createRouter(greeter));
+  app.enableShutdownHooks();
+
+  const port = Number(process.env.PORT ?? 3000);
