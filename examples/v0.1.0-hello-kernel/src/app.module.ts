@@ -12,3 +12,7 @@ import { GreeterService } from './greeter.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      path: process.env.NOFAULT_CONFIG_PATH ?? resolve(__dirname, '../config/app.yaml'),
+    }),
+  ],
+  providers: [GreeterService],
