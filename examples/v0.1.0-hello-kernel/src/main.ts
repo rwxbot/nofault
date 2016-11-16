@@ -19,3 +19,8 @@ async function bootstrap(): Promise<void> {
 
   logger.info('server started', { port: actualPort, pid: process.pid });
 }
+
+void bootstrap().catch((err: unknown) => {
+  logger.error('bootstrap failed', undefined, err);
+  process.exit(1);
+});
