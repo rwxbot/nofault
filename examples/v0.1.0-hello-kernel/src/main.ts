@@ -15,3 +15,7 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 3000);
+  const { port: actualPort } = await app.listen(port);
+
+  logger.info('server started', { port: actualPort, pid: process.pid });
+}
