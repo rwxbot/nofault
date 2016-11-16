@@ -3,3 +3,5 @@ app:
   name: hello-kernel
   greeting: Hello from nofault
 server:
+  port: 3000
+  host: 0.0.0.0
