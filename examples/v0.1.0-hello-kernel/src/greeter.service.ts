@@ -28,3 +28,12 @@ export class GreeterService implements OnApplicationBootstrap, OnModuleDestroy {
   onModuleDestroy(): void {
     this.logger.info('greeter destroyed');
   }
+
+  greet(name?: string): string {
+    return name ? `${this.greeting}, ${name}!` : `${this.greeting}!`;
+  }
+
+  getAppName(): string {
+    return this.appName;
+  }
+}
