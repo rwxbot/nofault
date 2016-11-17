@@ -160,3 +160,56 @@ describe('@nofault/core IoC container', () => {
 
     @Injectable()
     class NeedsMissing {
+      constructor(readonly m: Missing) {}
+    }
+
+    @Module({ providers: [NeedsMissing] })
+    class AppModule {}
+
+    await expect(
+      NofaultFactory.createApplicationContext(AppModule, { quiet: true }),
+    ).rejects.toThrow(UnknownDependencyError);
+  });
+
+  it('detects circular dependencies instead of hanging or stack-overflowing', async () => {
+    @Injectable()
+    class NodeA {
+      constructor(@Inject('CB') readonly b: unknown) {}
+    }
+
+    @Injectable()
+    class NodeB {
+      constructor(@Inject('CA') readonly a: unknown) {}
+    }
+
+    @Module({
+      providers: [
+        { provide: 'CA', useClass: NodeA },
+        { provide: 'CB', useClass: NodeB },
+      ],
+    })
+    class AppModule {}
+
+    await expect(
+      NofaultFactory.createApplicationContext(AppModule, { quiet: true }),
+    ).rejects.toThrow(CircularDependencyError);
+  });
+
+  it('supports property injection', async () => {
+    @Injectable()
+    class Dep2 {
+      readonly id = 'dep2';
+    }
+
+    @Injectable()
+    class Holder {
+      @Inject(Dep2) readonly dep!: Dep2;
+    }
+
+    @Module({ providers: [Dep2, Holder] })
+    class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+    expect((await app.get(Holder)).dep.id).toBe('dep2');
+  });
+});
