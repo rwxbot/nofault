@@ -27,3 +27,9 @@ export function createRouter(greeter: GreeterService): HttpHandler {
     if (req.method === 'GET' && path === '/hello') {
       const name = url.searchParams.get('name') ?? undefined;
       sendJson(res, 200, { message: greeter.greet(name), app: greeter.getAppName() });
+      return true;
+    }
+
+    return false;
+  };
+}
