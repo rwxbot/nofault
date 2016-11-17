@@ -56,3 +56,22 @@ describe('application lifecycle hooks', () => {
       'onApplicationShutdown:SIGTERM',
     ]);
   });
+
+  it('closes only once even if called repeatedly', async () => {
+    let destroyCount = 0;
+
+    @Injectable()
+    class Service implements OnModuleDestroy {
+      onModuleDestroy() {
+        destroyCount++;
+      }
+    }
+
+    @Module({ providers: [Service] })
+    class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+    await app.close();
+    await app.close();
+    expect(destroyCount).toBe(1);
+  });
