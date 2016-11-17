@@ -20,3 +20,10 @@ export function createRouter(greeter: GreeterService): HttpHandler {
     }
 
     if (req.method === 'GET' && path === '/health') {
+      sendJson(res, 200, { status: 'ok', app: greeter.getAppName(), uptime: Math.round(process.uptime()) });
+      return true;
+    }
+
+    if (req.method === 'GET' && path === '/hello') {
+      const name = url.searchParams.get('name') ?? undefined;
+      sendJson(res, 200, { message: greeter.greet(name), app: greeter.getAppName() });
