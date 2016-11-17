@@ -37,3 +37,22 @@ describe('application lifecycle hooks', () => {
         calls.push('onModuleDestroy');
       }
       onApplicationShutdown(signal?: string) {
+        calls.push(`onApplicationShutdown:${signal ?? 'none'}`);
+      }
+    }
+
+    @Module({ providers: [Service] })
+    class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+    expect(calls).toEqual(['onModuleInit', 'onApplicationBootstrap']);
+
+    await app.close('SIGTERM');
+    expect(calls).toEqual([
+      'onModuleInit',
+      'onApplicationBootstrap',
+      'beforeApplicationShutdown:SIGTERM',
+      'onModuleDestroy',
+      'onApplicationShutdown:SIGTERM',
+    ]);
+  });
