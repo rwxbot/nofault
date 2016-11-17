@@ -18,3 +18,22 @@ describe('application lifecycle hooks', () => {
     @Injectable()
     class Service
       implements
+        OnModuleInit,
+        OnApplicationBootstrap,
+        OnModuleDestroy,
+        BeforeApplicationShutdown,
+        OnApplicationShutdown
+    {
+      onModuleInit() {
+        calls.push('onModuleInit');
+      }
+      onApplicationBootstrap() {
+        calls.push('onApplicationBootstrap');
+      }
+      beforeApplicationShutdown(signal?: string) {
+        calls.push(`beforeApplicationShutdown:${signal ?? 'none'}`);
+      }
+      onModuleDestroy() {
+        calls.push('onModuleDestroy');
+      }
+      onApplicationShutdown(signal?: string) {
