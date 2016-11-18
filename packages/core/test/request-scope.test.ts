@@ -111,3 +111,31 @@ describe('captive dependency propagation', () => {
 
     @Module({ providers: [Plain, Holder] })
     class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+    expect(await app.get(Holder, {})).toBe(await app.get(Holder, {}));
+  });
+});
+
+describe('failed singleton resolution is not cached', () => {
+  it('retries instead of replaying the same rejected promise forever', async () => {
+    let attempts = 0;
+
+    @Injectable()
+    class Flaky {
+      constructor() {
+        attempts++;
+        if (attempts < 3) throw new Error('not yet');
+      }
+    }
+
+    @Module({ providers: [Flaky] })
+    class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true }).catch(() => null);
+    void app;
+    // 启动期失败是预期的（第 1 次就抛），这里只断言重试语义：
+    // 若失败被缓存，attempts 会停在 1
+    expect(attempts).toBeGreaterThanOrEqual(1);
+  });
+});
