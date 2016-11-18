@@ -75,3 +75,22 @@ describe('application lifecycle hooks', () => {
     await app.close();
     expect(destroyCount).toBe(1);
   });
+
+  it('supports async hooks', async () => {
+    const order: string[] = [];
+
+    @Injectable()
+    class AsyncService implements OnModuleInit {
+      async onModuleInit() {
+        await new Promise((r) => setTimeout(r, 5));
+        order.push('async-init');
+      }
+    }
+
+    @Module({ providers: [AsyncService] })
+    class AppModule {}
+
+    await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+    expect(order).toEqual(['async-init']);
+  });
+});
