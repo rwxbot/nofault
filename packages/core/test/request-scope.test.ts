@@ -27,3 +27,31 @@ describe('REQUEST scope', () => {
 
     const a1 = await app.get(PerRequest, ctxA);
     const a2 = await app.get(PerRequest, ctxA);
+    const b1 = await app.get(PerRequest, ctxB);
+
+    expect(a1).toBe(a2);
+    expect(a1).not.toBe(b1);
+  });
+
+  it('releases per-context instances on clearRequestContext', async () => {
+    @Injectable({ scope: Scope.REQUEST })
+    class PerRequest {}
+
+    @Module({ providers: [PerRequest] })
+    class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+    const ctx = {};
+    await app.get(PerRequest, ctx);
+    expect(app.clearRequestContext(ctx)).toBe(1);
+    // 清理后再取会得到全新实例
+    expect(app.clearRequestContext(ctx)).toBe(0);
+  });
+});
+
+describe('captive dependency propagation', () => {
+  it('does not let a singleton capture a request-scoped instance', async () => {
+    @Injectable({ scope: Scope.REQUEST })
+    class PerRequest {
+      readonly tag = Math.random();
+    }
