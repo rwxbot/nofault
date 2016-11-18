@@ -25,3 +25,17 @@ describe('v0.1.0 hello-kernel (integration)', () => {
 
   afterAll(async () => {
     await app.close();
+  });
+
+  it('GET / returns the welcome text', async () => {
+    const res = await fetch(`${baseUrl}/`);
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain('nofault v0.1.0');
+  });
+
+  it('GET /health returns ok with the app name from config', async () => {
+    const res = await fetch(`${baseUrl}/health`);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { status: string; app: string };
+    expect(body.status).toBe('ok');
+    expect(body.app).toBe('hello-kernel');
