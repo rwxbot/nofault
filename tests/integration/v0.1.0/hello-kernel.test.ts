@@ -39,3 +39,16 @@ describe('v0.1.0 hello-kernel (integration)', () => {
     const body = (await res.json()) as { status: string; app: string };
     expect(body.status).toBe('ok');
     expect(body.app).toBe('hello-kernel');
+  });
+
+  it('GET /hello?name= greets the caller using the configured greeting', async () => {
+    const res = await fetch(`${baseUrl}/hello?name=world`);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { message: string; app: string };
+    expect(body.message).toBe('Hello from nofault, world!');
+    expect(body.app).toBe('hello-kernel');
+  });
+
+  it('GET /hello without name falls back to a bare greeting', async () => {
+    const res = await fetch(`${baseUrl}/hello`);
+    const body = (await res.json()) as { message: string };
