@@ -55,3 +55,32 @@ describe('captive dependency propagation', () => {
     class PerRequest {
       readonly tag = Math.random();
     }
+
+    @Injectable()
+    class SingletonConsumer {
+      constructor(readonly dep: PerRequest) {}
+    }
+
+    @Module({ providers: [PerRequest, SingletonConsumer] })
+    class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+
+    const ctxA = {};
+    const ctxB = {};
+    const a = await app.get(SingletonConsumer, ctxA);
+    const b = await app.get(SingletonConsumer, ctxB);
+
+    // 单例被 REQUEST 污染后按上下文缓存，
+    // 否则所有请求会共用第一个请求的对象（跨请求数据串号）
+    expect(a).not.toBe(b);
+    expect(a.dep.tag).not.toBe(b.dep.tag);
+  });
+
+  it('propagates through several layers of dependencies', async () => {
+    @Injectable({ scope: Scope.REQUEST })
+    class Leaf {}
+
+    @Injectable()
+    class Middle {
+      constructor(readonly leaf: Leaf) {}
