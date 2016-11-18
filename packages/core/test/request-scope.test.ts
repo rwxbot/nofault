@@ -84,3 +84,30 @@ describe('captive dependency propagation', () => {
     @Injectable()
     class Middle {
       constructor(readonly leaf: Leaf) {}
+    }
+
+    @Injectable()
+    class Top {
+      constructor(readonly middle: Middle) {}
+    }
+
+    @Module({ providers: [Leaf, Middle, Top] })
+    class AppModule {}
+
+    const app = await NofaultFactory.createApplicationContext(AppModule, { quiet: true });
+    const t1 = await app.get(Top, {});
+    const t2 = await app.get(Top, {});
+    expect(t1).not.toBe(t2);
+    expect(t1.middle.leaf).not.toBe(t2.middle.leaf);
+  });
+
+  it('keeps plain singletons truly singleton', async () => {
+    @Injectable()
+    class Plain {}
+    @Injectable()
+    class Holder {
+      constructor(readonly plain: Plain) {}
+    }
+
+    @Module({ providers: [Plain, Holder] })
+    class AppModule {}
