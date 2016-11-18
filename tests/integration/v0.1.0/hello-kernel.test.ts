@@ -52,3 +52,15 @@ describe('v0.1.0 hello-kernel (integration)', () => {
   it('GET /hello without name falls back to a bare greeting', async () => {
     const res = await fetch(`${baseUrl}/hello`);
     const body = (await res.json()) as { message: string };
+    expect(body.message).toBe('Hello from nofault!');
+  });
+
+  it('unknown routes return 404', async () => {
+    const res = await fetch(`${baseUrl}/does-not-exist`);
+    expect(res.status).toBe(404);
+  });
+
+  it('closes gracefully and stops listening', async () => {
+    expect(app.isListening).toBe(true);
+  });
+});
