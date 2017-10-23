@@ -40,3 +40,16 @@ export function generateSpanId(): string {
 export function generateRequestId(): string {
   return `req_${randomHex(8)}`;
 }
+
+export interface RequestIds {
+  requestId: string;
+  traceId: string;
+  spanId: string;
+}
+
+/**
+ * 一次性生成请求所需的全部标识。
+ *
+ * 为什么不各自生成：`crypto.getRandomValues` 每次调用都有固定开销，
+ * 建一个请求上下文要 traceId + spanId + requestId 三个，
+ * 分三次调用会让"建立上下文"变成 ~16us —— 在热路径上这是可观的开销。
