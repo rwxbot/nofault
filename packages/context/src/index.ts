@@ -19,3 +19,10 @@ import { requestContextStore } from './store';
 export { RequestContextStore, requestContextStore } from './store';
 
 export {
+  generateTraceId,
+  generateSpanId,
+  generateRequestId,
+  generateRequestIds,
+  parseTraceparent,
+  formatTraceparent,
+} from './ids';
