@@ -53,3 +53,17 @@ export interface RequestIds {
  * 为什么不各自生成：`crypto.getRandomValues` 每次调用都有固定开销，
  * 建一个请求上下文要 traceId + spanId + requestId 三个，
  * 分三次调用会让"建立上下文"变成 ~16us —— 在热路径上这是可观的开销。
+ * 一次抽 14 字节再切分，调用次数从 3 降到 1。
+ */
+export function generateRequestIds(): RequestIds {
+  // 32 + 16 + 8 = 56 个 hex 字符 = 28 字节
+  const buf = new Uint8Array(28);
+  const cryptoObj = globalThis.crypto;
+  if (cryptoObj?.getRandomValues) {
+    cryptoObj.getRandomValues(buf);
+  } else {
+    for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256);
+  }
+  let hex = '';
+  for (const b of buf) {
+    hex += HEX[(b >> 4) & 0xf];
