@@ -32,3 +32,11 @@ export type { TraceParent, RequestIds } from './ids';
 export function currentContext(): RequestContext | undefined {
   return requestContextStore.current();
 }
+
+export function requireContext(): RequestContext {
+  return requestContextStore.require();
+}
+
+/** 内核 REQUEST 作用域需要的 contextId */
+export function currentContextId(): object | undefined {
+  return requestContextStore.contextId();
