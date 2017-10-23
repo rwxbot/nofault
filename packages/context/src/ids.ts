@@ -81,3 +81,17 @@ export interface TraceParent {
   spanId: string;
   /** sampled 标志位 */
   sampled: boolean;
+}
+
+const TRACEPARENT_RE = /^([0-9a-f]{2})-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$/;
+
+/**
+ * 解析 `traceparent` 请求头。
+ *
+ * 非法值返回 `undefined` 而不是抛错：
+ * 链路信息是**增强**，不能因为上游给了个坏头就让整个请求失败。
+ */
+export function parseTraceparent(header: string | undefined): TraceParent | undefined {
+  if (!header) return undefined;
+  const m = TRACEPARENT_RE.exec(header.trim().toLowerCase());
+  if (!m) return undefined;
