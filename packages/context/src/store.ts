@@ -35,3 +35,11 @@ export class RequestContextStore {
   /** 当前上下文；不在请求内时抛错（业务代码确信用得到时写起来更省事） */
   require(): RequestContext {
     const ctx = this.storage.getStore();
+    if (!ctx) {
+      throw new Error(
+        'No request context available. Make sure the code runs inside a request context ' +
+          '(see @nofault/context requestContextMiddleware).',
+      );
+    }
+    return ctx;
+  }
