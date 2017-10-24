@@ -26,3 +26,12 @@ export class RequestContextStore {
   runWithNew<T>(fn: () => T, init?: RequestContextInit): T {
     return this.run(new RequestContext(init), fn);
   }
+
+  /** 当前上下文；不在请求内时返回 undefined */
+  current(): RequestContext | undefined {
+    return this.storage.getStore();
+  }
+
+  /** 当前上下文；不在请求内时抛错（业务代码确信用得到时写起来更省事） */
+  require(): RequestContext {
+    const ctx = this.storage.getStore();
