@@ -17,3 +17,12 @@ export class RequestContextStore {
    * 在上下文中执行 `fn`。
    *
    * @returns `fn` 的返回值（泛型透传，不丢类型）
+   */
+  run<T>(context: RequestContext, fn: () => T): T {
+    return this.storage.run(context, fn);
+  }
+
+  /** 快捷方式：自动建上下文再执行 */
+  runWithNew<T>(fn: () => T, init?: RequestContextInit): T {
+    return this.run(new RequestContext(init), fn);
+  }
