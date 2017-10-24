@@ -43,3 +43,13 @@ export class RequestContextStore {
     }
     return ctx;
   }
+
+  /** 是否有上下文 */
+  hasContext(): boolean {
+    return this.storage.getStore() !== undefined;
+  }
+
+  /**
+   * 供内核使用的 contextId。
+   *
+   * 就是 `RequestContext` 实例本身——对象身份天然唯一，
