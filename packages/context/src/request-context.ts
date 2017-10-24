@@ -38,3 +38,17 @@ export class RequestContext {
 
   constructor(init: RequestContextInit = {}) {
     if (init.id && init.traceparent) {
+      this.id = init.id;
+      this.traceId = init.traceparent.traceId;
+      this.spanId = generateSpanId();
+    } else {
+      const ids = generateRequestIds();
+      this.id = init.id ?? ids.requestId;
+      this.traceId = init.traceparent?.traceId ?? ids.traceId;
+      this.spanId = ids.spanId;
+    }
+    this.parentSpanId = init.traceparent?.spanId;
+    this.sampled = init.traceparent?.sampled ?? true;
+    this.startedAt = performance.now();
+
+    if (init.values) {
