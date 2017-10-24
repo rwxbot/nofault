@@ -64,3 +64,17 @@ export class RequestContext {
   get<T = unknown>(key: string): T | undefined {
     return this.values.get(key) as T | undefined;
   }
+
+  has(key: string): boolean {
+    return this.values.has(key);
+  }
+
+  delete(key: string): boolean {
+    return this.values.delete(key);
+  }
+
+  /** 快照（写日志用） */
+  toJSON(): Record<string, unknown> {
+    return {
+      id: this.id,
+      traceId: this.traceId,
