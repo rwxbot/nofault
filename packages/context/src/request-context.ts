@@ -52,3 +52,15 @@ export class RequestContext {
     this.startedAt = performance.now();
 
     if (init.values) {
+      for (const [k, v] of Object.entries(init.values)) this.values.set(k, v);
+    }
+  }
+
+  set(key: string, value: unknown): this {
+    this.values.set(key, value);
+    return this;
+  }
+
+  get<T = unknown>(key: string): T | undefined {
+    return this.values.get(key) as T | undefined;
+  }
