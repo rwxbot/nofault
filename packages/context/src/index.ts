@@ -47,3 +47,9 @@ export function setContextValue(key: string, value: unknown): void {
 }
 
 export function getContextValue<T = unknown>(key: string): T | undefined {
+  return requestContextStore.get<T>(key);
+}
+
+export function runWithContext<T>(context: RequestContext, fn: () => T): T {
+  return requestContextStore.run(context, fn);
+}
