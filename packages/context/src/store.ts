@@ -62,3 +62,11 @@ export class RequestContextStore {
   set(key: string, value: unknown): void {
     this.storage.getStore()?.set(key, value);
   }
+
+  get<T = unknown>(key: string): T | undefined {
+    return this.storage.getStore()?.get<T>(key);
+  }
+}
+
+/** 默认全局存储（绝大多数场景直接用它即可） */
+export const requestContextStore = new RequestContextStore();
