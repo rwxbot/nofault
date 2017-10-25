@@ -9,3 +9,13 @@ export class HttpException extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    public readonly code: number = -1,
+    public readonly details?: unknown,
+  ) {
+    super(message);
+    this.name = 'HttpException';
+  }
+
+  toBody(): { code: number; data: unknown; message: string } {
+    return { code: this.code, data: this.details ?? null, message: this.message };
+  }
