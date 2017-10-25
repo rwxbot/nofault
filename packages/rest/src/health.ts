@@ -88,3 +88,18 @@ export class HealthRegistry {
       const started = performance.now();
       try {
         await Promise.race([
+          Promise.resolve(c.check()),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+        ]);
+        results.push({
+          name: c.name,
+          status: 'ok',
+          durationMs: Number((performance.now() - started).toFixed(2)),
+        });
+      } catch (err) {
+        const failed: HealthStatus = c.degradeOnFailure ? 'degraded' : 'down';
+        status = worst(status, failed);
+        results.push({
+          name: c.name,
+          status: failed,
+          durationMs: Number((performance.now() - started).toFixed(2)),
