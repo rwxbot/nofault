@@ -40,3 +40,13 @@ export class ForbiddenException extends HttpException {
     super(403, message, 403);
     this.name = 'ForbiddenException';
   }
+}
+
+export class NotFoundException extends HttpException {
+  constructor(message = 'Not Found') {
+    super(404, message, 404);
+    this.name = 'NotFoundException';
+  }
+}
+
+export class MethodNotAllowedException extends HttpException {
