@@ -32,3 +32,19 @@ export {
   RawResponse,
   UseMiddleware,
   UseInterceptors,
+  Catch,
+  UseFilters,
+  Validate,
+  ValidateBody,
+  getRouteDto,
+  joinPath,
+} from './decorators';
+
+export { ParamSource, REST_METADATA } from './metadata';
+export type { ParamMetadata, RouteMetadata } from './metadata';
+
+export { RestContext as RestRequestContextType } from './http/context';
+export { RestApplication } from './rest-application';
+export type { RestApplicationOptions } from './rest-application';
+
+export { RestContext, RestRequest, RestResponse } from './http/context';
