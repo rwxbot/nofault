@@ -48,3 +48,20 @@ export { RestApplication } from './rest-application';
 export type { RestApplicationOptions } from './rest-application';
 
 export { RestContext, RestRequest, RestResponse } from './http/context';
+
+export {
+  HttpException,
+  BadRequestException,
+  UnauthorizedException,
+  ForbiddenException,
+  NotFoundException,
+  MethodNotAllowedException,
+  ConflictException,
+  UnprocessableEntityException,
+  InternalServerErrorException,
+  isHttpException,
+} from './errors/http-exception';
+
+export {
+  composeMiddleware,
+  resolveHandlerArgs,
