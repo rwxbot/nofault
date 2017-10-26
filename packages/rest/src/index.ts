@@ -98,3 +98,18 @@ export {
   IsNotEmpty,
   IsOptional,
   MinLength,
+  MaxLength,
+  Min,
+  Max,
+  validateDto,
+  coerceDtoFields,
+} from './validation';
+export type { ValidationError } from './validation';
+
+export { HealthRegistry, statusToHttpCode } from './health';
+export type { HealthReport, HealthStatus, HealthCheck, HealthCheckResult } from './health';
+
+export { RouteExplorer } from './route-explorer';
+export type { MiddlewareRegistry } from './route-explorer';
+export type { ResolvedRoute } from './route-explorer';
+export type { RouteRef } from './http/context';
