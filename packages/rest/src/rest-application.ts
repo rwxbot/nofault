@@ -153,3 +153,42 @@ export class RestApplication {
 
   /** 已注册路由（调试与文档用） */
   getRoutes(): Array<{ method: string; path: string }> {
+    return this.table.listRoutes().map((r) => ({ method: r.method, path: r.pattern }));
+  }
+
+  get<T>(token: Type<T> | string | symbol, contextId?: object): Promise<T> {
+    return this.app.get<T>(token as never, contextId);
+  }
+
+  getHttpServer<T = unknown>(): T | undefined {
+    return this.app.getHttpServer<T>();
+  }
+
+  enableShutdownHooks(): this {
+    this.app.enableShutdownHooks();
+    return this;
+  }
+
+  async listen(port: number, host = '0.0.0.0'): Promise<{ port: number; hostname: string }> {
+    const addr = await this.app.listen(port, host);
+    this.logger.info('rest server listening', {
+      port: addr.port,
+      routes: this.table.size,
+      perRequestControllers: this.perRequestControllers,
+    });
+    return addr;
+  }
+
+  async close(signal?: string): Promise<void> {
+    await this.app.close(signal);
+  }
+
+  get isListening(): boolean {
+    return this.app.isListening;
+  }
+
+  // ------------------------------------------------------------------ 请求处理
+
+  private async handle(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
+    const request = new RestRequest(req);
+    const response = new RestResponse(res);
