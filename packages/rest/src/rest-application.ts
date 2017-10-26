@@ -192,3 +192,41 @@ export class RestApplication {
   private async handle(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
     const request = new RestRequest(req);
     const response = new RestResponse(res);
+    const ctx = new RestContext(request, response);
+
+    // 上下文被显式关闭：直接处理，此时 REQUEST 作用域不可用
+    if (!this.store) {
+      await this.dispatch(ctx);
+      ctx.response.commit();
+      return true;
+    }
+
+    const traceparent = parseTraceparent(request.header('traceparent'));
+    const requestCtx = new RequestContext({ traceparent });
+    ctx.state.set('requestContext', requestCtx);
+    response.header('x-request-id', requestCtx.id);
+
+    try {
+      await this.store.run(requestCtx, () => this.dispatch(ctx, requestCtx));
+      ctx.response.commit();
+    } finally {
+      // 释放请求级实例，否则 Map<contextId, instance> 会无限增长
+      this.app.clearRequestContext(requestCtx);
+    }
+    return true;
+  }
+
+  /** 全局中间件 → 路由匹配（匹配在中间件之后！）→ 参数绑定 → handler（异常在此收敛） */
+  private async dispatch(ctx: RestContext, contextId?: object): Promise<void> {
+    const { request, response } = ctx;
+    try {
+      const match = this.table.match(request.method, request.path);
+      const route = match?.handler;
+      request.params = match?.params ?? {};
+      if (route) {
+        // 挂到 ctx：鉴权中间件要按 handler 的装饰器（@Public/@Roles）做判断。
+        // 必须在中间件链**之前**挂（auth 中间件先于 handler 读它）；
+        // 必须挂 **instance**（或 prototype），不能挂类：
+        // 方法装饰器把 @Public/@Roles 挂在 prototype 上，
+        // 从类上查元数据只会得到 undefined，公开路由会被一起 401
+        ctx.route = {
