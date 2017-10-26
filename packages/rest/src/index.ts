@@ -65,3 +65,19 @@ export {
 export {
   composeMiddleware,
   resolveHandlerArgs,
+  validateDtoIfDeclared,
+  validateBodyIfDeclared,
+  normalizeError,
+} from './pipeline';
+export type { Middleware, Interceptor } from './pipeline';
+// [history] omitted at this version (not yet introduced): export { openSse } from './sse';
+// [history] omitted at this version (not yet introduced): export type { SseWriter } from './sse';
+export {
+  cors,
+  bodyParser,
+  securityHeaders,
+  requestLogger,
+  serveStatic,
+  rateLimit,
+  requestContext,
+} from './middleware';
