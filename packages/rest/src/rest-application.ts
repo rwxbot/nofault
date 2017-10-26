@@ -76,3 +76,41 @@ export class RestApplication {
   static async create(
     root: Type<unknown> | DynamicModule,
     options: RestApplicationOptions = {},
+  ): Promise<RestApplication> {
+    const app = await createHttpApplication(root, { name: options.name, quiet: options.quiet });
+    const rest = new RestApplication(app, options);
+    await rest.registerRoutes();
+    return rest;
+  }
+
+  /** 扫描控制器并挂载请求处理器 */
+  async registerRoutes(): Promise<void> {
+    this.table = await RouteExplorer.explore(
+      this.app,
+      this.options.globalPrefix ?? '/',
+      this.options.middlewareRegistry ?? {},
+    );
+    this.perRequestControllers = this.app.hasRequestScopedProviders();
+    this.registerHealthRoutes();
+    this.app.use((req, res) => this.handle(req, res));
+    for (const r of this.table.listRoutes()) {
+      this.logger.debug('route registered', { method: r.method, path: r.pattern });
+    }
+  }
+
+  /** 直接注册一条路由（不走装饰器，给健康检查这类内建端点用） */
+  addRoute(method: string, path: string, handler: (ctx: RestContext) => unknown | Promise<unknown>): void {
+    this.table.add(method, path, {
+      method,
+      path,
+      controller: Object as never,
+      instance: { [method]: handler } as never,
+      propertyKey: method,
+      middleware: [],
+      synthetic: true,
+    });
+  }
+
+  /** 健康检查注册表：业务可注册自己的依赖检查 */
+  get health(): HealthRegistry {
+    return this.healthRegistry;
