@@ -269,3 +269,40 @@ export class RestApplication {
         const result = await (fn as (...a: unknown[]) => unknown).apply(instance, args);
 
         // handler 已经自己写过响应（合成端点、@Res() 用法）时不再覆盖
+        if (response.headersSent || response.hasBody) return;
+
+        if (request.method === 'HEAD') {
+          response.status(route.statusCode ?? 200).end();
+          return;
+        }
+        if (result === undefined || result === null) {
+          response.status(route.statusCode ?? 204).end();
+          return;
+        }
+        if (this.options.wrapResponse) {
+          response.status(route.statusCode ?? 200).json({ code: 0, data: result, message: 'ok' });
+        } else {
+          response.status(route.statusCode ?? 200).json(result);
+        }
+      });
+    } catch (err) {
+      await this.handleError(ctx, err);
+    }
+  }
+
+  private async handleError(ctx: RestContext, err: unknown): Promise<void> {
+    const httpErr = normalizeError(err);
+    if (ctx.response.headersSent) {
+      this.logger.error('error after response sent', { path: ctx.request.path }, httpErr);
+      return;
+    }
+    if (httpErr.status >= 500) {
+      this.logger.error(`${ctx.request.method} ${ctx.request.path} failed`, { status: httpErr.status }, httpErr);
+    } else if (!isHttpException(err) || httpErr.status >= 400) {
+      this.logger.debug(`${ctx.request.method} ${ctx.request.path} -> ${httpErr.status}`, {
+        message: httpErr.message,
+      });
+    }
+    ctx.response.status(httpErr.status).json(httpErr.toBody());
+  }
+}
