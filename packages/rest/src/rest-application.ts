@@ -37,3 +37,42 @@ export interface RestApplicationOptions {
    */
   contextStore?: RequestContextStore | null;
   /**
+   * 健康检查端点。默认开启：`/healthz`（存活）+ `/readyz`（就绪）。
+   * 传 `false` 关闭，或传对象自定义路径。
+   */
+  health?: false | { livenessPath?: string; readinessPath?: string };
+  /**
+   * 命名中间件表：契约/装饰器里以**字符串**声明的中间件在这里登记实现。
+   * 缺省为空，用到未登记的名字会立刻启动失败（而不是悄悄不生效）。
+   */
+  middlewareRegistry?: MiddlewareRegistry;
+}
+
+/**
+ * nofault REST 应用。
+ *
+ * 采用**组合**而非继承 `NofaultApplication`：
+ * Web 层只是内核之上的一层能力，组合能让两者的职责边界保持清晰。
+ */
+export class RestApplication {
+  private readonly logger: Logger;
+  private readonly options: Required<Pick<RestApplicationOptions, 'wrapResponse'>> & RestApplicationOptions;
+  private readonly store: RequestContextStore | null;
+  private table!: RouteTable<ResolvedRoute>;
+  /** 存在 REQUEST 作用域 Provider 时，控制器必须每请求重新解析 */
+  private perRequestControllers = false;
+  /** 健康检查注册表 */
+  private readonly healthRegistry = new HealthRegistry();
+
+  constructor(
+    private readonly app: NofaultApplication,
+    options: RestApplicationOptions = {},
+  ) {
+    this.options = { wrapResponse: true, ...options };
+    this.logger = options.logger ?? createLogger({ context: 'rest', level: options.quiet ? 'warn' : 'info' });
+    this.store = options.contextStore === undefined ? requestContextStore : options.contextStore;
+  }
+
+  static async create(
+    root: Type<unknown> | DynamicModule,
+    options: RestApplicationOptions = {},
