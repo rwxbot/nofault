@@ -230,3 +230,42 @@ export class RestApplication {
         // 方法装饰器把 @Public/@Roles 挂在 prototype 上，
         // 从类上查元数据只会得到 undefined，公开路由会被一起 401
         ctx.route = {
+          controller: (route.instance ?? route.controller) as object,
+          propertyKey: route.propertyKey,
+          method: route.method,
+          path: route.path,
+        };
+      }
+      // 全局中间件在路由匹配**之外**：静态文件这类"没有路由也想响应"的中间件，
+      // 必须有机会接住未命中路径——此前 404 先于中间件，serveStatic 形同虚设
+      const chain = [...(this.options.middleware ?? []), ...(route?.middleware ?? [])];
+
+      await composeMiddleware(chain)(ctx, async () => {
+        if (!route) {
+          const allowed = this.table.allowedMethods(request.path);
+          if (allowed.length > 0) {
+            ctx.response.header('allow', allowed.join(', '));
+            throw new MethodNotAllowedException(`Allowed methods: ${allowed.join(', ')}`);
+          }
+          throw new NotFoundException(`Cannot ${request.method} ${request.path}`);
+        }
+
+        // 只有存在 REQUEST 作用域 Provider 时才每请求重新解析控制器；
+        // 否则复用启动期解析好的实例，省掉一次容器查找
+        const needResolve = !route.synthetic && (this.perRequestControllers || route.instance === null);
+        const instance = needResolve
+          ? ((await this.app.get(route.controller, contextId)) as Record<string | symbol, unknown>)
+          : (route.instance as Record<string | symbol, unknown>);
+
+        if (!route.synthetic) {
+          validateDtoIfDeclared(instance, route, ctx);
+        }
+        // 合成路由（内建端点）的 handler 签名就是 `(ctx)`，直接把上下文传进去
+        const args = route.synthetic ? [ctx] : resolveHandlerArgs(instance, route, ctx);
+        const fn = instance[route.propertyKey];
+        if (typeof fn !== 'function') {
+          throw new Error(`Route handler ${String(route.propertyKey)} is not a function`);
+        }
+        const result = await (fn as (...a: unknown[]) => unknown).apply(instance, args);
+
+        // handler 已经自己写过响应（合成端点、@Res() 用法）时不再覆盖
