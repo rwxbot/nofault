@@ -55,3 +55,59 @@ async function routeMicroBench() {
     ['GET', '/api/users/count'],
     ['GET', '/api/users/42'],
     ['GET', '/api/users/42/posts/7'],
+    ['POST', '/api/users'],
+    ['GET', '/api/health'],
+    ['GET', '/api/healthz/live'],
+  ];
+
+  // warmup
+  for (let i = 0; i < 50_000; i++) table.match(paths[i % paths.length][0], paths[i % paths.length][1]);
+
+  const N = 1_000_000;
+  const start = process.hrtime.bigint();
+  for (let i = 0; i < N; i++) {
+    const [m, p] = paths[i % paths.length];
+    table.match(m, p);
+  }
+  const elapsedMs = Number(process.hrtime.bigint() - start) / 1e6;
+  const ops = Math.round((N / elapsedMs) * 1000);
+  console.log(`[bench] A. route match: ${ops.toLocaleString('en-US')} ops/sec (${N.toLocaleString('en-US')} matches in ${elapsedMs.toFixed(0)} ms)`);
+  return { ops, samples: N, elapsedMs: Number(elapsedMs.toFixed(1)) };
+}
+
+// ---------------------------------------------------------------- B. HTTP 端到端
+async function startServer(name, script, cwd) {
+  const child = spawn(process.execPath, [script], {
+    cwd,
+    env: { ...process.env, PORT: '0' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  child.stderr.on('data', (d) => process.stderr.write(`[${name}] ${d}`));
+  const port = await new Promise((res, rej) => {
+    const timer = setTimeout(() => rej(new Error(`${name} did not start in 30s`)), 30_000);
+    child.stdout.on('data', (buf) => {
+      const m = /"port":(\d+)/.exec(String(buf));
+      if (m) {
+        clearTimeout(timer);
+        res(Number(m[1]));
+      }
+    });
+    child.on('exit', (code) => {
+      clearTimeout(timer);
+      rej(new Error(`${name} exited early with code ${code}`));
+    });
+  });
+  return { child, port };
+}
+
+function once(port, path, agents, method = 'GET', body) {
+  const agent = agents[Math.floor(Math.random() * agents.length)];
+  return new Promise((res) => {
+    const start = process.hrtime.bigint();
+    const req = request(
+      {
+        host: '127.0.0.1',
+        port,
+        path,
+        method,
+        agent,
