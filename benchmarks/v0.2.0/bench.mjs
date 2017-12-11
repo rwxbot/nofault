@@ -111,3 +111,58 @@ function once(port, path, agents, method = 'GET', body) {
         path,
         method,
         agent,
+        headers: body ? { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) } : undefined,
+      },
+      (response) => {
+        response.on('data', () => {});
+        response.on('end', () => res(Number(process.hrtime.bigint() - start) / 1e6));
+      },
+    );
+    req.on('error', () => res(-1));
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+async function run(port, scenario, { duration, connections, warmup }) {
+  const agents = Array.from(
+    { length: Math.max(1, Math.ceil(connections / 16)) },
+    () => new Agent({ keepAlive: true, maxSockets: 16, maxFreeSockets: 16 }),
+  );
+  const warmEnd = Date.now() + warmup * 1000;
+  while (Date.now() < warmEnd) await once(port, scenario.path, agents, scenario.method, scenario.body);
+
+  const latencies = [];
+  const end = Date.now() + duration * 1000;
+  const started = Date.now();
+  await Promise.all(
+    Array.from({ length: connections }, () => (async () => {
+      while (Date.now() < end) {
+        const l = await once(port, scenario.path, agents, scenario.method, scenario.body);
+        if (l >= 0) latencies.push(l);
+      }
+    })()),
+  );
+  const elapsed = (Date.now() - started) / 1000;
+  for (const a of agents) a.destroy();
+  return summarize(latencies, elapsed);
+}
+
+function summarize(latencies, elapsedSec) {
+  const sorted = [...latencies].sort((a, b) => a - b);
+  const q = (p) => (sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0);
+  const total = sorted.reduce((s, v) => s + v, 0);
+  return {
+    requests: sorted.length,
+    rps: Number((sorted.length / elapsedSec).toFixed(1)),
+    meanMs: Number((total / Math.max(1, sorted.length)).toFixed(3)),
+    p50Ms: Number(q(0.5).toFixed(3)),
+    p95Ms: Number(q(0.95).toFixed(3)),
+    p99Ms: Number(q(0.99).toFixed(3)),
+    maxMs: Number((sorted[sorted.length - 1] ?? 0).toFixed(3)),
+  };
+}
+
+function pickMedianRound(rounds) {
+  return [...rounds].sort((a, b) => a.rps - b.rps)[Math.floor(rounds.length / 2)];
+}
