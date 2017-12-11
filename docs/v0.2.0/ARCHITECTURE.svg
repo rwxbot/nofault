@@ -32,3 +32,35 @@
   <path d="M 816 147 L 830 147" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
 
   <!-- 请求链路 -->
+  <rect x="40" y="228" width="1120" height="230" rx="10" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1.5"/>
+  <text x="56" y="250" font-size="12" font-weight="600" fill="#0f766e">请求处理链路（每请求）</text>
+
+  <rect x="64" y="262" width="150" height="52" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="139" y="284" font-size="12.5" font-weight="600" fill="#0f172a" text-anchor="middle">node:http</text>
+  <text x="139" y="301" font-size="11" fill="#64748b" text-anchor="middle">IncomingMessage</text>
+
+  <rect x="230" y="262" width="150" height="52" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="305" y="284" font-size="12.5" font-weight="600" fill="#0f172a" text-anchor="middle">RestContext</text>
+  <text x="305" y="301" font-size="11" fill="#64748b" text-anchor="middle">Request + Response</text>
+
+  <rect x="396" y="262" width="150" height="52" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="471" y="284" font-size="12.5" font-weight="600" fill="#0f172a" text-anchor="middle">RouteTable.match</text>
+  <text x="471" y="301" font-size="11" fill="#64748b" text-anchor="middle">静态 &gt; 参数 &gt; 通配</text>
+
+  <rect x="562" y="262" width="150" height="52" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="637" y="284" font-size="12.5" font-weight="600" fill="#0f172a" text-anchor="middle">中间件洋葱</text>
+  <text x="637" y="301" font-size="11" fill="#64748b" text-anchor="middle">全局→控制器→路由</text>
+
+  <rect x="728" y="262" width="150" height="52" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="803" y="284" font-size="12.5" font-weight="600" fill="#0f172a" text-anchor="middle">参数绑定 + DTO 校验</text>
+  <text x="803" y="301" font-size="11" fill="#64748b" text-anchor="middle">记忆化，非每请求反射</text>
+
+  <rect x="894" y="262" width="242" height="52" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="1015" y="284" font-size="12.5" font-weight="600" fill="#0f172a" text-anchor="middle">Controller 方法</text>
+  <text x="1015" y="301" font-size="11" fill="#64748b" text-anchor="middle">业务代码，注入 Service</text>
+
+  <path d="M 214 288 L 228 288" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M 380 288 L 394 288" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M 546 288 L 560 288" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M 712 288 L 726 288" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M 878 288 L 892 288" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
