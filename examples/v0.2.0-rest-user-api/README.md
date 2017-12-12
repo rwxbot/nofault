@@ -25,3 +25,29 @@ pnpm example v0.2.0-rest-user-api PORT=3222
 | PUT | `/api/users/:id` | 整量更新 |
 | PATCH | `/api/users/:id` | 部分更新（只改 name） |
 | DELETE | `/api/users/:id` | 删除 → 204 |
+| GET | `/api/users/probe/missing` | 故意抛 404，演示异常过滤 |
+
+## 试一试
+
+```bash
+curl http://127.0.0.1:3000/api/users
+curl "http://127.0.0.1:3000/api/users?keyword=Ada"
+curl http://127.0.0.1:3000/api/users/1
+
+curl -X POST http://127.0.0.1:3000/api/users \
+  -H 'content-type: application/json' \
+  -d '{"name":"Grace","email":"grace@nofault.dev","age":45}'
+
+# 校验失败 → 422，返回字段级明细
+curl -i -X POST http://127.0.0.1:3000/api/users \
+  -H 'content-type: application/json' \
+  -d '{"name":"X","email":"bad","age":999}'
+
+# 参数类型错误 → 400
+curl -i -X DELETE http://127.0.0.1:3000/api/users/abc
+
+# 方法不允许 → 405 + Allow 头
+curl -i -X POST http://127.0.0.1:3000/api/users/count
+```
+
+## 文件说明
