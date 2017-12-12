@@ -25,3 +25,30 @@ GET    /api/users
 POST   /api/users
 POST   /api/users/echo
 GET    /api/users/count
+GET    /api/users/:id
+PUT    /api/users/:id
+PATCH  /api/users/:id
+DELETE /api/users/:id
+GET    /api/users/probe/missing
+```
+
+### curl 试一遍
+
+```bash
+# 列表（统一响应包装）
+curl http://127.0.0.1:3000/api/users
+# {"code":0,"data":[{"id":1,"name":"Ada Lovelace",...}],"message":"ok"}
+
+# 带 query
+curl "http://127.0.0.1:3000/api/users?keyword=Ada"
+
+# 路径参数
+curl http://127.0.0.1:3000/api/users/1
+
+# 创建（校验通过）
+curl -X POST http://127.0.0.1:3000/api/users \
+  -H 'content-type: application/json' \
+  -d '{"name":"Grace","email":"grace@nofault.dev","age":45}'
+
+# 创建（校验失败 → 422，含字段级明细）
+curl -i -X POST http://127.0.0.1:3000/api/users \
