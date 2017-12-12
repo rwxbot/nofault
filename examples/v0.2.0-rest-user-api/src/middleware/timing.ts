@@ -12,3 +12,6 @@ import type { Middleware } from '@nofault/rest';
 export const timing: Middleware = async (ctx, next) => {
   const start = process.hrtime.bigint();
   await next();
+  const ms = Number(process.hrtime.bigint() - start) / 1e6;
+  ctx.response.header('x-response-time', `${ms.toFixed(2)}ms`);
+};
