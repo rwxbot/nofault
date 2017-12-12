@@ -108,3 +108,57 @@ export class CreateUserDto {
   @IsEmail() email!: string;
   @IsInt() @Min(0) @Max(150) age!: number;
 }
+
+@Post('/')
+@ValidateBody(CreateUserDto)
+create(@Body() dto: CreateUserDto) {}
+```
+
+失败返回 **422**：
+
+```json
+{
+  "code": 422,
+  "data": [{ "property": "email", "constraints": { "isEmail": "must be an email" } }],
+  "message": "Validation failed"
+}
+```
+
+## 6. 中间件
+
+```ts
+import type { Middleware } from '@nofault/rest';
+
+const timing: Middleware = async (ctx, next) => {
+  const t = process.hrtime.bigint();
+  await next();
+  ctx.response.header('x-response-time', `${(Number(process.hrtime.bigint() - t) / 1e6).toFixed(2)}ms`);
+};
+```
+
+三种作用域：
+
+```ts
+// 1. 全局
+RestApplication.create(AppModule, { middleware: [timing] })
+
+// 2. 控制器级
+@Controller({ path: '/users', middleware: [timing] })
+@UseMiddleware(timing)                    // 等价写法
+
+// 3. 路由级
+@Get('/:id')
+@UseMiddleware(timing)
+detail() {}
+```
+
+内置中间件：
+
+```ts
+cors({ origin: true, credentials: true })
+bodyParser({ limit: 512 * 1024 })         // JSON / urlencoded / text
+securityHeaders({ hsts: true })
+requestLogger((msg, fields) => log.debug(msg, fields))
+serveStatic({ root: './public', prefix: '/static' })
+rateLimit({ windowMs: 60_000, max: 100 }) // 单机内存版
+```
