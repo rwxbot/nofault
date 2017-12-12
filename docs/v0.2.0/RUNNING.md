@@ -52,3 +52,30 @@ curl -X POST http://127.0.0.1:3000/api/users \
 
 # 创建（校验失败 → 422，含字段级明细）
 curl -i -X POST http://127.0.0.1:3000/api/users \
+  -H 'content-type: application/json' \
+  -d '{"name":"X","email":"bad","age":999}'
+
+# 邮箱重复 → 409
+curl -X POST http://127.0.0.1:3000/api/users \
+  -H 'content-type: application/json' \
+  -d '{"name":"Ada Two","email":"ada@nofault.dev","age":20}'
+
+# 更新 / 部分更新
+curl -X PUT   http://127.0.0.1:3000/api/users/2 -H 'content-type: application/json' -d '{"name":"Alan"}'
+curl -X PATCH http://127.0.0.1:3000/api/users/2 -H 'content-type: application/json' -d '{"name":"A"}'
+
+# 删除 → 204
+curl -i -X DELETE http://127.0.0.1:3000/api/users/2
+
+# 不存在 → 404
+curl -i http://127.0.0.1:3000/api/users/999
+
+# 方法不允许 → 405 + Allow 头
+curl -i -X POST http://127.0.0.1:3000/api/users/count
+
+# 路径参数类型错误 → 400
+curl -i -X DELETE http://127.0.0.1:3000/api/users/abc
+
+# 响应头（CORS / 安全头 / 耗时）
+curl -i http://127.0.0.1:3000/api/users | head -20
+```
