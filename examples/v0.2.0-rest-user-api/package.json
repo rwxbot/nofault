@@ -3,3 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "description": "v0.2.0 示例：装饰器路由 + 中间件 + 校验 + 异常过滤 的完整 CRUD API",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js"
