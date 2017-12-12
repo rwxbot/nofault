@@ -9,3 +9,12 @@ const logger = createLogger({ context: 'bootstrap' });
 
 async function bootstrap(): Promise<void> {
   const app = await RestApplication.create(AppModule, {
+    name: 'rest-user-api',
+    globalPrefix: '/api',
+    middleware: [
+      requestLogger((msg, fields) => logger.debug(msg, fields)),
+      cors({ origin: true, credentials: true }),
+      securityHeaders(),
+      bodyParser({ limit: 512 * 1024 }),
+    ],
+  });
