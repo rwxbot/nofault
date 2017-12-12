@@ -53,3 +53,58 @@ const app = await RestApplication.create(AppModule, {
   middleware: [cors(), securityHeaders(), bodyParser()],
   wrapResponse: true,             // 默认 true：返回值包成 { code, data, message }
 });
+
+app.enableShutdownHooks();
+await app.listen(3000);
+
+console.log(app.getRoutes());     // [{ method: 'GET', path: '/api/users' }, ...]
+```
+
+## 3. 路由装饰器
+
+`@Controller(path)` · `@Get` `@Post` `@Put` `@Delete` `@Patch` `@Head` `@Options` `@All` · `@HttpCode(201)`
+
+路径支持三段：
+
+| 写法 | 含义 |
+| --- | --- |
+| `/users` | 静态段 |
+| `/users/:id` | 参数段 |
+| `/static/*` | 通配段（吃掉剩余全部） |
+
+**匹配优先级：静态 > 参数 > 通配**。`/users/me` 会命中静态路由而不是 `/users/:id`。
+
+## 4. 参数装饰器
+
+| 装饰器 | 取值 |
+| --- | --- |
+| `@Param(key?)` | 路径参数 |
+| `@Query(key?)` | query string |
+| `@Body(key?)` | 请求体（可指定字段） |
+| `@Headers(key?)` | 请求头 |
+| `@Req()` | `RestRequest` |
+| `@Res()` | `RestResponse` |
+| `@Ctx()` | `RestContext`（含 `ok()` / `fail()` 快捷方法） |
+| `@RawRequest()` / `@RawResponse()` | 原生 node 对象 |
+
+```ts
+@Get('/search')
+search(
+  @Query('q') q: string,
+  @Query('page', { default: 1 }) page: number,   // 默认值
+  @Query('kw', { required: false }) kw?: string, // 可选
+) {}
+```
+
+按声明类型自动转换；转换失败返回 **400**。
+
+## 5. 校验
+
+```ts
+import { IsEmail, IsInt, IsNotEmpty, Max, Min, MinLength, ValidateBody } from '@nofault/rest';
+
+export class CreateUserDto {
+  @IsNotEmpty() @MinLength(2) name!: string;
+  @IsEmail() email!: string;
+  @IsInt() @Min(0) @Max(150) age!: number;
+}
