@@ -45,3 +45,26 @@ export class UserController {
 
   @Get('/:id')
   detail(@Param('id') id: number) {
+    return this.users.get(Number(id));
+  }
+
+  @Post('/')
+  @ValidateBody(CreateUserDto)
+  create(@Body() body: CreateUserDto) {
+    return this.users.create(body);
+  }
+
+  /**
+   * echo：解析 body → 校验 → 原样返回。
+   *
+   * 存在的意义是给 benchmark 一条"成功路径"的 POST 样本：
+   * 创建用户的接口会因为邮箱重复走到 409，而**抛异常要捕获调用栈**，
+   * 拿它测吞吐其实测的是异常开销，不是框架开销。
+   */
+  @Post('/echo')
+  @ValidateBody(CreateUserDto)
+  echo(@Body() body: CreateUserDto) {
+    return { received: body };
+  }
+
+  @Put('/:id')
