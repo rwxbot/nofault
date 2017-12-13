@@ -32,3 +32,19 @@ describe('coerceDtoFields', () => {
   it('leaves non-numeric strings alone rather than producing NaN', () => {
     // NaN 会让后续算术全部变 NaN —— 宁可保持字符串让校验去报错
     expect(coerceDtoFields(PageReq, { page: 'abc' }).page).toBe('abc');
+  });
+
+  it('does not invent keys', () => {
+    expect(Object.keys(coerceDtoFields(PageReq, { page: '1' }))).toEqual(['page']);
+  });
+
+  it('returns {} for non-objects', () => {
+    expect(coerceDtoFields(PageReq, undefined)).toEqual({});
+    expect(coerceDtoFields(PageReq, null)).toEqual({});
+  });
+});
+
+describe('validateDto', () => {
+  it('accepts coerced numeric values', () => {
+    expect(validateDto(PageReq, coerceDtoFields(PageReq, { page: '2', pageSize: '20' }))).toEqual([]);
+  });
