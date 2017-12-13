@@ -28,3 +28,18 @@ class NamedController {
 
 @Module({ controllers: [NamedController], providers: [Svc] })
 class NamedModule {}
+
+describe('named middleware registry', () => {
+  const audit = async (ctx: { request: { header(name: string): string | undefined } }, next: () => Promise<void>): Promise<void> => {
+    (globalThis as Record<string, unknown>).__audit = ctx.request.header('x-user') ?? 'anonymous';
+    await next();
+  };
+
+  it('runs middleware looked up by name', async () => {
+    const app = await RestApplication.create(NamedModule, {
+      quiet: true,
+      middlewareRegistry: { Audit: audit as never },
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
+    try {
+      const res = await fetch(`http://127.0.0.1:${port}/named/x`, { headers: { 'x-user': 'bob' } });
