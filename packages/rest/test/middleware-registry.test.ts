@@ -13,3 +13,18 @@ class Svc {
   ok(): { ok: string } {
     return { ok: 'yes' };
   }
+}
+
+@Controller('/named')
+@UseMiddleware('Audit')
+class NamedController {
+  constructor(readonly svc: Svc) {}
+
+  @Get('/x')
+  x(): { ok: string; audit?: string } {
+    return { ok: 'yes', audit: (globalThis as Record<string, unknown>).__audit as string };
+  }
+}
+
+@Module({ controllers: [NamedController], providers: [Svc] })
+class NamedModule {}
