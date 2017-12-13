@@ -26,3 +26,18 @@ export class UserService {
     if (!user) throw new NotFoundException(`User ${id} not found`);
     return user;
   }
+
+  create(input: { name: string; email: string; age: number }): User {
+    if (findByEmail(input.email)) {
+      throw new ConflictException(`Email ${input.email} already registered`);
+    }
+    const user: User = { id: nextId(), ...input };
+    save(user);
+    this.logger.info('user created', { id: user.id });
+    return user;
+  }
+
+  update(id: number, patch: Partial<Omit<User, 'id'>>): User {
+    const user = this.get(id);
+    const updated: User = { ...user, ...patch };
+    save(updated);
