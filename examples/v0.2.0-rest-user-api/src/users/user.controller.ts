@@ -68,3 +68,25 @@ export class UserController {
   }
 
   @Put('/:id')
+  replace(@Param('id') id: number, @Body() body: Partial<CreateUserDto>) {
+    return this.users.update(Number(id), body);
+  }
+
+  @Patch('/:id')
+  patch(@Param('id') id: number, @Body('name') name?: string) {
+    return this.users.update(Number(id), name ? { name } : {});
+  }
+
+  @Delete('/:id')
+  remove(@Param('id') id: number, @Ctx() ctx: RestContext) {
+    this.users.delete(Number(id));
+    ctx.response.status(204).end();
+    return undefined;
+  }
+
+  /** 演示手动抛异常 —— 会走统一的异常过滤，返回 `{ code, data, message }` */
+  @Get('/probe/missing')
+  probeMissing() {
+    throw new NotFoundException('This endpoint always 404s, on purpose');
+  }
+}
