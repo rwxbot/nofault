@@ -14,3 +14,21 @@ import { IsInt, IsOptional, IsString, Min } from '../src/validation';
 class PageReq {
   @IsInt() @Min(1)
   page!: number;
+
+  @IsInt() @Min(1)
+  pageSize!: number;
+
+  @IsOptional() @IsString()
+  keyword?: string;
+}
+
+describe('coerceDtoFields', () => {
+  it('turns numeric strings into numbers per declared type', () => {
+    const out = coerceDtoFields(PageReq, { page: '3', pageSize: '10' });
+    expect(out.page).toBe(3);
+    expect(out.pageSize).toBe(10);
+  });
+
+  it('leaves non-numeric strings alone rather than producing NaN', () => {
+    // NaN 会让后续算术全部变 NaN —— 宁可保持字符串让校验去报错
+    expect(coerceDtoFields(PageReq, { page: 'abc' }).page).toBe('abc');
