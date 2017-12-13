@@ -29,3 +29,13 @@ export function save(user: User): User {
   store.set(user.id, user);
   return user;
 }
+
+export function remove(id: number): boolean {
+  return store.delete(id);
+}
+
+/** 测试用：清空数据 */
+export function reset(): void {
+  store.clear();
+  seq = 0;
+}
