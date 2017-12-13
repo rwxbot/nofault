@@ -15,3 +15,9 @@ export class CreateUserDto {
   @IsString()
   @IsEmail()
   email!: string;
+
+  @IsInt()
+  @Min(0)
+  @Max(150)
+  age!: number;
+}
