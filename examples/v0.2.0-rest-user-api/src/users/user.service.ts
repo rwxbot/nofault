@@ -41,3 +41,16 @@ export class UserService {
     const user = this.get(id);
     const updated: User = { ...user, ...patch };
     save(updated);
+    return updated;
+  }
+
+  delete(id: number): void {
+    const user = this.get(id);
+    remove(user.id);
+    this.logger.info('user deleted', { id });
+  }
+
+  count(): number {
+    return findAll().length;
+  }
+}
