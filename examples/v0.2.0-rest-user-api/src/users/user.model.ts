@@ -19,3 +19,13 @@ export function findAll(): User[] {
 
 export function findById(id: number): User | undefined {
   return store.get(id);
+}
+
+export function findByEmail(email: string): User | undefined {
+  return [...store.values()].find((u) => u.email === email);
+}
+
+export function save(user: User): User {
+  store.set(user.id, user);
+  return user;
+}
