@@ -32,3 +32,20 @@ describe('static file middleware', () => {
     const app = await RestApplication.create(StaticModule, {
       quiet: true,
       middleware: [serveStatic({ root: dir, prefix: '/static' })],
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
+    try {
+      const res = await fetch(`http://127.0.0.1:${port}/static/page.html`);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toBe('text/html; charset=utf-8');
+      expect(res.headers.get('content-length')).toBe(String(payload.length));
+      expect(await res.text()).toBe(payload);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('falls through to the router on a miss and never serves traversal', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'nofault-static-'));
+    const app = await RestApplication.create(StaticModule, {
+      quiet: true,
