@@ -9,3 +9,13 @@ class DemoDto {
 
   @IsEmail()
   email!: string;
+
+  @IsInt()
+  @Min(0)
+  @Max(150)
+  age!: number;
+}
+
+describe('validateDto', () => {
+  it('passes a valid object', () => {
+    expect(validateDto(DemoDto, { name: 'Ada', email: 'ada@x.dev', age: 36 })).toEqual([]);
