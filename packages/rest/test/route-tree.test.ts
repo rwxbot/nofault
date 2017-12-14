@@ -28,3 +28,35 @@ describe('RouteTree', () => {
     expect(t.match('/users/42')?.params).toEqual({ id: '42' });
     expect(t.match('/users/42/posts/7')?.params).toEqual({ id: '42', postId: '7' });
   });
+
+  it('prefers static segments over params', () => {
+    const t = new RouteTree<string>();
+    t.add('/users/:id', 'byId');
+    t.add('/users/me', 'me');
+    expect(t.match('/users/me')?.handler).toBe('me');
+    expect(t.match('/users/42')?.handler).toBe('byId');
+  });
+
+  it('supports wildcard segments', () => {
+    const t = new RouteTree<string>();
+    t.add('/static/*', 'any');
+    expect(t.match('/static/a/b/c')?.handler).toBe('any');
+    expect(t.match('/static/a/b/c')?.params.wildcard).toBe('a/b/c');
+  });
+
+  it('rejects routes registered after a wildcard segment', () => {
+    const t = new RouteTree<string>();
+    // 通配段吃掉剩余全部路径，`/files/*/meta` 永远不可能命中。
+    // 注册期就报错，好过留一条"看得见却打不到"的静默 404 路由。
+    expect(() => t.add('/files/*/meta', 'meta')).toThrow(RouteConflictError);
+  });
+
+  it('supports a named wildcard', () => {
+    const t = new RouteTree<string>();
+    t.add('/static/*rest', 'any');
+    expect(t.match('/static/a/b/c')?.handler).toBe('any');
+    expect(t.match('/static/a/b/c')?.params.rest).toBe('a/b/c');
+  });
+
+  it('rejects an invalid wildcard name', () => {
+    const t = new RouteTree<string>();
