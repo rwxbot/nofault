@@ -19,3 +19,13 @@ class DemoDto {
 describe('validateDto', () => {
   it('passes a valid object', () => {
     expect(validateDto(DemoDto, { name: 'Ada', email: 'ada@x.dev', age: 36 })).toEqual([]);
+  });
+
+  it('reports every failing constraint', () => {
+    const errors = validateDto(DemoDto, { name: 'X', email: 'bad', age: 999 });
+    expect(errors).toHaveLength(3);
+    const byProp = Object.fromEntries(errors.map((e) => [e.property, Object.keys(e.constraints)]));
+    expect(byProp.name).toContain('minLength');
+    expect(byProp.email).toContain('isEmail');
+    expect(byProp.age).toContain('max');
+  });
