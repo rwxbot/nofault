@@ -29,3 +29,13 @@ describe('validateDto', () => {
     expect(byProp.email).toContain('isEmail');
     expect(byProp.age).toContain('max');
   });
+
+  it('reports missing fields', () => {
+    const errors = validateDto(DemoDto, {});
+    expect(errors.map((e) => e.property).sort()).toEqual(['age', 'email', 'name']);
+  });
+
+  it('rejects non-object bodies', () => {
+    expect(validateDto(DemoDto, null)).toHaveLength(1);
+  });
+});
