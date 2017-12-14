@@ -60,3 +60,34 @@ describe('RouteTree', () => {
 
   it('rejects an invalid wildcard name', () => {
     const t = new RouteTree<string>();
+    expect(() => t.add('/static/*1bad', 'any')).toThrow(RouteConflictError);
+  });
+
+  it('decodes url-encoded params', () => {
+    const t = new RouteTree<string>();
+    t.add('/search/:q', 'q');
+    expect(t.match('/search/hello%20world')?.params.q).toBe('hello world');
+  });
+
+  it('throws on duplicate registration', () => {
+    const t = new RouteTree<string>();
+    t.add('/a', 'a');
+    expect(() => t.add('/a', 'b')).toThrow(RouteConflictError);
+  });
+
+  it('throws when two different param names collide', () => {
+    const t = new RouteTree<string>();
+    t.add('/x/:id', 'a');
+    expect(() => t.add('/x/:name', 'b')).toThrow(RouteConflictError);
+  });
+
+  it('normalizes trailing slashes', () => {
+    const t = new RouteTree<string>();
+    t.add('/a/', 'a');
+    expect(t.match('/a')?.handler).toBe('a');
+    expect(t.match('/a/')?.handler).toBe('a');
+  });
+});
+
+describe('RouteTable', () => {
+  it('keeps one tree per method', () => {
