@@ -84,3 +84,45 @@ describe('v0.2.0 rest-user-api (integration)', () => {
 
     const bad = await fetch(`${base}/users`, {
       method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'X', email: 'not-an-email', age: 999 }),
+    });
+    expect(bad.status).toBe(422);
+    const err = (await bad.json()) as { code: number; data: Array<{ property: string }>; message: string };
+    expect(err.message).toBe('Validation failed');
+    expect(err.data.map((e) => e.property).sort()).toEqual(['age', 'email', 'name']);
+  });
+
+  it('POST /users rejects duplicate emails with 409', async () => {
+    const res = await fetch(`${base}/users`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'Ada Two', email: 'ada@nofault.dev', age: 20 }),
+    });
+    expect(res.status).toBe(409);
+    expect(((await res.json()) as { message: string }).message).toContain('already registered');
+  });
+
+  it('PUT /users/:id updates and PATCH /users/:id partially updates', async () => {
+    const put = await fetch(`${base}/users/2`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'Alan M. Turing', age: 42 }),
+    });
+    expect(put.status).toBe(200);
+    expect(((await put.json()) as { data: { name: string } }).data.name).toBe('Alan M. Turing');
+
+    const patch = await fetch(`${base}/users/2`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'Alan' }),
+    });
+    expect(((await patch.json()) as { data: { name: string } }).data.name).toBe('Alan');
+  });
+
+  it('DELETE /users/:id returns 204 and removes the user', async () => {
+    const del = await fetch(`${base}/users/2`, { method: 'DELETE' });
+    expect(del.status).toBe(204);
+    const after = await fetch(`${base}/users/2`);
+    expect(after.status).toBe(404);
+  });
