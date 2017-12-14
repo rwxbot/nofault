@@ -41,3 +41,46 @@ describe('v0.2.0 rest-user-api (integration)', () => {
       'GET /api/users/:id',
       'GET /api/users/count',
       'GET /api/users/probe/missing',
+      // v0.3.0 起框架内建的探针
+      'GET /healthz',
+      'GET /readyz',
+      'PATCH /api/users/:id',
+      'POST /api/users',
+      'POST /api/users/echo',
+      'PUT /api/users/:id',
+    ]);
+  });
+
+  it('GET /users returns a wrapped list', async () => {
+    const res = await fetch(`${base}/users`);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { code: number; data: Array<{ name: string }>; message: string };
+    expect(body.code).toBe(0);
+    expect(body.message).toBe('ok');
+    expect(body.data[0]!.name).toBe('Ada Lovelace');
+  });
+
+  it('GET /users?keyword= filters the list', async () => {
+    const hit = await fetch(`${base}/users?keyword=Ada`);
+    const miss = await fetch(`${base}/users?keyword=zzz`);
+    expect(((await hit.json()) as { data: unknown[] }).data).toHaveLength(1);
+    expect(((await miss.json()) as { data: unknown[] }).data).toHaveLength(0);
+  });
+
+  it('GET /users/:id extracts a numeric path param', async () => {
+    const res = await fetch(`${base}/users/1`);
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { data: { id: number } }).data.id).toBe(1);
+  });
+
+  it('POST /users validates the body and returns 422 on bad input', async () => {
+    const ok = await fetch(`${base}/users`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'Alan Turing', email: 'alan@nofault.dev', age: 41 }),
+    });
+    expect(ok.status).toBe(200);
+    expect(((await ok.json()) as { data: { id: number } }).data.id).toBe(2);
+
+    const bad = await fetch(`${base}/users`, {
+      method: 'POST',
