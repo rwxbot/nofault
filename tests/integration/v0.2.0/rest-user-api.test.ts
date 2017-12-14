@@ -126,3 +126,46 @@ describe('v0.2.0 rest-user-api (integration)', () => {
     const after = await fetch(`${base}/users/2`);
     expect(after.status).toBe(404);
   });
+
+  it('returns 404 for unknown users with the unified error body', async () => {
+    const res = await fetch(`${base}/users/999`);
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ code: 404, data: null, message: 'User 999 not found' });
+  });
+
+  it('returns 405 with an Allow header when the method is not registered', async () => {
+    // /api/users/count 用 POST 打：路径形状存在（GET 注册过），但 POST 没有 → 405
+    // 注意 Allow 里会包含 /users/:id 形状能匹配到的其它方法（DELETE/PUT/PATCH），
+    // 这符合 HTTP 语义：Allow 描述的是"目标资源"支持的方法集合。
+    const res = await fetch(`${base}/users/count`, { method: 'POST' });
+    expect(res.status).toBe(405);
+    const allow = res.headers.get('allow') ?? '';
+    expect(allow).toContain('GET');
+    expect(allow).toContain('HEAD');
+    expect(allow).not.toContain('POST');
+    expect(((await res.json()) as { message: string }).message).toContain('Allowed methods');
+  });
+
+  it('coerces path params to their declared type and rejects bad input', async () => {
+    // DELETE /users/:id 存在，但 'abc' 转不成 number
+    const res = await fetch(`${base}/users/abc`, { method: 'DELETE' });
+    expect(res.status).toBe(400);
+    expect(((await res.json()) as { message: string }).message).toContain('Cannot convert');
+  });
+
+  it('returns 404 for unknown paths', async () => {
+    const res = await fetch(`${base}/nope`);
+    expect(res.status).toBe(404);
+    expect(((await res.json()) as { message: string }).message).toContain('Cannot GET');
+  });
+
+  it('applies CORS middleware headers', async () => {
+    const res = await fetch(`${base}/users`, { headers: { origin: 'https://example.com' } });
+    expect(res.headers.get('access-control-allow-origin')).toBe('https://example.com');
+  });
+
+  it('applies route-level middleware (x-response-time)', async () => {
+    const res = await fetch(`${base}/users`);
+    expect(res.headers.get('x-response-time')).toMatch(/ms$/);
+  });
+});
