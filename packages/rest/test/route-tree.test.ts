@@ -91,3 +91,32 @@ describe('RouteTree', () => {
 
 describe('RouteTable', () => {
   it('keeps one tree per method', () => {
+    const table = new RouteTable<string>();
+    table.add('GET', '/users', 'list');
+    table.add('POST', '/users', 'create');
+    expect(table.match('GET', '/users')?.handler).toBe('list');
+    expect(table.match('POST', '/users')?.handler).toBe('create');
+    expect(table.match('DELETE', '/users')).toBeUndefined();
+    expect(table.size).toBe(2);
+  });
+
+  it('falls back to GET for HEAD', () => {
+    const table = new RouteTable<string>();
+    table.add('GET', '/ping', 'pong');
+    expect(table.match('HEAD', '/ping')?.handler).toBe('pong');
+  });
+
+  it('reports allowed methods for 405 responses', () => {
+    const table = new RouteTable<string>();
+    table.add('GET', '/users/:id', 'get');
+    table.add('PUT', '/users/:id', 'put');
+    expect(table.allowedMethods('/users/1')).toEqual(['GET', 'HEAD', 'PUT']);
+  });
+
+  it('lists registered routes for introspection', () => {
+    const table = new RouteTable<string>();
+    table.add('GET', '/b', 'b');
+    table.add('GET', '/a', 'a');
+    expect(table.listRoutes().map((r) => r.pattern)).toEqual(['/a', '/b']);
+  });
+});
