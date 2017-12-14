@@ -49,3 +49,19 @@ describe('static file middleware', () => {
     const dir = mkdtempSync(join(tmpdir(), 'nofault-static-'));
     const app = await RestApplication.create(StaticModule, {
       quiet: true,
+      middleware: [serveStatic({ root: dir, prefix: '/' })],
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
+    try {
+      // 未命中 → 继续走路由，不吞掉业务端点
+      const ping = await fetch(`http://127.0.0.1:${port}/api/ping`);
+      expect(ping.status).toBe(200);
+
+      // 编码过的穿越段：无论落在"拒绝"还是"未命中"，都绝不能 200
+      const evil = await fetch(`http://127.0.0.1:${port}/%2e%2e/%2e%2e/etc/passwd`);
+      expect([400, 404]).toContain(evil.status);
+    } finally {
+      await app.close();
+    }
+  });
+});
