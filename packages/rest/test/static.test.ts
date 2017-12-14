@@ -15,3 +15,20 @@ import { Controller, Get, RestApplication, serveStatic } from '../src/index';
 @Controller('/api')
 class ApiController {
   @Get('/ping')
+  ping(): { ok: string } {
+    return { ok: 'yes' };
+  }
+}
+
+@Module({ controllers: [ApiController] })
+class StaticModule {}
+
+describe('static file middleware', () => {
+  it('streams a file with the right type, size and bytes', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'nofault-static-'));
+    const payload = 'x'.repeat(4096);
+    writeFileSync(join(dir, 'page.html'), payload);
+
+    const app = await RestApplication.create(StaticModule, {
+      quiet: true,
+      middleware: [serveStatic({ root: dir, prefix: '/static' })],
