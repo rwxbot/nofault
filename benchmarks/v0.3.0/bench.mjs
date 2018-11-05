@@ -79,3 +79,43 @@ function startServer(name, script, cwd) {
         res(Number(m[1]));
       }
     });
+    child.on('exit', (code) => {
+      clearTimeout(timer);
+      rej(new Error(`${name} exited early with code ${code}`));
+    });
+  });
+  return { child, port };
+}
+
+function once(port, path, agents) {
+  const agent = agents[Math.floor(Math.random() * agents.length)];
+  return new Promise((res) => {
+    const start = process.hrtime.bigint();
+    const req = request({ host: '127.0.0.1', port, path, agent }, (response) => {
+      response.on('data', () => {});
+      response.on('end', () => res(Number(process.hrtime.bigint() - start) / 1e6));
+    });
+    req.on('error', () => res(-1));
+    req.end();
+  });
+}
+
+async function run(port, path, { duration, connections, warmup }) {
+  const agents = Array.from(
+    { length: Math.max(1, Math.ceil(connections / 16)) },
+    () => new Agent({ keepAlive: true, maxSockets: 16, maxFreeSockets: 16 }),
+  );
+  const warmEnd = Date.now() + warmup * 1000;
+  while (Date.now() < warmEnd) await once(port, path, agents);
+
+  const latencies = [];
+  const end = Date.now() + duration * 1000;
+  const started = Date.now();
+  await Promise.all(
+    Array.from({ length: connections }, () => (async () => {
+      while (Date.now() < end) {
+        const l = await once(port, path, agents);
+        if (l >= 0) latencies.push(l);
+      }
+    })()),
+  );
