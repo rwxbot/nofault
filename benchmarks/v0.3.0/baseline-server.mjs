@@ -9,3 +9,13 @@ const config = {
   tenant: 'acme',
   betaEnabled: false,
   greeting: 'Hello from v0.3.0',
+};
+
+function send(res, status, payload) {
+  const body = JSON.stringify(payload);
+  res.writeHead(status, { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) });
+  res.end(body);
+}
+
+const server = createServer((req, res) => {
+  const url = new URL(req.url ?? '/', 'http://127.0.0.1');
