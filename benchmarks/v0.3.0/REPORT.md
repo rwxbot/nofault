@@ -54,3 +54,23 @@
 这正是"每个版本都要跑 benchmark"的价值——两处问题靠读代码都发现不了：
 
 ### 1. 每次 `config.get()` 都全量克隆配置
+
+`ConfigService.read()` → `registry.values()`，而 `values()` 里是 `structuredClone(current)`。
+也就是说**读一个配置项的成本 = 克隆整份配置**。示例里一个请求读 3 次，就是 3 次全量克隆。
+
+**修法**：`values()` 直接返回内部对象，不再克隆。
+安全性由"整体替换"保证——`reload()` 每次生成全新对象，从不在原地改，
+所以旧引用不会看到撕裂状态。需要不可变副本时用 `ConfigService.snapshot()`（那里仍克隆）。
+
+收益：config 场景开销 **50.2% → 35.1%（−15pp）**。
+
+### 2. 每个请求做 3 次 `crypto.getRandomValues`
+
+建一个 `RequestContext` 需要 traceId(32hex) + spanId(16hex) + requestId(8hex)，
+原本各自调用一次随机源 —— 每次调用都有固定开销，合计约 16µs。
+
+**修法**：新增 `generateRequestIds()`，一次抽 28 字节（56 hex）再切分，调用次数 3 → 1。
+
+收益：上下文创建 **62k → 153k ops/sec（2.5×）**，ALS run **16.92 → 7.01 µs**。
+
+## 结论
