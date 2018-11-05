@@ -19,3 +19,12 @@ function send(res, status, payload) {
 
 const server = createServer((req, res) => {
   const url = new URL(req.url ?? '/', 'http://127.0.0.1');
+  const p = url.pathname;
+
+  if (p === '/api/runtime/config') {
+    return send(res, 200, {
+      code: 0,
+      data: { ...config, watchedAt: new Date().toISOString() },
+      message: 'ok',
+    });
+  }
