@@ -50,3 +50,12 @@ const server = createServer((req, res) => {
 });
 
 let counter = 0;
+function cryptoRandom(n) {
+  const b = new Uint8Array(n);
+  globalThis.crypto.getRandomValues(b);
+  return b;
+}
+
+server.listen(0, '127.0.0.1', () => {
+  process.stdout.write(JSON.stringify({ port: server.address().port }) + '\n');
+});
