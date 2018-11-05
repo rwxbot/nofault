@@ -74,3 +74,20 @@
 收益：上下文创建 **62k → 153k ops/sec（2.5×）**，ALS run **16.92 → 7.01 µs**。
 
 ## 结论
+
+1. 上下文与 REQUEST 作用域的**绝对成本很低**（~7µs/请求），
+   在 8k rps 量级下约占 0.06 秒/秒，不是瓶颈。
+2. 真正的开销来自**中间件数量与每请求 DI**，这属于"能力换成本"，
+   后续可用"中间件编译期折叠成单个函数"（框架通行做法）进一步优化。
+3. 热路径上**任何一次 structuredClone / crypto 调用都要当心**。
+
+## 复现
+
+```bash
+cd nofault-all/nofault
+pnpm build
+cd examples/v0.3.0-runtime-basics && npx tsc -p tsconfig.json && cd -
+node scripts/run-bench.mjs v0.3.0 --duration=10 --connections=64 --rounds=5 --report
+```
+
+原始数据在 `results.json`。
