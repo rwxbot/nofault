@@ -40,3 +40,13 @@ const server = createServer((req, res) => {
         spanId: hex(8),
         scopeInstanceNo: ++counter,
         scopeRequestId: `req_${hex(4)}`,
+        configReloadable: false,
+      },
+      message: 'ok',
+    });
+  }
+
+  send(res, 404, { code: 404, data: null, message: `Cannot GET ${p}` });
+});
+
+let counter = 0;
