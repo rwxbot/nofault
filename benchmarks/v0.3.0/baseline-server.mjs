@@ -28,3 +28,15 @@ const server = createServer((req, res) => {
       message: 'ok',
     });
   }
+
+  // 与 nofault 的 /api/runtime/context 对齐：也生成 id 与 traceId
+  if (p === '/api/runtime/context') {
+    const hex = (n) => Buffer.from(cryptoRandom(n)).toString('hex');
+    return send(res, 200, {
+      code: 0,
+      data: {
+        requestId: `req_${hex(4)}`,
+        traceId: hex(16),
+        spanId: hex(8),
+        scopeInstanceNo: ++counter,
+        scopeRequestId: `req_${hex(4)}`,
