@@ -114,3 +114,32 @@ ConfigModule.forRootAsync({ path: 'config.yaml', watch: true })
 | `createPollingSource({ fetch, intervalMs })` | 轮询；etcd / consul / nacos 都走它 |
 | `createInlineSource(values)` | 内联值、默认值 |
 | `createEnvSource(prefix)` | 环境变量，优先级最高 |
+
+合并顺序：**后面的覆盖前面的，环境变量永远最后**。
+
+远程拉取失败时**保留上一次的值**——配置中心的抖动不能把应用打挂。
+
+> **性能坑**：`values()` 曾经每次 `structuredClone`，导致读一个配置项 = 克隆整份配置。
+> 现在 `values()` 直接返回内部对象（安全由"整体替换"保证），
+> 需要副本时用 `ConfigService.snapshot()`。
+
+### 3.4 健康探针
+
+严格区分两个语义（K8s 约定）：
+
+- **`/healthz` liveness**：进程活着吗？只做最廉价的检查，挂了就重启
+- **`/readyz` readiness**：能接流量吗？没就绪就摘掉
+
+注册过 readiness 检查后默认**未就绪**，必须显式 `app.markReady()`——
+这是有意的，避免半初始化的实例接流量。
+
+### 3.5 优雅退出
+
+```
+markNotReady() → 摘流量
+  → 停止监听 → 排在途请求
+  → beforeApplicationShutdown → onModuleDestroy → onApplicationShutdown
+```
+
+带**超时保护**（默认 5s）：某个 Provider 的 destroy 卡死时进程也必须能退出，
+否则 K8s 只能 SIGKILL，那是真丢数据。
