@@ -45,3 +45,26 @@
   <text x="560" y="297" font-size="11" fill="#64748b" text-anchor="middle">每请求一份 · 请求内共享 · 请求结束释放</text>
 
   <rect x="60" y="330" width="660" height="46" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+  <text x="390" y="352" font-size="12.5" font-weight="600" fill="#0f172a" text-anchor="middle">handler → 响应包装 → commit() → clearRequestContext()</text>
+  <text x="390" y="369" font-size="11" fill="#64748b" text-anchor="middle">请求结束时释放请求级实例，否则 Map 会无限增长</text>
+
+  <path d="M 655 170 L 655 190" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M 390 238 L 390 256" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M 220 310 L 220 328" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+  <path d="M 560 310 L 560 328" stroke="#64748b" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+
+  <!-- 依赖作用域传播 -->
+  <rect x="760" y="90" width="400" height="150" rx="10" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="776" y="112" font-size="12" font-weight="600" fill="#b91c1c">Captive dependency 检测（启动期）</text>
+  <text x="776" y="136" font-size="11.5" fill="#7f1d1d">单例 Controller → 依赖 REQUEST Service</text>
+  <text x="776" y="156" font-size="11.5" fill="#7f1d1d">沿依赖图迭代传播 contextDependent 标记</text>
+  <text x="776" y="180" font-size="11.5" fill="#7f1d1d">被污染者按上下文缓存，而非全局单例</text>
+  <text x="776" y="206" font-size="11" fill="#991b1b">不处理 → 所有请求共用第一个请求的对象，数据串号</text>
+  <text x="776" y="226" font-size="11" fill="#991b1b">且这类 bug 只在并发下偶发，极难排查</text>
+
+  <!-- 配置热更新 -->
+  <rect x="760" y="256" width="400" height="164" rx="10" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text x="776" y="278" font-size="12" font-weight="600" fill="#a16207">配置热更新</text>
+  <rect x="776" y="290" width="114" height="40" rx="6" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="833" y="308" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle">file(watch)</text>
+  <text x="833" y="324" font-size="10.5" fill="#64748b" text-anchor="middle">fs.watch + 防抖</text>
