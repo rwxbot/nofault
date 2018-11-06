@@ -119,3 +119,43 @@ async function run(port, path, { duration, connections, warmup }) {
       }
     })()),
   );
+  const elapsed = (Date.now() - started) / 1000;
+  for (const a of agents) a.destroy();
+  return summarize(latencies, elapsed);
+}
+
+function summarize(latencies, elapsedSec) {
+  const sorted = [...latencies].sort((a, b) => a - b);
+  const q = (p) => (sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0);
+  const total = sorted.reduce((s, v) => s + v, 0);
+  return {
+    requests: sorted.length,
+    rps: Number((sorted.length / elapsedSec).toFixed(1)),
+    meanMs: Number((total / Math.max(1, sorted.length)).toFixed(3)),
+    p50Ms: Number(q(0.5).toFixed(3)),
+    p95Ms: Number(q(0.95).toFixed(3)),
+    p99Ms: Number(q(0.99).toFixed(3)),
+  };
+}
+
+const median = (rounds) => [...rounds].sort((a, b) => a.rps - b.rps)[Math.floor(rounds.length / 2)];
+
+const SCENARIOS = [
+  { name: 'GET config (路由+上下文)', path: '/api/runtime/config' },
+  { name: 'GET context (上下文+REQUEST作用域)', path: '/api/runtime/context' },
+];
+
+async function main() {
+  console.log(
+    `[bench] duration=${opts.duration}s connections=${opts.connections} warmup=${opts.warmup}s rounds=${opts.rounds} node=${process.version} platform=${process.platform}/${process.arch}`,
+  );
+
+  const micro = await contextMicroBench();
+
+  const baseline = startServer('baseline', 'baseline-server.mjs', here);
+  const nofault = startServer('nofault', 'dist/main.js', join(repoRoot, 'examples/v0.3.0-runtime-basics'));
+
+  const results = {};
+  try {
+    const [basePort, nfPort] = await Promise.all([baseline.port, nofault.port]);
+    // 等就绪探针通过再压，避免把启动过程算进去
