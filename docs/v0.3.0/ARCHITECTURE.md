@@ -143,3 +143,32 @@ markNotReady() → 摘流量
 
 带**超时保护**（默认 5s）：某个 Provider 的 destroy 卡死时进程也必须能退出，
 否则 K8s 只能 SIGKILL，那是真丢数据。
+
+---
+
+## 4. 性能
+
+| 指标 | 数值 |
+| --- | --- |
+| 上下文创建 | 153,130 ops/sec |
+| ALS run + current | 142,643 ops/sec（7.01 µs/次） |
+| GET config | 7,768.5 rps，开销 35.1% |
+| GET context | 8,221.3 rps，开销 30.3% |
+
+基准测试反过来挖出并修掉了两个热路径问题（详见 `benchmarks/v0.3.0/REPORT.md`）：
+
+1. 每次 `config.get()` 全量 `structuredClone` → 开销 −15pp
+2. 每请求 3 次 `crypto.getRandomValues` → 上下文快 2.5×
+
+> 相比 v0.2.0 的 5.9%，30~35% **不是回归**：这一版多做了上下文、每请求 DI、探针与热配置。
+
+---
+
+## 5. 已知限制
+
+1. 中间件链未做编译期折叠（框架通行做法），是当前主要开销 → 后续优化
+2. 未实现真正的链路追踪（span 上报），只有 traceId 传播 → v0.8.0
+3. 无指标采集（Prometheus）→ v0.8.0
+4. 无 ORM / 缓存 → v0.5.0
+5. 无 RPC → v0.6.0
+6. 无熔断 / 限流 → v0.7.0
