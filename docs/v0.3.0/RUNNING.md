@@ -13,3 +13,19 @@ pnpm vitest run tests/integration/v0.3.0     # v0.3.0 集成测试（真实起�
 ```
 
 ## 跑示例
+
+```bash
+pnpm example v0.3.0-runtime-basics
+pnpm example v0.3.0-runtime-basics PORT=3333
+```
+
+启动后会打印路由，并默认开启 `/healthz` 与 `/readyz`。
+
+### curl 试一遍
+
+```bash
+# 请求上下文 + REQUEST 作用域（注意 requestId 与 scopeRequestId 一致）
+curl -s http://127.0.0.1:3000/api/runtime/context
+# 多打几次，scopeInstanceNo 会递增 —— 每请求一份实例
+
+# 配置（改 config/app.yaml 后立即生效，无需重启）
