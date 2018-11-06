@@ -29,3 +29,18 @@ curl -s http://127.0.0.1:3000/api/runtime/context
 # 多打几次，scopeInstanceNo 会递增 —— 每请求一份实例
 
 # 配置（改 config/app.yaml 后立即生效，无需重启）
+curl -s http://127.0.0.1:3000/api/runtime/config
+
+# traceparent 传播：traceId 应与上游一致
+curl -s -H 'traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01' \
+  http://127.0.0.1:3000/api/runtime/trace
+
+# 同一请求内共享实例（notes 每次请求都是新的）
+curl -s -X POST http://127.0.0.1:3000/api/runtime/notes \
+  -H 'content-type: application/json' -d '{"note":"a"}'
+
+# 探针
+curl -i http://127.0.0.1:3000/healthz
+curl -i http://127.0.0.1:3000/readyz
+
+# 响应头里的 requestId
