@@ -22,3 +22,15 @@
 ### @nofault/config
 - 可插拔 `ConfigSource`：`createFileSource`（watch + 防抖）/ `createPollingSource`（etcd/consul/nacos）/ `createInlineSource` / `createEnvSource`
 - `ConfigRegistry`：多源合并、环境变量最高优先、变更通知、远程失败保留旧值
+- `ConfigModule.forRootAsync()`：完成首次加载后再返回模块，支持热更新
+- `ConfigService` 支持 `reload()` / `subscribe()` / `isReloadable`
+
+### @nofault/logger
+- `FileTransport`：按大小 / 按天轮转，保留 N 份历史
+- `contextProvider`：每条日志注入请求上下文（traceId）
+- `sampling`：`sampleBelow` 以下级别按比例采样，warn 以上永不打折扣
+- 传输失败退到 stderr 并限流，**不会打挂业务**
+
+### @nofault/rest
+- `requestContext()` 中间件（复用框架已建立的上下文）
+- 内建 `/healthz`（存活）与 `/readyz`（就绪），语义严格分离
