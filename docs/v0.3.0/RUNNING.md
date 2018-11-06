@@ -44,3 +44,17 @@ curl -i http://127.0.0.1:3000/healthz
 curl -i http://127.0.0.1:3000/readyz
 
 # 响应头里的 requestId
+curl -s -D - -o /dev/null http://127.0.0.1:3000/api/runtime/context | grep -i x-request-id
+
+# 日志（每行都带 traceId）
+tail -f logs/runtime-basics.log
+```
+
+### 体验热更新
+
+```bash
+# 另开一个终端，改配置
+sed -i '' 's/betaEnabled: false/betaEnabled: true/' config/app.yaml
+# 再请求，值已变
+curl -s http://127.0.0.1:3000/api/runtime/config
+```
