@@ -57,3 +57,31 @@ graph TD
 ```
 
 ---
+
+## 3. 关键设计
+
+### 3.1 请求上下文：AsyncLocalStorage
+
+请求级值传递用 Node 惯用法表达：
+**显式对象 + ALS 隐式传播**，而不是把 ctx 当第一个参数到处传。
+
+```ts
+const logger = createLogger({ contextProvider: () => currentContext()?.toJSON() });
+```
+
+这一行让**每一行日志自动带上 traceId**，业务代码完全无感。
+
+`RequestContext` 同时扮演两个角色：
+1. 请求级数据袋（`set` / `get`）
+2. 内核 REQUEST 作用域所需的 `contextId`（对象身份即 key）
+
+> **踩坑**：框架在请求入口建上下文，中间件若再建一层，
+> 就会出现**两层嵌套上下文**——handler 里读到的 requestId 和请求级 Provider 拿到的不是同一个。
+> 因此 `requestContext()` 中间件会**复用**框架已建立的上下文。
+
+### 3.2 REQUEST 作用域 + Captive dependency 检测
+
+```ts
+@Injectable({ scope: Scope.REQUEST })
+class RequestScopeService {}
+```
