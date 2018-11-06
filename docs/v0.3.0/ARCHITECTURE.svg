@@ -68,3 +68,26 @@
   <rect x="776" y="290" width="114" height="40" rx="6" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
   <text x="833" y="308" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle">file(watch)</text>
   <text x="833" y="324" font-size="10.5" fill="#64748b" text-anchor="middle">fs.watch + 防抖</text>
+  <rect x="898" y="290" width="114" height="40" rx="6" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="955" y="308" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle">polling</text>
+  <text x="955" y="324" font-size="10.5" fill="#64748b" text-anchor="middle">etcd/consul/nacos</text>
+  <rect x="1020" y="290" width="124" height="40" rx="6" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="1082" y="308" font-size="11.5" font-weight="600" fill="#0f172a" text-anchor="middle">env(最高优先)</text>
+  <text x="1082" y="324" font-size="10.5" fill="#64748b" text-anchor="middle">12-factor</text>
+  <rect x="776" y="342" width="368" height="34" rx="6" fill="#ffffff" stroke="#fcd34d" stroke-width="1.5"/>
+  <text x="960" y="363" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">ConfigRegistry：合并 → 变更则通知订阅者</text>
+  <text x="776" y="396" font-size="11" fill="#64748b">values() 不克隆（热路径）；snapshot() 才克隆</text>
+  <text x="776" y="412" font-size="11" fill="#64748b">远程拉取失败保留上一次的值，不打挂应用</text>
+
+  <!-- 日志与探针 -->
+  <rect x="40" y="440" width="700" height="118" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="56" y="462" font-size="12" font-weight="600" fill="#1d4ed8">可观测性与运维</text>
+  <rect x="60" y="474" width="200" height="46" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="160" y="496" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">contextProvider</text>
+  <text x="160" y="512" font-size="10.5" fill="#64748b" text-anchor="middle">每行日志自动带 traceId</text>
+  <rect x="272" y="474" width="200" height="46" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="372" y="496" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">FileTransport</text>
+  <text x="372" y="512" font-size="10.5" fill="#64748b" text-anchor="middle">按大小/按天轮转 + 保留 N 份</text>
+  <rect x="484" y="474" width="200" height="46" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="584" y="496" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">/healthz · /readyz</text>
+  <text x="584" y="512" font-size="10.5" fill="#64748b" text-anchor="middle">存活与就绪严格分离</text>
