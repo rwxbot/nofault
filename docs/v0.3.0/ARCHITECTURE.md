@@ -85,3 +85,32 @@ const logger = createLogger({ contextProvider: () => currentContext()?.toJSON() 
 @Injectable({ scope: Scope.REQUEST })
 class RequestScopeService {}
 ```
+
+内核在启动期**沿依赖图传播** REQUEST 作用域：若 A 依赖 B，而 B 是 REQUEST（或已被污染），则 A 也被标记 `contextDependent`，按上下文缓存。
+
+这是必须的。否则单例 Controller 会缓存住第一个请求的对象，
+**所有请求共用同一份**——跨请求数据串号，且只在并发下偶发，极难排查。
+
+| 情况 | 行为 |
+| --- | --- |
+| 纯单例依赖链 | 全局一份（不变） |
+| REQUEST 作用域 | 每 contextId 一份 |
+| 单例 → REQUEST（captive） | 自动按上下文缓存 |
+| TRANSIENT | 每次解析都新建 |
+
+请求结束时 `clearRequestContext(contextId)` 释放，否则 `Map` 会无限增长。
+
+### 3.3 配置热更新：可插拔 Source
+
+```ts
+ConfigModule.forRootAsync({ path: 'config.yaml', watch: true })
+```
+
+`ConfigSource` 统一抽象，内置四种：
+
+| Source | 说明 |
+| --- | --- |
+| `createFileSource({ path, watch })` | 文件 + fs.watch（100ms 防抖） |
+| `createPollingSource({ fetch, intervalMs })` | 轮询；etcd / consul / nacos 都走它 |
+| `createInlineSource(values)` | 内联值、默认值 |
+| `createEnvSource(prefix)` | 环境变量，优先级最高 |
