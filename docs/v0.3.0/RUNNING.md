@@ -58,3 +58,19 @@ sed -i '' 's/betaEnabled: false/betaEnabled: true/' config/app.yaml
 # 再请求，值已变
 curl -s http://127.0.0.1:3000/api/runtime/config
 ```
+
+## 跑基准测试
+
+```bash
+pnpm bench v0.3.0
+pnpm bench v0.3.0 --duration=10 --connections=64 --rounds=5 --report
+```
+
+分两部分：
+
+- **A. 上下文微基准**（进程内）：上下文创建与 ALS run 的 ops/sec
+- **B. HTTP 端到端**：`GET /api/runtime/config` 与 `GET /api/runtime/context`，对比裸 `node:http`
+
+压测前会先轮询 `/readyz`，避免把启动过程算进吞吐。
+
+## 目录导航
