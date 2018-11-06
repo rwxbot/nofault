@@ -91,3 +91,25 @@
   <rect x="484" y="474" width="200" height="46" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
   <text x="584" y="496" font-size="12" font-weight="600" fill="#0f172a" text-anchor="middle">/healthz · /readyz</text>
   <text x="584" y="512" font-size="10.5" fill="#64748b" text-anchor="middle">存活与就绪严格分离</text>
+  <text x="60" y="540" font-size="11" fill="#64748b">采样只作用于 sampleBelow 以下级别；传输失败退到 stderr 并限流，绝不打挂业务</text>
+
+  <rect x="760" y="440" width="400" height="118" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="776" y="462" font-size="12" font-weight="600" fill="#334155">优雅退出编排（带超时保护）</text>
+  <text x="776" y="486" font-size="11.5" fill="#475569">1. markNotReady() 从负载均衡摘流量</text>
+  <text x="776" y="506" font-size="11.5" fill="#475569">2. 停止监听 → 排在途请求</text>
+  <text x="776" y="526" font-size="11.5" fill="#475569">3. beforeShutdown → onModuleDestroy → onShutdown</text>
+  <text x="776" y="546" font-size="11" fill="#64748b">超时（默认 5s）后强制退出，避免被 SIGKILL</text>
+
+  <!-- 性能 -->
+  <rect x="40" y="578" width="1120" height="150" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="56" y="600" font-size="12" font-weight="600" fill="#334155">v0.3.0 实测（32 并发，4s/轮，2 轮取中位数；Node v22.22.2 darwin/x64）</text>
+  <text x="64" y="624" font-size="12.5" fill="#0f172a">上下文创建：153,130 ops/sec（优化前 62,303，2.5×）</text>
+  <text x="64" y="644" font-size="12.5" fill="#0f172a">ALS run + current：142,643 ops/sec（7.01 µs/次，优化前 16.92 µs）</text>
+  <text x="64" y="668" font-size="12.5" fill="#0f172a">GET config（路由+上下文+中间件+热配置）：7,768.5 rps vs 11,969.0 → 开销 35.1%</text>
+  <text x="64" y="688" font-size="12.5" fill="#0f172a">GET context（+REQUEST 作用域）：8,221.3 rps vs 11,798.9 → 开销 30.3%</text>
+  <text x="64" y="712" font-size="11" fill="#64748b">基准测试挖出并修复：① 每次 config.get() 全量 structuredClone（−15pp）② 每请求 3 次 crypto 随机（上下文快 2.5×）</text>
+
+  <text x="40" y="760" font-size="11.5" fill="#94a3b8">注：v0.3.0 的 30~35% 不是回归——相比 v0.2.0 的 5.9%，这一版多做了上下文、每请求 DI、探针与热配置。</text>
+  <text x="40" y="780" font-size="11.5" fill="#94a3b8">下一步优化方向：把中间件链在启动期折叠成单个函数（框架通行做法）。</text>
+  <text x="40" y="806" font-size="11.5" fill="#94a3b8">v0.3.0 不做 ORM / RPC / 服务治理 —— 它们属于 v0.5.0 / v0.6.0 / v0.7.0。</text>
+</svg>
