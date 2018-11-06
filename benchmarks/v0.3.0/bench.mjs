@@ -159,3 +159,42 @@ async function main() {
   try {
     const [basePort, nfPort] = await Promise.all([baseline.port, nofault.port]);
     // 等就绪探针通过再压，避免把启动过程算进去
+    for (let i = 0; i < 50; i++) {
+      const r = await fetch(`http://127.0.0.1:${nfPort}/readyz`).catch(() => null);
+      if (r && r.ok) break;
+      await sleep(100);
+    }
+
+    for (const sc of SCENARIOS) {
+      const baseRuns = [];
+      const nfRuns = [];
+      for (let r = 1; r <= opts.rounds; r++) {
+        process.stdout.write(`[bench] ${sc.name} round ${r}/${opts.rounds} ... `);
+        const b = await run(basePort, sc.path, opts);
+        const n = await run(nfPort, sc.path, opts);
+        baseRuns.push(b);
+        nfRuns.push(n);
+        console.log(`baseline=${b.rps} rps, nofault=${n.rps} rps`);
+      }
+      const base = median(baseRuns);
+      const nf = median(nfRuns);
+      const gap = (((base.rps - nf.rps) / base.rps) * 100).toFixed(1);
+      results[sc.name] = { baseline: base, nofault: nf, gapPercent: Number(gap) };
+      console.table({
+        [`baseline · ${sc.name}`]: { rps: base.rps, mean: base.meanMs, p50: base.p50Ms, p95: base.p95Ms, p99: base.p99Ms },
+        [`nofault · ${sc.name}`]: { rps: nf.rps, mean: nf.meanMs, p50: nf.p50Ms, p95: nf.p95Ms, p99: nf.p99Ms },
+      });
+      console.log(`[bench] gap for "${sc.name}": ${gap}% (正数表示 nofault 更慢)`);
+    }
+  } finally {
+    nofault.child.kill('SIGTERM');
+    baseline.child.kill('SIGTERM');
+  }
+
+  if (opts.report) {
+    writeFileSync(join(here, 'results.json'), JSON.stringify({ opts, micro, results }, null, 2));
+    console.log('[bench] wrote results.json');
+  }
+}
+
+await main();
