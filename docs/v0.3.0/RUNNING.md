@@ -74,3 +74,17 @@ pnpm bench v0.3.0 --duration=10 --connections=64 --rounds=5 --report
 压测前会先轮询 `/readyz`，避免把启动过程算进吞吐。
 
 ## 目录导航
+
+```
+packages/context/src/request-context.ts   RequestContext（traceId / 数据袋 / contextId）
+packages/context/src/store.ts             AsyncLocalStorage 存储
+packages/context/src/ids.ts               W3C traceparent 解析与生成
+packages/core/src/container/             contextId 透传 + 作用域传播
+packages/config/src/provider.ts           可插拔配置源（file / polling / env）
+packages/config/src/registry.ts           聚合、合并、变更通知
+packages/logger/src/file-transport.ts     文件轮转
+packages/rest/src/health.ts               存活 / 就绪探针
+packages/rest/src/middleware/request-context.ts   上下文中间件
+examples/v0.3.0-runtime-basics/           可运行示例
+tests/integration/v0.3.0/                 集成测试
+```
