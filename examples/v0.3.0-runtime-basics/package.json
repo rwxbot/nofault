@@ -8,3 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/main.js"
   },
+  "dependencies": {
+    "@nofault/config": "workspace:*",
+    "@nofault/context": "workspace:*",
+    "@nofault/core": "workspace:*",
