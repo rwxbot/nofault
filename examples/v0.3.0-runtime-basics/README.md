@@ -41,3 +41,15 @@ tail -f logs/runtime-basics.log
 ```
 
 ## 文件说明
+
+| 文件 | 作用 |
+| --- | --- |
+| `src/main.ts` | 装配：日志 `contextProvider`、中间件顺序、readiness 检查、`markReady()` |
+| `src/app.module.ts` | 用 `ConfigModule.forRootAsync({ watch: true })` 开启热更新 |
+| `src/request-scope.service.ts` | `@Injectable({ scope: Scope.REQUEST })` 的请求级服务 |
+| `src/runtime.controller.ts` | 四个端点分别演示四项能力 |
+| `config/app.yaml` | 运行时可改的配置 |
+
+## 这个示例证明了什么
+
+1. **上下文自动传播** —— 业务代码不接参数也能拿到 requestId / traceId
