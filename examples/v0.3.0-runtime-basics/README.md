@@ -53,3 +53,13 @@ tail -f logs/runtime-basics.log
 ## 这个示例证明了什么
 
 1. **上下文自动传播** —— 业务代码不接参数也能拿到 requestId / traceId
+2. **REQUEST 作用域语义正确** —— 每请求一份、请求内共享、跨请求隔离
+3. **Captive dependency 被自动纠正** —— 单例控制器虽依赖请求级服务，也不会串数据
+4. **热更新端到端可用** —— 改文件 → 下一次请求就读到新值
+5. **探针语义分离** —— `/healthz` 与 `/readyz` 返回不同的检查项
+
+## 测试
+
+```bash
+pnpm vitest run tests/integration/v0.3.0
+```
