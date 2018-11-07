@@ -9,3 +9,14 @@
 pnpm example v0.3.0-runtime-basics
 pnpm example v0.3.0-runtime-basics PORT=3333
 ```
+
+## 试一试
+
+```bash
+# 1) 请求上下文 + REQUEST 作用域
+curl -s http://127.0.0.1:3000/api/runtime/context
+# {"requestId":"req_f6516589","traceId":"afc5…","scopeInstanceNo":1,
+#  "scopeRequestId":"req_f6516589","configReloadable":true}
+#   ↑ requestId 与 scopeRequestId 一致；多打几次 scopeInstanceNo 会递增
+
+# 2) 配置热更新（改 config/app.yaml 后无需重启）
