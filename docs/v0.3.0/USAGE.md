@@ -100,3 +100,36 @@ const logger = createLogger({
 传输目标写失败会退到 stderr 并限流，**绝不会把业务请求打挂**。
 
 ## 6. 健康探针
+
+框架默认注册 `/healthz` 与 `/readyz`：
+
+```ts
+app.health.registerLiveness('event-loop', () => true);
+app.health.registerReadiness('db', async () => {
+  await pool.query('select 1');
+  return true;
+}, /* degradeOnFailure */ false);
+
+await app.listen(3000);
+app.markReady();        // 预热完成，正式接流量
+```
+
+语义严格区分：
+
+| 端点 | 语义 | 失败后果 |
+| --- | --- | --- |
+| `/healthz` | 进程活着吗 | 重启容器 |
+| `/readyz` | 能接流量吗 | 从负载均衡摘掉 |
+
+`degradeOnFailure: true` 时该项失败只降级（`degraded`，仍返回 200）不判死。
+
+自定义路径或关闭：
+
+```ts
+RestApplication.create(AppModule, {
+  health: { livenessPath: '/live', readinessPath: '/ready' },
+  // health: false,   // 完全关闭
+});
+```
+
+## 7. 优雅退出
