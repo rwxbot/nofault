@@ -7,3 +7,6 @@ app:
   tenant: acme
 server:
   port: 3000
+feature:
+  # 改这个开关，观察 /api/runtime/config 与业务行为同步变化
+  betaEnabled: false
