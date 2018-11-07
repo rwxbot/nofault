@@ -4,3 +4,6 @@
 # 再访问 GET /api/runtime/config，会看到值实时变化。
 app:
   name: runtime-basics
+  tenant: acme
+server:
+  port: 3000
