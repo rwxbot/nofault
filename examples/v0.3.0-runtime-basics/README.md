@@ -20,3 +20,14 @@ curl -s http://127.0.0.1:3000/api/runtime/context
 #   ↑ requestId 与 scopeRequestId 一致；多打几次 scopeInstanceNo 会递增
 
 # 2) 配置热更新（改 config/app.yaml 后无需重启）
+curl -s http://127.0.0.1:3000/api/runtime/config
+
+# 3) traceparent 传播
+curl -s -H 'traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01' \
+  http://127.0.0.1:3000/api/runtime/trace
+# traceId 与上游一致，parentSpanId 为上游 spanId
+
+# 4) 请求内共享实例
+curl -s -X POST http://127.0.0.1:3000/api/runtime/notes \
+  -H 'content-type: application/json' -d '{"note":"a"}'
+# notes 每次请求都是新的 —— 证明没有跨请求复用
