@@ -133,3 +133,36 @@ RestApplication.create(AppModule, {
 ```
 
 ## 7. 优雅退出
+
+```ts
+app.enableShutdownHooks();     // SIGTERM / SIGINT
+```
+
+编排顺序：
+
+```
+markNotReady() → 停止监听 → 排在途请求
+  → beforeApplicationShutdown → onModuleDestroy → onApplicationShutdown
+```
+
+默认 5s 超时，超时后强制退出（避免被 SIGKILL）。可在 `NofaultApplication` 层用
+`shutdownTimeout` 调整；传 `0` 表示不设超时。
+
+## 8. 关闭上下文（不推荐）
+
+```ts
+RestApplication.create(AppModule, { contextStore: null });
+```
+
+关闭后 `Scope.REQUEST` 不可用（会抛 `MissingContextIdError`），
+也不会有 `x-request-id` 响应头。仅在极简脚本场景使用。
+
+## 9. 常见报错
+
+| 报错 | 原因 | 处理 |
+| --- | --- | --- |
+| `is REQUEST-scoped but was resolved without a context id` | 在请求外解析了请求级 Provider | 确认请求经过 `requestContext()` 中间件，且未设 `contextStore: null` |
+| `No request context available` | 用了 `requireContext()` 但不在请求内 | 改用 `currentContext()` 并判空 |
+| `/readyz` 一直 503 | 注册过 readiness 检查但没调 `markReady()` | 预热完成后调用 `app.markReady()` |
+| 配置改了没生效 | 用的是 `forRoot`（同步版，不含 watch） | 改用 `forRootAsync({ watch: true })` |
+| 日志里没有 traceId | 没配 `contextProvider` | 见第 2 节 |
