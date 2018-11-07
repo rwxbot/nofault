@@ -2,3 +2,6 @@
   "name": "@nofault/example-v030-runtime-basics",
   "version": "0.3.0",
   "private": true,
+  "description": "v0.3.0 示例：请求上下文 + REQUEST 作用域 + 配置热更新 + traceId 日志 + 健康探针",
+  "main": "dist/main.js",
+  "scripts": {
