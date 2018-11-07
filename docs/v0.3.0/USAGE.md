@@ -65,3 +65,38 @@ config.subscribe((next, prev) => log.info('config changed', { next }));
 await config.reload();          // 也可以手动触发
 config.isReloadable;            // true
 ```
+
+远程配置中心（etcd / consul / nacos）用轮询源接入，不想引入客户端依赖：
+
+```ts
+ConfigModule.forRootAsync({
+  sources: [
+    createPollingSource({
+      name: 'nacos',
+      intervalMs: 30_000,
+      fetch: async () => JSON.parse(await (await fetch('http://nacos/...')).text()),
+    }),
+  ],
+})
+```
+
+拉取失败会保留上一次的值，不会打挂应用。
+
+## 5. 日志落文件 + 轮转 + 采样
+
+```ts
+import { createLogger, FileTransport, LogLevel } from '@nofault/logger';
+
+const logger = createLogger({
+  level: LogLevel.INFO,
+  transports: [
+    new FileTransport({ filePath: 'logs/app.log', maxSize: 512 * 1024, maxFiles: 3, daily: true }),
+  ],
+  // 只采样 debug/trace；warn 以上永不打折扣
+  sampling: { rate: 0.1, sampleBelow: LogLevel.INFO },
+});
+```
+
+传输目标写失败会退到 stderr 并限流，**绝不会把业务请求打挂**。
+
+## 6. 健康探针
