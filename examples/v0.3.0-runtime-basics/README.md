@@ -31,3 +31,13 @@ curl -s -H 'traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
 curl -s -X POST http://127.0.0.1:3000/api/runtime/notes \
   -H 'content-type: application/json' -d '{"note":"a"}'
 # notes 每次请求都是新的 —— 证明没有跨请求复用
+
+# 5) 探针
+curl -i http://127.0.0.1:3000/healthz
+curl -i http://127.0.0.1:3000/readyz
+
+# 6) 日志（每行自动带 traceId）
+tail -f logs/runtime-basics.log
+```
+
+## 文件说明
