@@ -13,3 +13,8 @@ import { RequestScopeService } from './request-scope.service';
  */
 @Module({
   imports: [
+    ConfigModule.forRootAsync({
+      path: process.env.NOFAULT_CONFIG_PATH ?? resolve(__dirname, '../config/app.yaml'),
+      watch: true,
+    }),
+  ],
