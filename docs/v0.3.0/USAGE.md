@@ -32,3 +32,36 @@ const logger = createLogger({
 ## 3. 声明请求级服务
 
 ```ts
+import { Injectable, Scope } from '@nofault/core';
+
+@Injectable({ scope: Scope.REQUEST })
+export class RequestScopeService {
+  private readonly notes: string[] = [];
+  addNote(n: string) { this.notes.push(n); }
+  getNotes() { return [...this.notes]; }
+}
+```
+
+- **每请求一份实例**，请求内共享，请求结束自动释放
+- 典型用途：UnitOfWork（一次请求一个事务）、租户上下文、请求级缓存、审计追踪
+
+> 单例依赖它不会出错——内核会自动把该单例标记为"上下文相关"，
+> 按请求缓存，避免跨请求串数据。
+
+## 4. 配置热更新
+
+```ts
+@Module({
+  imports: [ConfigModule.forRootAsync({ path: 'config.yaml', watch: true })],
+})
+export class AppModule {}
+```
+
+`forRootAsync` 返回 Promise，内核的模块扫描器会 `await`，直接放进 `imports` 即可。
+
+```ts
+const config = await app.get(ConfigService);
+config.subscribe((next, prev) => log.info('config changed', { next }));
+await config.reload();          // 也可以手动触发
+config.isReloadable;            // true
+```
