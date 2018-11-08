@@ -11,3 +11,15 @@ import { AppModule } from './app.module';
  * 这样**每一条日志都自动带上 traceId**，业务代码完全无感——
  * 不需要在每个 log 调用里手动塞字段。
  */
+const logger = createLogger({
+  context: 'runtime-basics',
+  level: LogLevel.DEBUG,
+  contextProvider: () => currentContext()?.toJSON(),
+  transports: [
+    {
+      // stdout：容器里会被日志采集器接走
+      write: (line, record) => {
+        const target = record.level >= LogLevel.WARN ? process.stderr : process.stdout;
+        target.write(line + '\n');
+      },
+    },
