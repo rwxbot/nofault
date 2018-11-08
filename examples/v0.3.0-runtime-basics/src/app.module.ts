@@ -18,3 +18,7 @@ import { RequestScopeService } from './request-scope.service';
       watch: true,
     }),
   ],
+  controllers: [RuntimeController],
+  providers: [RequestScopeService],
+})
+export class AppModule {}
