@@ -42,3 +42,18 @@ export class RuntimeController {
       tenant: this.config.get<string>('app.tenant', 'unknown'),
       betaEnabled: this.config.get<boolean>('feature.betaEnabled', false),
       greeting: this.config.get<string>('feature.greeting', 'hi'),
+      // 改 config/app.yaml 后这个值会变
+      watchedAt: new Date().toISOString(),
+    };
+  }
+
+  @Get('/trace')
+  trace() {
+    const ctx = currentContext();
+    return {
+      traceId: ctx?.traceId,
+      // 带 traceparent 头请求时，traceId 应与上游一致、parentSpanId 为上游 spanId
+      parentSpanId: ctx?.parentSpanId ?? null,
+      sampled: ctx?.sampled,
+    };
+  }
