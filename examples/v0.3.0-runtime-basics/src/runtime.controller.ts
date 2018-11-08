@@ -57,3 +57,16 @@ export class RuntimeController {
       sampled: ctx?.sampled,
     };
   }
+
+  @Post('/notes')
+  async notes(@Ctx() ctx: RestContext) {
+    const body = (ctx.request.body ?? {}) as { note?: string };
+    this.requestScope.addNote(body.note ?? 'empty');
+
+    // 同一请求内再解析一次，拿到的应该是**同一个**实例
+    return {
+      instanceNo: this.requestScope.instanceNo,
+      notes: this.requestScope.getNotes(),
+    };
+  }
+}
