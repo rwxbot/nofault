@@ -26,3 +26,8 @@ export class RequestScopeService {
   addNote(note: string): void {
     this.notes.push(note);
   }
+
+  getNotes(): string[] {
+    return [...this.notes];
+  }
+}
