@@ -23,3 +23,15 @@ const logger = createLogger({
         target.write(line + '\n');
       },
     },
+    new FileTransport({
+      filePath: process.env.NOFAULT_LOG_FILE ?? 'logs/runtime-basics.log',
+      maxSize: 1024 * 512,
+      maxFiles: 3,
+    }),
+  ],
+});
+
+async function bootstrap(): Promise<void> {
+  const app = await RestApplication.create(AppModule, {
+    name: 'runtime-basics',
+    logger,
