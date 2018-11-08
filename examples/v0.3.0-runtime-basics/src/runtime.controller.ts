@@ -13,3 +13,18 @@ import { RequestScopeService } from './request-scope.service';
  * - `/api/runtime/trace`    traceparent 传播
  * - `/api/runtime/notes`    同一请求内共享实例
  */
+@Injectable()
+@Controller('/api/runtime')
+export class RuntimeController {
+  constructor(
+    private readonly requestScope: RequestScopeService,
+    private readonly config: ConfigService,
+  ) {}
+
+  @Get('/context')
+  context() {
+    const ctx = currentContext();
+    return {
+      requestId: ctx?.id,
+      traceId: ctx?.traceId,
+      spanId: ctx?.spanId,
