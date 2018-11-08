@@ -35,3 +35,15 @@ async function bootstrap(): Promise<void> {
   const app = await RestApplication.create(AppModule, {
     name: 'runtime-basics',
     logger,
+    // requestContext() 必须放在最前：后面的中间件与业务逻辑都依赖它
+    middleware: [requestContext(), cors(), securityHeaders(), bodyParser()],
+  });
+
+  // 注册一个 readiness 检查：模拟"依赖预热完成后才接流量"
+  const config = await app.get(ConfigService);
+  app.health.registerReadiness('config', () => {
+    // 缺 tenant 就认为没就绪
+    if (!config.get<string>('app.tenant')) throw new Error('tenant not configured');
+    return true;
+  });
+  app.health.registerLiveness('event-loop', () => process.uptime() >= 0);
