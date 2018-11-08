@@ -47,3 +47,16 @@ async function bootstrap(): Promise<void> {
     return true;
   });
   app.health.registerLiveness('event-loop', () => process.uptime() >= 0);
+
+  // 配置变更时打日志（真实项目里可以用来重建连接池）
+  config.subscribe((next) => {
+    logger.info('config reloaded', { tenant: next.app, betaEnabled: (next.feature as Record<string, unknown>)?.betaEnabled });
+  });
+
+  app.enableShutdownHooks();
+  const port = Number(process.env.PORT ?? 3000);
+  const { port: actualPort } = await app.listen(port);
+
+  // 预热完成，正式接流量
+  app.markReady();
+  logger.info('runtime basics ready', { port: actualPort, routes: app.getRoutes().length });
