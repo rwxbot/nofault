@@ -28,3 +28,17 @@ export class RuntimeController {
       requestId: ctx?.id,
       traceId: ctx?.traceId,
       spanId: ctx?.spanId,
+      parentSpanId: ctx?.parentSpanId,
+      // REQUEST 作用域：每次请求都是新实例，instanceNo 会递增
+      scopeInstanceNo: this.requestScope.instanceNo,
+      scopeRequestId: this.requestScope.requestId,
+      configReloadable: this.config.isReloadable,
+    };
+  }
+
+  @Get('/config')
+  showConfig() {
+    return {
+      tenant: this.config.get<string>('app.tenant', 'unknown'),
+      betaEnabled: this.config.get<boolean>('feature.betaEnabled', false),
+      greeting: this.config.get<string>('feature.greeting', 'hi'),
