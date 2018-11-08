@@ -21,3 +21,8 @@ export class RequestScopeService {
   }
 
   /** 请求内共享的暂存区（同一请求内多次调用会累积） */
+  private readonly notes: string[] = [];
+
+  addNote(note: string): void {
+    this.notes.push(note);
+  }
