@@ -60,3 +60,14 @@ async function bootstrap(): Promise<void> {
   // 预热完成，正式接流量
   app.markReady();
   logger.info('runtime basics ready', { port: actualPort, routes: app.getRoutes().length });
+  for (const r of app.getRoutes()) {
+    logger.debug(`  ${r.method.padEnd(6)} ${r.path}`);
+  }
+}
+
+void bootstrap().catch((err: unknown) => {
+  logger.error('bootstrap failed', undefined, err);
+  // 启动失败的堆栈必须打全，否则只剩一行 message 根本没法排查
+  if (err instanceof Error && err.stack) process.stderr.write(`${err.stack}\n`);
+  process.exit(1);
+});
