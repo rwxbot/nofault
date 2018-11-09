@@ -115,3 +115,32 @@ describe('v0.3.0 runtime-basics (integration)', () => {
 
   it('inherits traceId from an upstream traceparent header', async () => {
     const res = await fetch(`${base}/api/runtime/trace`, {
+      headers: { traceparent: '00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01' },
+    });
+    const body = (await res.json()) as {
+      data: { traceId: string; parentSpanId: string | null; sampled: boolean };
+    };
+    expect(body.data.traceId).toBe('4bf92f3577b34da6a3ce929d0e0e4736');
+    expect(body.data.parentSpanId).toBe('00f067aa0ba902b7');
+    expect(body.data.sampled).toBe(true);
+  });
+
+  it('exposes x-request-id on the response', async () => {
+    const res = await fetch(`${base}/api/runtime/context`);
+    expect(res.headers.get('x-request-id')).toMatch(/^req_/);
+  });
+
+  it('serves liveness and readiness probes', async () => {
+    const live = await fetch(`${base}/healthz`);
+    expect(live.status).toBe(200);
+    const liveBody = (await live.json()) as { status: string; checks: Array<{ name: string }> };
+    expect(liveBody.status).toBe('ok');
+
+    const ready = await fetch(`${base}/readyz`);
+    expect(ready.status).toBe(200);
+    const readyBody = (await ready.json()) as { status: string; uptimeSec: number };
+    expect(readyBody.status).toBe('ok');
+    expect(readyBody.uptimeSec).toBeGreaterThanOrEqual(0);
+  });
+
+  it('returns 503 from readiness when the app is not ready', async () => {
