@@ -86,3 +86,32 @@ describe('v0.3.0 runtime-basics (integration)', () => {
 
   it('binds the current request context into the REQUEST-scoped provider', async () => {
     const c = await get<ContextPayload>(`${base}/api/runtime/context`);
+    // v0.3.0 最容易出错的地方：请求级 Provider 与 handler 必须是同一个上下文
+    expect(c.scopeRequestId).toBe(c.requestId);
+  });
+
+  it('shares the REQUEST-scoped instance within one request and not across requests', async () => {
+    const first = await get<{ instanceNo: number; notes: string[] }>(`${base}/api/runtime/notes`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ note: 'first' }),
+    });
+    expect(first.notes).toEqual(['first']);
+
+    const second = await get<{ instanceNo: number; notes: string[] }>(`${base}/api/runtime/notes`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ note: 'second' }),
+    });
+    expect(second.notes).toEqual(['second']);
+    expect(second.instanceNo).toBeGreaterThan(first.instanceNo);
+  });
+
+  it('generates a fresh trace when no traceparent is sent', async () => {
+    const t = await get<{ traceId: string; parentSpanId: string | null }>(`${base}/api/runtime/trace`);
+    expect(t.traceId).toMatch(/^[0-9a-f]{32}$/);
+    expect(t.parentSpanId).toBeNull();
+  });
+
+  it('inherits traceId from an upstream traceparent header', async () => {
+    const res = await fetch(`${base}/api/runtime/trace`, {
