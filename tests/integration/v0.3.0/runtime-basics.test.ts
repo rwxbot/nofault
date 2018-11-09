@@ -144,3 +144,31 @@ describe('v0.3.0 runtime-basics (integration)', () => {
   });
 
   it('returns 503 from readiness when the app is not ready', async () => {
+    app.markNotReady();
+    const ready = await fetch(`${base}/readyz`);
+    expect(ready.status).toBe(503);
+    app.markReady();
+    expect((await fetch(`${base}/readyz`)).status).toBe(200);
+  });
+
+  it('hot-reloads configuration when the file changes', async () => {
+    const before = await get<{ betaEnabled: boolean; greeting: string }>(`${base}/api/runtime/config`);
+    expect(before.betaEnabled).toBe(false);
+
+    writeFileSync(
+      configFile,
+      'app:\n  name: runtime-basics\n  tenant: acme\nfeature:\n  betaEnabled: true\n  greeting: Hot reloaded!\n',
+      'utf8',
+    );
+
+    const deadline = Date.now() + 3000;
+    let after = before;
+    while (Date.now() < deadline) {
+      after = await get<{ betaEnabled: boolean; greeting: string }>(`${base}/api/runtime/config`);
+      if (after.betaEnabled) break;
+      await sleep(50);
+    }
+    expect(after.betaEnabled).toBe(true);
+    expect(after.greeting).toBe('Hot reloaded!');
+  });
+});
