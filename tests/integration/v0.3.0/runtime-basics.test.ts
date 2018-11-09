@@ -28,3 +28,32 @@ writeFileSync(
   providers: [RequestScopeService],
 })
 class TestAppModule {}
+
+/** 统一解包：框架默认把返回值包成 `{ code, data, message }` */
+async function get<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(path, init);
+  const body = (await res.json()) as { code: number; data: T; message: string };
+  return body.data;
+}
+
+interface ContextPayload {
+  requestId: string;
+  traceId: string;
+  spanId: string;
+  parentSpanId?: string;
+  scopeInstanceNo: number;
+  scopeRequestId: string;
+  configReloadable: boolean;
+}
+
+/**
+ * v0.3.0 集成测试：请求上下文 / REQUEST 作用域 / 配置热更新 / traceparent / 探针。
+ *
+ * 覆盖的是"只有跑起来才知道"的行为，
+ * 尤其是 REQUEST 作用域实例**每请求一份、请求内共享**这个语义。
+ */
+describe('v0.3.0 runtime-basics (integration)', () => {
+  let app: RestApplication;
+  let base: string;
+
+  beforeAll(async () => {
