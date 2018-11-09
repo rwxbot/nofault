@@ -57,3 +57,32 @@ describe('v0.3.0 runtime-basics (integration)', () => {
   let base: string;
 
   beforeAll(async () => {
+    app = await RestApplication.create(TestAppModule, {
+      name: 'runtime-basics-test',
+      quiet: true,
+      middleware: [requestContext(), bodyParser()],
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
+    base = `http://127.0.0.1:${port}`;
+    app.markReady();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('gives each request its own request id', async () => {
+    const a = await get<ContextPayload>(`${base}/api/runtime/context`);
+    const b = await get<ContextPayload>(`${base}/api/runtime/context`);
+    expect(a.requestId).toMatch(/^req_[0-9a-f]{8}$/);
+    expect(a.requestId).not.toBe(b.requestId);
+  });
+
+  it('creates one REQUEST-scoped instance per request', async () => {
+    const a = await get<ContextPayload>(`${base}/api/runtime/context`);
+    const b = await get<ContextPayload>(`${base}/api/runtime/context`);
+    expect(b.scopeInstanceNo).toBeGreaterThan(a.scopeInstanceNo);
+  });
+
+  it('binds the current request context into the REQUEST-scoped provider', async () => {
+    const c = await get<ContextPayload>(`${base}/api/runtime/context`);
