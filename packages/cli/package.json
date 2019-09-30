@@ -12,3 +12,7 @@
     }
   },
   "bin": {
+    "nofaultctl": "bin/nofaultctl.js",
+    "nfc": "bin/nfc.js"
+  },
+  "files": ["dist", "bin", "README.md"],
