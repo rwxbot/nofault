@@ -21,3 +21,7 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@nofault/codegen": "workspace:*",
+    "@nofault/dsl": "workspace:*",
