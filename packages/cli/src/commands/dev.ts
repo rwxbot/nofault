@@ -18,3 +18,22 @@ export interface DevOptions {
   args?: string[];
   /** 监听哪些目录（相对 cwd），默认 `src` */
   watchDirs?: string[];
+  /** 防抖窗口，默认 150ms */
+  debounceMs?: number;
+  /** 重启前留给旧进程的退出时间，默认 2000ms */
+  killTimeoutMs?: number;
+  cwd?: string;
+  onLog?: (line: string) => void;
+}
+
+export interface DevHandle {
+  stop: () => Promise<void>;
+}
+
+export class DevRunner {
+  private child?: ChildProcess;
+  private timer?: NodeJS.Timeout;
+  private pendingRestart = false;
+  private restarting = false;
+  private stopped = false;
+  private readonly watchers: Array<{ close: () => void }> = [];
