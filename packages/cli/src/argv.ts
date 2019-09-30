@@ -18,3 +18,14 @@ export function parseArgs(argv: string[]): ParsedArgs {
   const positional: string[] = [];
   const options: Record<string, string | boolean> = {};
   const flags = new Set<string>();
+
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i]!;
+
+    if (arg === '--') {
+      positional.push(...argv.slice(i + 1));
+      break;
+    }
+
+    if (arg.startsWith('--')) {
+      const body = arg.slice(2);
