@@ -29,3 +29,13 @@ export function parseArgs(argv: string[]): ParsedArgs {
 
     if (arg.startsWith('--')) {
       const body = arg.slice(2);
+      const eq = body.indexOf('=');
+      if (eq >= 0) {
+        options[body.slice(0, eq)] = body.slice(eq + 1);
+        continue;
+      }
+      const next = argv[i + 1];
+      if (next !== undefined && !next.startsWith('-')) {
+        options[body] = next;
+        i++;
+      } else {
