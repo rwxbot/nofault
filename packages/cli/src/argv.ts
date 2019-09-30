@@ -9,3 +9,12 @@ export interface ParsedArgs {
   /** 位置参数 */
   positional: string[];
   /** `--name value` / `--name=value` */
+  options: Record<string, string | boolean>;
+  /** `--help` 之类 */
+  flags: Set<string>;
+}
+
+export function parseArgs(argv: string[]): ParsedArgs {
+  const positional: string[] = [];
+  const options: Record<string, string | boolean> = {};
+  const flags = new Set<string>();
