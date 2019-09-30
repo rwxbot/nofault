@@ -39,3 +39,13 @@ export function parseArgs(argv: string[]): ParsedArgs {
         options[body] = next;
         i++;
       } else {
+        options[body] = true;
+        flags.add(body);
+      }
+      continue;
+    }
+
+    if (arg.startsWith('-') && arg.length > 1) {
+      for (const ch of arg.slice(1)) flags.add(ch);
+      continue;
+    }
