@@ -54,3 +54,30 @@ function checkNodeVersion(): Check {
 }
 
 function checkPackageJson(cwd: string): Check {
+  const path = join(cwd, 'package.json');
+  if (!existsSync(path)) {
+    return { name: 'package.json', status: 'fail', message: '缺失', hint: '在項目根目录运行 npm init' };
+  }
+  try {
+    const pkg = JSON.parse(readFileSync(path, 'utf8')) as { type?: string };
+    // 本项目全部包都是 ESM；type 不对会在运行时报"Cannot use import statement"
+    return {
+      name: 'package.json',
+      status: pkg.type === 'module' ? 'ok' : 'warn',
+      message: `type=${pkg.type ?? 'commonjs'}`,
+      hint: pkg.type === 'module' ? undefined : '建议设置 "type": "module"',
+    };
+  } catch (err) {
+    return { name: 'package.json', status: 'fail', message: `无法解析：${String(err)}` };
+  }
+}
+
+/**
+ * 读取 tsconfig 并**解析 extends 链**。
+ *
+ * 不解析会大面积误报：绝大多数工程的 tsconfig 都是
+ * `extends: "../../tsconfig.base.json"`，装饰器元数据写在基配置里，
+ * 只检查子文件就会把"配置正确"报成"未开启"。
+ * 这种假阴性比漏检更糟——它会让人直接不信任这个工具。
+ */
+function readTsConfig(cwd: string): Record<string, unknown> | undefined {
