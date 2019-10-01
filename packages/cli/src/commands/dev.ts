@@ -76,3 +76,23 @@ export class DevRunner {
     this.restarting = false;
 
     if (this.pendingRestart) {
+      this.pendingRestart = false;
+      await this.restart();
+    }
+  }
+
+  /** 杀掉旧进程并**等它真的退出** —— 不等的话新进程会抢端口失败 */
+  private async killChild(): Promise<void> {
+    const child = this.child;
+    if (!child || child.exitCode !== null || child.signalCode !== null) return;
+
+    const timeout = this.options.killTimeoutMs ?? 2000;
+    const exited = new Promise<void>((done) => {
+      child.once('exit', () => done());
+    });
+
+    child.kill('SIGTERM');
+    const forced = new Promise<void>((done) => setTimeout(done, timeout));
+    await Promise.race([exited, forced]);
+    // 到点还没退出就强杀：留着它只会让新进程起不来
+    if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
