@@ -97,3 +97,27 @@ function tsconfig(): string {
 }
 
 function gitignore(): string {
+  return ['node_modules/', 'dist/', ''].join('\n');
+}
+
+function readme(name: string): string {
+  return `# ${pascalCase(name)} MCP 服务器
+
+由 \`nofaultctl mcp new ${name}\` 生成。
+
+## 用法
+
+\`\`\`bash
+npm install
+npm run build
+npm start
+# stdio 上换行分隔 JSON-RPC，把这一行加到 MCP 客户端的配置里：
+#   { "command": "node", "args": ["$(pwd)/dist/main.js"] }
+\`\`\`
+
+## 自定义工具
+
+工具写在 \`src/tools.ts\`：每个 \`McpTool\` 含 \`name\` / \`description\` / \`inputSchema\` / \`handler\`，
+\`main.ts\` 把它交给 \`McpServer\` 启动。
+
+inputSchema 是 JSON Schema（draft 2020-12），参数校验由 handler 自行负责，协议层只做分发。
