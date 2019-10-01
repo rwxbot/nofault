@@ -48,3 +48,27 @@ export function scaffoldMcp(name: string, options: McpNewOptions = {}): McpNewRe
 
 function pathDir(abs: string): string {
   const i = abs.lastIndexOf('/');
+  return i < 0 ? abs : abs.slice(0, i);
+}
+
+function packageJson(name: string): string {
+  return `${JSON.stringify(
+    {
+      name: kebabCase(name),
+      version: '0.1.0',
+      private: true,
+      description: `${pascalCase(name)} MCP server (stdio, JSON-RPC)`,
+      type: 'module',
+      scripts: {
+        build: 'tsc -p tsconfig.json',
+        start: 'node dist/main.js',
+      },
+      dependencies: {
+        '@nofault/mcp': '^1.0.0',
+      },
+      devDependencies: {
+        typescript: '^5.6.0',
+        '@types/node': '^22.7.0',
+      },
+    },
+    null,
