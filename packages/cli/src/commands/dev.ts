@@ -96,3 +96,22 @@ export class DevRunner {
     await Promise.race([exited, forced]);
     // 到点还没退出就强杀：留着它只会让新进程起不来
     if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    this.child = undefined;
+  }
+
+  private async spawnChild(): Promise<void> {
+    const [cmd, ...rest] = this.options.command.split(/\s+/);
+    const child = spawn(cmd!, [...rest, ...(this.options.args ?? [])], {
+      cwd: this.options.cwd ?? process.cwd(),
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: process.env,
+    });
+    this.child = child;
+
+    child.stdout?.on('data', (chunk: Buffer) => this.log(chunk.toString()));
+    child.stderr?.on('data', (chunk: Buffer) => this.log(chunk.toString()));
+    child.on('exit', (code) => {
+      // 自己退出（比如崩溃）时不要自动重启成无限循环——
+      // 那会在坏代码上反复启动，刷屏且看不出原因
+      if (!this.stopped && code !== 0 && !this.restarting) {
+        this.log(`process exited with code ${code}; waiting for a file change`);
