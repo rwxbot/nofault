@@ -72,3 +72,28 @@ function packageJson(name: string): string {
       },
     },
     null,
+    2,
+  )}\n`;
+}
+
+function tsconfig(): string {
+  return `${JSON.stringify(
+    {
+      compilerOptions: {
+        target: 'ES2022',
+        module: 'NodeNext',
+        moduleResolution: 'NodeNext',
+        strict: true,
+        skipLibCheck: true,
+        esModuleInterop: true,
+        outDir: 'dist',
+        rootDir: 'src',
+      },
+      include: ['src/**/*.ts'],
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+function gitignore(): string {
