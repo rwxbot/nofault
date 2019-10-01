@@ -121,3 +121,27 @@ npm start
 \`main.ts\` 把它交给 \`McpServer\` 启动。
 
 inputSchema 是 JSON Schema（draft 2020-12），参数校验由 handler 自行负责，协议层只做分发。
+`;
+}
+
+function mainTs(name: string): string {
+  return `import 'node:process';
+import { McpServer } from '@nofault/mcp';
+import { tools } from './tools.js';
+
+const server = new McpServer({
+  name: '${kebabCase(name)}',
+  version: '0.1.0',
+  tools,
+});
+
+server.start();
+
+// 干净的退出：STDIO 模式下 node 默认会卡住
+for (const sig of ['SIGINT', 'SIGTERM'] as NodeJS.Signals[]) {
+  process.on(sig, () => {
+    void server.close().finally(() => process.exit(0));
+  });
+}
+`;
+}
