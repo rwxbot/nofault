@@ -81,3 +81,31 @@ function checkPackageJson(cwd: string): Check {
  * 这种假阴性比漏检更糟——它会让人直接不信任这个工具。
  */
 function readTsConfig(cwd: string): Record<string, unknown> | undefined {
+  return readTsConfigFile(join(cwd, 'tsconfig.json'), new Set());
+}
+
+function readTsConfigFile(path: string, seen: Set<string>): Record<string, unknown> | undefined {
+  if (!existsSync(path)) return undefined;
+  // 循环继承（a extends b，b extends a）必须能停下来
+  if (seen.has(path)) return undefined;
+  seen.add(path);
+
+  let parsed: Record<string, unknown>;
+  try {
+    // tsconfig 允许注释与尾逗号，这里做最小容错
+    const cleaned = readFileSync(path, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '');
+    parsed = JSON.parse(cleaned) as Record<string, unknown>;
+  } catch {
+    return undefined;
+  }
+
+  const parentName = typeof parsed.extends === 'string' ? parsed.extends : undefined;
+  if (!parentName) return parsed;
+
+  const parent = readTsConfigFile(resolveParentPath(parentName, path), seen);
+  if (!parent) return parsed;
+
+  // 子配置优先：compilerOptions 逐键合并
+  return {
