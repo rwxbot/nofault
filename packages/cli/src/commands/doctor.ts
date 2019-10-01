@@ -136,3 +136,31 @@ function resolveParentPath(value: string, fromFile: string): string {
  * 结果"两项都开"时检查项的名字会变，调用方按名字找不到它——
  * 检查项的名字必须是**稳定**的，否则 CI 里按名过滤就失效了。
  */
+function checkDecoratorMetadata(cwd: string): Check {
+  const compilerOptions = compilerOptionsOf(cwd);
+  const on = compilerOptions?.emitDecoratorMetadata === true;
+  return {
+    name: 'emitDecoratorMetadata',
+    status: on ? 'ok' : 'fail',
+    message: on ? '已开启' : '未开启',
+    hint: on
+      ? undefined
+      : '在 tsconfig 的 compilerOptions 里设置 "emitDecoratorMetadata": true',
+  };
+}
+
+function checkExperimentalDecorators(cwd: string): Check {
+  const compilerOptions = compilerOptionsOf(cwd);
+  const on = compilerOptions?.experimentalDecorators === true;
+  return {
+    name: 'experimentalDecorators',
+    status: on ? 'ok' : 'warn',
+    message: on ? '已开启' : '未开启',
+    hint: on ? undefined : '设置 "experimentalDecorators": true',
+  };
+}
+
+function compilerOptionsOf(cwd: string): Record<string, unknown> | undefined {
+  const config = readTsConfig(cwd);
+  if (!config) return undefined;
+  return (config.compilerOptions ?? {}) as Record<string, unknown>;
