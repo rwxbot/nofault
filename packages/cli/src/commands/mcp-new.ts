@@ -23,3 +23,28 @@ export interface McpNewResult {
 
 export function scaffoldMcp(name: string, options: McpNewOptions = {}): McpNewResult {
   const dir = resolve(options.dir ?? name);
+  if (existsSync(dir) && readdirSync(dir).length > 0) {
+    throw new Error(`directory already exists and is not empty: ${dir}`);
+  }
+
+  const files: string[] = [];
+  const emit = (rel: string, content: string): void => {
+    const abs = join(dir, rel);
+    mkdirSync(pathDir(abs), { recursive: true });
+    writeFileSync(abs, content, 'utf8');
+    files.push(rel);
+  };
+
+  emit('package.json', packageJson(name));
+  emit('tsconfig.json', tsconfig());
+  emit('.gitignore', gitignore());
+  emit('README.md', readme(name));
+  emit('src/main.ts', mainTs(name));
+  emit('src/tools.ts', toolsTs(name));
+
+  log.step(`scaffolded ${files.length} file(s) into ${dir}`);
+  return { dir, files };
+}
+
+function pathDir(abs: string): string {
+  const i = abs.lastIndexOf('/');
