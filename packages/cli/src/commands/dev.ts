@@ -115,3 +115,21 @@ export class DevRunner {
       // 那会在坏代码上反复启动，刷屏且看不出原因
       if (!this.stopped && code !== 0 && !this.restarting) {
         this.log(`process exited with code ${code}; waiting for a file change`);
+      }
+    });
+  }
+
+  private log(line: string): void {
+    for (const part of line.split('\n')) {
+      if (part.trim().length > 0) this.options.onLog?.(part);
+    }
+  }
+
+  async stop(): Promise<void> {
+    this.stopped = true;
+    if (this.timer) clearTimeout(this.timer);
+    for (const w of this.watchers) w.close();
+    this.watchers.length = 0;
+    await this.killChild();
+  }
+}
