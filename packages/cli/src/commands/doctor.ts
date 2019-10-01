@@ -109,3 +109,30 @@ function readTsConfigFile(path: string, seen: Set<string>): Record<string, unkno
 
   // 子配置优先：compilerOptions 逐键合并
   return {
+    ...parent,
+    ...parsed,
+    compilerOptions: {
+      ...((parent.compilerOptions ?? {}) as Record<string, unknown>),
+      ...((parsed.compilerOptions ?? {}) as Record<string, unknown>),
+    },
+  };
+}
+
+/**
+ * `extends` 的值可能是一个路径，也可能是包名（如 "@tsconfig/node20/tsconfig.json"）。
+ * 路径按**父文件所在目录**解析；包名试着去 node_modules 里找，找不到就跳过
+ * （跳过只是少一层信息，不该让整个检查失败）。
+ */
+function resolveParentPath(value: string, fromFile: string): string {
+  if (isAbsolute(value)) return value;
+  if (value.startsWith('.')) return resolve(dirname(fromFile), value);
+  return resolve(dirname(fromFile), 'node_modules', value);
+}
+
+/**
+ * 装饰器元数据（emitDecoratorMetadata）必须单独一项检查。
+ *
+ * 之前把它和 experimentalDecorators 塞在同一个检查里，
+ * 结果"两项都开"时检查项的名字会变，调用方按名字找不到它——
+ * 检查项的名字必须是**稳定**的，否则 CI 里按名过滤就失效了。
+ */
