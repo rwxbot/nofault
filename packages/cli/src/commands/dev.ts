@@ -37,3 +37,23 @@ export class DevRunner {
   private restarting = false;
   private stopped = false;
   private readonly watchers: Array<{ close: () => void }> = [];
+
+  constructor(private readonly options: DevOptions) {}
+
+  async start(): Promise<DevHandle> {
+    const dirs = this.options.watchDirs ?? ['src'];
+    const cwd = this.options.cwd ?? process.cwd();
+
+    for (const dir of dirs) {
+      const watcher = watch(resolve(cwd, dir), { recursive: true }, () => {
+        if (this.stopped) return;
+        this.scheduleRestart();
+      });
+      this.watchers.push(watcher);
+    }
+
+    await this.spawnChild();
+    return { stop: () => this.stop() };
+  }
+
+  private scheduleRestart(): void {
