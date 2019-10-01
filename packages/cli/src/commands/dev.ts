@@ -57,3 +57,22 @@ export class DevRunner {
   }
 
   private scheduleRestart(): void {
+    if (this.restarting) {
+      // 重启期间又变了：记一笔，结束后立刻再重启（不能丢掉这次变更）
+      this.pendingRestart = true;
+      return;
+    }
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      void this.restart();
+    }, this.options.debounceMs ?? 150);
+  }
+
+  private async restart(): Promise<void> {
+    this.restarting = true;
+    this.log('change detected, restarting');
+    await this.killChild();
+    await this.spawnChild();
+    this.restarting = false;
+
+    if (this.pendingRestart) {
