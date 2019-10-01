@@ -29,3 +29,33 @@ export function scaffold(name: string, options: NewOptions = {}): NewResult {
   const dir = resolve(options.dir ?? name);
   if (existsSync(dir) && readdirSync(dir).length > 0) {
     // 非空目录直接失败：脚手架覆盖用户代码是不可接受的。
+    // 空目录放行 —— `mkdir deps && cd deps && nofaultctl new x` 是很自然的用法。
+    throw new Error(`directory already exists and is not empty: ${dir}`);
+  }
+
+  const files: string[] = [];
+  const emit = (rel: string, content: string): void => {
+    const abs = join(dir, rel);
+    mkdirSync(pathDir(abs), { recursive: true });
+    writeFileSync(abs, content, 'utf8');
+    files.push(rel);
+  };
+
+  emit('package.json', packageJson(name));
+  emit('tsconfig.json', tsconfig());
+  emit('.gitignore', gitignore());
+  emit('README.md', readme(name));
+  emit('src/main.ts', mainTs(name));
+  emit('src/app.module.ts', appModuleTs());
+  emit(`api/${kebabCase(name)}.api.ts`, contractTs(name));
+
+  log.step(`scaffolded ${files.length} file(s) into ${dir}`);
+  return { dir, files };
+}
+
+function pathDir(abs: string): string {
+  const i = abs.lastIndexOf('/');
+  return i < 0 ? abs : abs.slice(0, i);
+}
+
+// --------------------------------------------------------------------- 模板
