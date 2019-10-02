@@ -214,3 +214,32 @@ export class GreetReq {
 
 export class GreetResp {
   @Body('text') @IsString()
+  text!: string;
+}
+
+export class PageReq {
+  @Query('page') @IsInt()
+  page!: number;
+}
+
+@Api('${kebab}')
+@Prefix('/api')
+export class ${pascalCase(name)}Service {
+  @Get('/ping')
+  @Handler('ping')
+  ping(): PingResp {
+    throw new Error('not implemented');
+  }
+
+  @Post('/greet')
+  greet(req: GreetReq): GreetResp {
+    throw new Error('not implemented');
+  }
+
+  @Get('/page')
+  page(req: PageReq): PingResp {
+    throw new Error('not implemented');
+  }
+}
+`;
+}
