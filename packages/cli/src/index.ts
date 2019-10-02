@@ -5,3 +5,5 @@
  */
 // [history] omitted at this version (not yet introduced): export { run, VERSION } from './cli';
 export { parseArgs, booleanOption, stringOption } from './argv';
+export type { ParsedArgs } from './argv';
+export { log } from './log';
