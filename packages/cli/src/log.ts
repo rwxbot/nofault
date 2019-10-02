@@ -52,3 +52,10 @@ export const log = {
 };
 
 /** 生成 > 写盘之后的汇总，几个命令共用 */
+export function printSummary(summary: { written: string[]; skipped: string[]; changed: string[] }, cwd: string): void {
+  for (const f of summary.written) log.success(`write  ${f}`);
+  if (summary.skipped.length > 0) {
+    log.info(log.dim(`skip   ${summary.skipped.length} unchanged${summary.skipped.length === 1 ? '' : ' file(s)'}`));
+  }
+  log.success(`${summary.changed.length} file(s) generated into ${cwd}`);
+}
