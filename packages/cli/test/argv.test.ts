@@ -32,3 +32,11 @@ describe('parseArgs', () => {
   });
 
   it('stops option parsing after --', () => {
+    const a = parseArgs(['--', '--not-a-flag']);
+    expect(a.positional).toEqual(['--not-a-flag']);
+  });
+});
+
+describe('option helpers', () => {
+  it('stringOption returns the value or undefined', () => {
+    const a = parseArgs(['--out=src']);
