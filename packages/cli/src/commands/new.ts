@@ -183,3 +183,34 @@ function appModuleTs(): string {
 import { Module } from '@nofault/core';
 
 @Module({})
+export class AppModule {}
+`;
+}
+
+function contractTs(name: string): string {
+  const kebab = kebabCase(name);
+  return `/**
+ * ${pascalCase(name)} 的 API 契约。
+ *
+ * 改完跑：\`npm run generate\`
+ */
+import {
+  Api, Prefix, Get, Post, Handler,
+  Body, Query, IsString, IsInt, IsNotEmpty, MinLength, MaxLength, IsOptional,
+} from '@nofault/dsl';
+
+export class PingResp {
+  @Body('message') @IsString() @IsNotEmpty()
+  message!: string;
+}
+
+export class GreetReq {
+  @Body('name') @IsString() @MinLength(1) @MaxLength(32)
+  name!: string;
+
+  @IsOptional() @IsString()
+  title?: string;
+}
+
+export class GreetResp {
+  @Body('text') @IsString()
