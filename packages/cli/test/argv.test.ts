@@ -23,3 +23,12 @@ describe('parseArgs', () => {
   it('treats bare flags as true', () => {
     const a = parseArgs(['gen', '--root-module']);
     expect(a.options['root-module']).toBe(true);
+    expect(a.flags.has('root-module')).toBe(true);
+  });
+
+  it('supports short flag clustering', () => {
+    expect(parseArgs(['-hv']).flags.has('h')).toBe(true);
+    expect(parseArgs(['-hv']).flags.has('v')).toBe(true);
+  });
+
+  it('stops option parsing after --', () => {
