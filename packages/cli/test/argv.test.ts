@@ -15,3 +15,11 @@ describe('parseArgs', () => {
     expect(a.options.out).toBe('src');
 
     // 后面是 flag 时，`--force` 必须当布尔，而不是把 "--dry-run" 当成它的值
+    const b = parseArgs(['gen', '--force', '--dry-run']);
+    expect(b.options.force).toBe(true);
+    expect(b.options['dry-run']).toBe(true);
+  });
+
+  it('treats bare flags as true', () => {
+    const a = parseArgs(['gen', '--root-module']);
+    expect(a.options['root-module']).toBe(true);
