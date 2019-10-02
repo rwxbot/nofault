@@ -9,3 +9,5 @@ export type { ParsedArgs } from './argv';
 export { log } from './log';
 export { scaffold } from './commands/new';
 export { scaffoldMcp } from './commands/mcp-new';
+export type { McpNewOptions, McpNewResult } from './commands/mcp-new';
+// [history] omitted at this version (not yet introduced): export { compileContract, generateFromSpec, generateApi } from './commands/generate';
