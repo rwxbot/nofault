@@ -43,3 +43,12 @@ export const log = {
   green(message: string): string {
     return paint(message, 'green');
   },
+  yellow(message: string): string {
+    return paint(message, 'yellow');
+  },
+  red(message: string): string {
+    return paint(message, 'red');
+  },
+};
+
+/** 生成 > 写盘之后的汇总，几个命令共用 */
