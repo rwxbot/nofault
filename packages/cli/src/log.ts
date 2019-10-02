@@ -16,3 +16,12 @@ function paint(text: string, color: Color): string {
   if (!enabled()) return text;
   return `\u001b[${COLORS[color]}m${text}\u001b[0m`;
 }
+
+export const log = {
+  info(message: string): void {
+    process.stdout.write(`${message}\n`);
+  },
+  success(message: string): void {
+    process.stdout.write(`${paint('✓', 'green')} ${message}\n`);
+  },
+  warn(message: string): void {
