@@ -7,3 +7,12 @@
 
 const COLORS = { red: '31', green: '32', yellow: '33', dim: '2', bold: '1' } as const;
 type Color = keyof typeof COLORS;
+
+function enabled(): boolean {
+  return !process.env.NO_COLOR && Boolean(process.stdout.isTTY);
+}
+
+function paint(text: string, color: Color): string {
+  if (!enabled()) return text;
+  return `\u001b[${COLORS[color]}m${text}\u001b[0m`;
+}
