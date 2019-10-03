@@ -48,3 +48,10 @@ describe('option helpers', () => {
     const a = parseArgs(['--out=src']);
     expect(stringOption(a, 'out', 'default')).toBe('src');
     expect(stringOption(parseArgs([]), 'out', 'default')).toBe('default');
+  });
+
+  it('booleanOption is false when absent', () => {
+    expect(booleanOption(parseArgs([]), 'force')).toBe(false);
+    expect(booleanOption(parseArgs(['--force']), 'force')).toBe(true);
+  });
+});
