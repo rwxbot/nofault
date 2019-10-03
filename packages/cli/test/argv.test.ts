@@ -40,3 +40,11 @@ describe('parseArgs', () => {
 describe('option helpers', () => {
   it('stringOption returns the value or undefined', () => {
     const a = parseArgs(['--out=src']);
+    expect(stringOption(a, 'out')).toBe('src');
+    expect(stringOption(a, 'missing')).toBeUndefined();
+  });
+
+  it('stringOption prefers provided values over the fallback', () => {
+    const a = parseArgs(['--out=src']);
+    expect(stringOption(a, 'out', 'default')).toBe('src');
+    expect(stringOption(parseArgs([]), 'out', 'default')).toBe('default');
