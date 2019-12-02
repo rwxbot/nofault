@@ -27,3 +27,30 @@
 
 两者都**不执行用户代码**：`.api.ts` 是当文本扫描的，不是 `import` 进来跑装饰器。
 所以解析一个来路不明的契约文件是安全的。
+
+## 二、解析器：为什么不用 ANTLR
+
+- 契约语法很小（约 30 条产生式），手写扫描器 + 递归下降约 500 行
+- 引入 ANTLR 意味着生成步骤、体积和又一套错误模型
+- **错误定位**是我们最看重的能力：每个 token 带行列号，
+  报"`service user > route login`: unknown request type"而不是"解析失败"。
+  自动生成器的报错质量很难做到这一点
+
+实测解析 312 行契约 0.43ms（2,304 ops/sec），不是瓶颈。
+
+## 三、ApiSpec：枢纽
+
+```ts
+interface ApiSpec { name; types: TypeSpec[]; services: ServiceSpec[] }
+interface ServiceSpec { name; group; prefix?; jwt?; middleware[]; routes: RouteSpec[] }
+interface RouteSpec { handler; method; path; requestType?; responseType?; middleware? }
+interface FieldSpec  { name; key; type; source; optional; rules[] }
+```
+
+几个刻意的设计：
+
+- **`key` 与 `name` 分开**：`key` 是传输键（json tag），`name` 是源字段名
+- **`source` 决定绑定方式**：body / query / path / header / form
+- **`rules` 是字符串数组**（`['isString','minLength:3']`），让校验规则保持开放
+
+## 四、生成器的三条硬规则
