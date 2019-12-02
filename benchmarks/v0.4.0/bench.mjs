@@ -145,3 +145,38 @@ const e2e = measure(
   () => {
     const dir = mkdtempSync(join(tmpdir(), 'nf-bench-'));
     const spec = parseContract(API_CONTRACT, 'bench.api', 'api');
+    writeFiles(generate(spec, { rootModule: true }).files, { outDir: join(dir, 'src') });
+    rmSync(dir, { recursive: true, force: true });
+  },
+  Math.max(10, Math.round(opts.iterations / 10)),
+);
+
+// 杠杆率：契约行数 vs 生成行数
+const contractLines = API_CONTRACT.split('\n').length;
+const generatedLines = files.reduce((n, f) => n + f.content.split('\n').length, 0);
+
+const micro = { parseApi, parseTs, genApi, genTs, e2e };
+const leverage = {
+  contractLines,
+  generatedFiles: files.length,
+  generatedLines,
+  ratio: round(generatedLines / contractLines),
+};
+
+console.log('A. 解析');
+console.log(`   .api        ${parseApi.meanMs} ms  (${parseApi.opsPerSec} ops/sec, p95 ${parseApi.p95Ms} ms)`);
+console.log(`   .api.ts     ${parseTs.meanMs} ms  (${parseTs.opsPerSec} ops/sec, p95 ${parseTs.p95Ms} ms)`);
+console.log('B. 生成');
+console.log(`   from .api   ${genApi.meanMs} ms  (${genApi.opsPerSec} ops/sec)`);
+console.log(`   from .api.ts${genTs.meanMs} ms  (${genTs.opsPerSec} ops/sec)`);
+console.log('C. 端到端（含写盘）');
+console.log(`   ${e2e.meanMs} ms  (p95 ${e2e.p95Ms} ms)`);
+console.log(`\n杠杆率：${contractLines} 行契约 -> ${generatedLines} 行代码 / ${files.length} 个文件（${leverage.ratio}x）\n`);
+
+if (opts.report) {
+  writeFileSync(
+    join(here, 'results.json'),
+    JSON.stringify({ generatedAt: new Date().toISOString(), micro, leverage }, null, 2),
+  );
+  console.log('结果已写入 benchmarks/v0.4.0/results.json');
+}
