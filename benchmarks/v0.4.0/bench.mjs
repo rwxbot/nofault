@@ -108,3 +108,40 @@ function measure(name, fn, iterations) {
   }
   samples.sort((a, b) => a - b);
   const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  const p95 = samples[Math.floor(samples.length * 0.95)];
+  return {
+    name,
+    iterations,
+    meanMs: round(mean),
+    p95Ms: round(p95),
+    opsPerSec: round(1000 / mean),
+  };
+}
+
+function round(n) {
+  return Math.round(n * 100) / 100;
+}
+
+// ---------------------------------------------------------------- 主流程
+
+const { parseContract } = await import(join(repoRoot, 'packages/parser/dist/index.js'));
+const { generate, writeFiles } = await import(join(repoRoot, 'packages/codegen/dist/index.js'));
+
+console.log(`\n[v0.4.0] codegen benchmark — ${opts.iterations} iterations\n`);
+
+const parseApi = measure('parse .api', () => parseContract(API_CONTRACT, 'bench.api', 'api'), opts.iterations);
+const parseTs = measure('parse .api.ts', () => parseContract(TS_CONTRACT, 'bench.api.ts', 'ts'), opts.iterations);
+
+const specFromApi = parseContract(API_CONTRACT, 'bench.api', 'api');
+const specFromTs = parseContract(TS_CONTRACT, 'bench.api.ts', 'ts');
+
+const genApi = measure('generate (from .api)', () => generate(specFromApi, { rootModule: true }), opts.iterations);
+const genTs = measure('generate (from .api.ts)', () => generate(specFromTs, { rootModule: true }), opts.iterations);
+
+// 端到端：解析 + 生成 + 写盘
+const files = generate(specFromApi, { rootModule: true }).files;
+const e2e = measure(
+  'end-to-end (parse+generate+write)',
+  () => {
+    const dir = mkdtempSync(join(tmpdir(), 'nf-bench-'));
+    const spec = parseContract(API_CONTRACT, 'bench.api', 'api');
