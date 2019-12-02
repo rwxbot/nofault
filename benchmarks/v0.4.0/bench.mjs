@@ -34,3 +34,41 @@ function parseArgs() {
 }
 
 const opts = parseArgs();
+
+// ---------------------------------------------------------------- 契约样本
+
+const API_CONTRACT = Array.from({ length: 12 }, (_, i) => `
+type Req${i} {
+  Name  string \`json:"name"\`
+  Count int    \`json:"count,optional"\`
+}
+type Resp${i} {
+  Ok   int    \`json:"ok"\`
+  Text string \`json:"text"\`
+}
+
+type Get${i}Req {
+  Id int \`path:"id"\`
+}
+
+@server ( group: svc${i} prefix: /api )
+service svc${i}-api {
+  @handler ping${i}
+  get /ping${i} returns (Resp${i})
+
+  @handler greet${i}
+  post /greet${i} (Req${i}) returns (Resp${i})
+
+  @handler get${i}
+  get /item${i}/:id (Get${i}Req) returns (Resp${i})
+}
+`).join('\n');
+
+const TS_CONTRACT = Array.from({ length: 12 }, (_, i) => `
+export class Req${i} {
+  @Body('name') @IsString() @MinLength(2)
+  name!: string;
+
+  @Body('count') @IsInt() @Optional()
+  count?: number;
+}
