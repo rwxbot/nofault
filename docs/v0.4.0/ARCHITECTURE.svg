@@ -46,3 +46,29 @@
   <text x="805" y="168" font-size="11.5" fill="#4b5563" text-anchor="middle">重复路由 / 未知类型</text>
   <text x="805" y="185" font-size="11.5" fill="#4b5563" text-anchor="middle">路径缺斜杠 / 属性重名</text>
   <text x="805" y="202" font-size="11.5" fill="#4b5563" text-anchor="middle">一次报完，先拦后生成</text>
+
+  <line x1="656" y1="164" x2="718" y2="164" stroke="#6b7280" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- generate -->
+  <rect x="504" y="264" width="150" height="80" rx="9" fill="#ecfdf5" stroke="#059669" stroke-width="1.6"/>
+  <text x="579" y="292" font-size="14" font-weight="700" fill="#047857" text-anchor="middle">generate()（纯函数）</text>
+  <text x="579" y="314" font-size="11.5" fill="#4b5563" text-anchor="middle">模板引擎（可被覆盖）</text>
+  <text x="579" y="331" font-size="11.5" fill="#4b5563" text-anchor="middle">body / query / path 分派</text>
+
+  <line x1="579" y1="212" x2="579" y2="260" stroke="#6b7280" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- outputs -->
+  <rect x="286" y="264" width="188" height="80" rx="9" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.4"/>
+  <text x="380" y="290" font-size="12.5" font-weight="600" fill="#334155" text-anchor="middle">dto/&lt;type&gt;.dto.ts</text>
+  <text x="380" y="309" font-size="11" fill="#64748b" text-anchor="middle">属性名取传输键（json/path tag）</text>
+  <text x="380" y="326" font-size="11" fill="#64748b" text-anchor="middle">@IsString / @MinLength / @IsOptional</text>
+
+  <rect x="722" y="264" width="166" height="80" rx="9" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.4"/>
+  <text x="805" y="290" font-size="12.5" font-weight="600" fill="#334155" text-anchor="middle">&lt;group&gt;/ 三件套</text>
+  <text x="805" y="309" font-size="11" fill="#64748b" text-anchor="middle">controller / service / module</text>
+  <text x="805" y="326" font-size="11" fill="#64748b" text-anchor="middle">GET→Query，path→@Param</text>
+
+  <line x1="500" y1="300" x2="478" y2="300" stroke="#6b7280" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="658" y1="300" x2="718" y2="300" stroke="#6b7280" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- writer -->
