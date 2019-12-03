@@ -54,3 +54,21 @@ curl -s "http://127.0.0.1:3000/api/user/users?page=0&pageSize=10"   # 422
 
 ```bash
 # 1. 给契约加一条路由
+#    api/user.api.ts 里加 @Get('/stats') stats(): OkResp { throw ... }
+# 2. 重新生成
+node ../../packages/cli/bin/nofaultctl.js generate api api/user.api.ts --out src --root-module
+# 3. controller 多了 stats 路由，但手写过的 user.service.ts **没被覆盖**
+```
+
+生成器默认只覆盖"自己也认领过"的文件（首行生成标记）。
+`user.service.ts` 已删掉标记，因此被跳过。
+
+## 跑基准测试
+
+```bash
+pnpm bench v0.4.0
+pnpm bench v0.4.0 --iterations=300 --report
+```
+
+测的是**开发期**成本：解析、生成、落盘的耗时，以及"1 行契约换来几行代码"。
+详见 [`benchmarks/v0.4.0/REPORT.md`](../../benchmarks/v0.4.0/REPORT.md)。
