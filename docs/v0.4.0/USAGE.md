@@ -53,3 +53,57 @@ export class GetUserReq {
 }
 
 @Api('user')
+@Prefix('/api')
+@Middleware('RequestLogger')
+export class UserService {
+  @Get('/users/:id')
+  getUser(_req: GetUserReq): UserResp { throw new Error('not implemented'); }
+
+  @Post('/users')
+  createUser(_req: CreateUserReq): UserResp { throw new Error('not implemented'); }
+}
+```
+
+方法体一律 `throw`：契约只描述**形状**，实现写在别处。
+参数写成 `_req` 是因为声明里用不到它，只有类型会被解析器读走。
+
+### 装饰器速查
+
+| 类别 | 装饰器 |
+| --- | --- |
+| 服务级 | `@Api(name)` `@Prefix(path)` `@Group(name)` `@Jwt(name)` `@Middleware(...names)` `@Timeout('3s')` |
+| 路由级 | `@Get` `@Post` `@Put` `@Delete` `@Patch` `@Handler(name)` |
+| 字段来源 | `@Body(key)` `@Query(key)` `@Path(key)` `@Header(key)` `@Form(key)` |
+| 校验 | `@IsString` `@IsInt` `@IsNumber` `@IsEmail` `@IsNotEmpty` `@MinLength(n)` `@MaxLength(n)` `@Min(n)` `@Max(n)` `@Optional` |
+
+## 二、写契约（`.api` 文本 DSL）
+
+```
+syntax = "v1"
+
+type CreateUserReq {
+  Name  string `json:"name"`
+  Email string `json:"email"`
+  Age   int    `json:"age,optional"`
+}
+
+type GetUserReq {
+  Id int `path:"id"`
+}
+
+@server (
+  group:  user
+  prefix: /api
+  middleware: RequestLogger
+)
+service user-api {
+  @handler getUser
+  get /users/:id (GetUserReq) returns (UserResp)
+
+  @handler createUser
+  post /users (CreateUserReq) returns (UserResp)
+}
+```
+
+类型映射：`string→string`、`int/int64/float→number`、`bool→boolean`。
+`json:"x,optional"` 与 `path:"id"` 分别决定传输键与绑定来源。
