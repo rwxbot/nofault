@@ -17,3 +17,21 @@ pnpm vitest run tests/integration/v0.4.0        # 端到端：生成 → tsc 编
 1. 把生成的工程写到仓库内 `.tmp/`（vitest 才能转译它）
 2. 用仓库里的 `tsc` **真的编译一遍**生成物
 3. `import` 生成的 module、起服务、打真实 HTTP 请求
+4. afterAll 清理 `.tmp/`
+
+## 跑示例
+
+```bash
+pnpm example v0.4.0-codegen-user-api
+pnpm example v0.4.0-codegen-user-api PORT=3340
+```
+
+### curl 试一遍
+
+```bash
+# 存活
+curl -s http://127.0.0.1:3000/api/user/ping
+
+# 创建（DTO 校验：email 格式、name 长度）
+curl -s -X POST http://127.0.0.1:3000/api/user/users \
+  -H 'content-type: application/json' \
