@@ -35,3 +35,22 @@ curl -s http://127.0.0.1:3000/api/user/ping
 # 创建（DTO 校验：email 格式、name 长度）
 curl -s -X POST http://127.0.0.1:3000/api/user/users \
   -H 'content-type: application/json' \
+  -d '{"name":"alice","email":"a@example.com"}'
+
+# 非法入参 -> 422，且指明哪个字段哪条规则
+curl -s -X POST http://127.0.0.1:3000/api/user/users \
+  -H 'content-type: application/json' -d '{"name":"x","email":"nope"}'
+
+# 路径参数（:id 走 @Param 绑定）
+curl -s http://127.0.0.1:3000/api/user/users/1
+curl -s http://127.0.0.1:3000/api/user/users/abc   # 400，类型强转失败
+
+# query 校验（page 最小值 1）
+curl -s "http://127.0.0.1:3000/api/user/users?page=1&pageSize=10"
+curl -s "http://127.0.0.1:3000/api/user/users?page=0&pageSize=10"   # 422
+```
+
+### 体验"改契约 → 重新生成"
+
+```bash
+# 1. 给契约加一条路由
