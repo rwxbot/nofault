@@ -72,3 +72,20 @@ pnpm bench v0.4.0 --iterations=300 --report
 
 测的是**开发期**成本：解析、生成、落盘的耗时，以及"1 行契约换来几行代码"。
 详见 [`benchmarks/v0.4.0/REPORT.md`](../../benchmarks/v0.4.0/REPORT.md)。
+
+## 目录导航
+
+```
+packages/dsl/src/spec.ts                ApiSpec / TypeSpec / RouteSpec / FieldSpec
+packages/dsl/src/decorators.ts          契约装饰器（元数据只写不执行）
+packages/parser/src/scanner.ts          词法：每个 token 带行列号
+packages/parser/src/api-parser.ts       .api（文本 DSL）
+packages/parser/src/ts-parser.ts        .api.ts（TS 契约）
+packages/codegen/src/validate.ts        契约校验（一次报完）
+packages/codegen/src/generate.ts        Spec → 文件内容（纯函数）
+packages/codegen/src/writer.ts          落盘策略：只覆盖自己认领过的文件
+packages/codegen/src/template.ts        mustache 子集模板引擎
+packages/cli/src/cli.ts                 nofaultctl 入口
+examples/v0.4.0-codegen-user-api/       可运行示例
+tests/integration/v0.4.0/               端到端（含 tsc 编译验证）
+```
