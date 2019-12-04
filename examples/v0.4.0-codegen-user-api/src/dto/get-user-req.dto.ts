@@ -3,3 +3,4 @@ import { IsInt } from '@nofault/rest';
 export class GetUserReq {
   @IsInt()
   id!: number;
+}
