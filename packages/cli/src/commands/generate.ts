@@ -61,3 +61,11 @@ export function generateFromSpec(
 
   if (errors.length > 0) {
     for (const d of errors) log.error(`${d.at}: ${d.message}`);
+    if (!options.force) {
+      throw new Error(`contract has ${errors.length} error(s); refusing to generate partial code (use --force to override)`);
+    }
+    log.warn(`--force given, generating anyway (${errors.length} error(s))`);
+  }
+  for (const d of diagnostics.filter((w) => w.severity === 'warning')) {
+    log.warn(`${d.at}: ${d.message}`);
+  }
