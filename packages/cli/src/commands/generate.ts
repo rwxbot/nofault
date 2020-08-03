@@ -43,3 +43,11 @@ export interface GenerateApiResult {
   written: string[];
   skipped: string[];
   changed: string[];
+}
+
+export function compileContract(file: string): ApiSpec {
+  if (!existsSync(file)) {
+    throw new Error(`contract not found: ${file}`);
+  }
+  return parseContractFile(file);
+}
