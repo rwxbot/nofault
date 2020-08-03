@@ -96,3 +96,13 @@ function writeOnce(options: GenerateApiOptions): GenerateApiResult {
   printSummary(summary, options.dryRun ? `${outDir} (dry run)` : outDir);
   return { spec, files, ...summary };
 }
+
+export function generateApi(options: GenerateApiOptions): GenerateApiResult {
+  const result = writeOnce(options);
+
+  if (options.watch) {
+    const contractPath = resolve(options.contract);
+    log.step(`watching ${contractPath} (Ctrl-C to stop)`);
+    const handle = watchFile(
+      contractPath,
+      () => {
