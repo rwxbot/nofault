@@ -54,3 +54,14 @@ export function generateDataLayer(spec: ApiSpec, options: DataLayerOptions = {})
       kind: 'repository' as const,
       path: `${dir}/repositories/${kebabCase(type.name)}.repository.ts`,
       content: renderRepository(type),
+    });
+  }
+  return files;
+}
+
+function renderEntity(type: TypeSpec): string {
+  const lines: string[] = [];
+  for (const field of type.fields) {
+    // 主键由生成器统一提供；契约里若也有 `id` 字段，跳过它，
+    // 否则会生成两个同名的 `id!` —— 编译不过，且语义重复
+    if (propertyName(field) === 'id') continue;
