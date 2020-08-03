@@ -34,3 +34,12 @@ export interface GenerateApiOptions {
   /** 监听契约变化并自动重新生成 */
   watch?: boolean;
   /** 不合格时也继续生成 */
+  force?: boolean;
+}
+
+export interface GenerateApiResult {
+  spec: ApiSpec;
+  files: GeneratedFile[];
+  written: string[];
+  skipped: string[];
+  changed: string[];
