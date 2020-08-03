@@ -106,3 +106,12 @@ export function generateApi(options: GenerateApiOptions): GenerateApiResult {
     const handle = watchFile(
       contractPath,
       () => {
+        // 契约改坏了不能让监听器死掉：报错后继续等下一次保存
+        try {
+          writeOnce(options);
+        } catch (err) {
+          log.error(err instanceof Error ? err.message : String(err));
+        }
+      },
+      { onError: (err: unknown) => log.error(String(err)) },
+    );
