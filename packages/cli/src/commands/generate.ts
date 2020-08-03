@@ -25,3 +25,12 @@ export interface GenerateApiOptions {
   templates?: string;
   /** 是否额外生成根模块 */
   rootModule?: boolean;
+  /** 覆盖策略，默认 `generated` */
+  policy?: WritePolicy;
+  /** 只报告，不写盘 */
+  dryRun?: boolean;
+  /** 额外生成 entity / repository 骨架（数据层） */
+  withOrm?: boolean;
+  /** 监听契约变化并自动重新生成 */
+  watch?: boolean;
+  /** 不合格时也继续生成 */
