@@ -88,3 +88,11 @@ function writeOnce(options: GenerateApiOptions): GenerateApiResult {
 
   const outDir = resolve(options.out ?? 'src');
   const summary = writeFiles(files, {
+    outDir,
+    policy: options.policy ?? 'generated',
+    dryRun: options.dryRun,
+  });
+
+  printSummary(summary, options.dryRun ? `${outDir} (dry run)` : outDir);
+  return { spec, files, ...summary };
+}
