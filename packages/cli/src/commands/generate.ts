@@ -78,3 +78,13 @@ export function generateFromSpec(
   for (const w of warnings) log.warn(w);
   return { files, warnings };
 }
+
+function writeOnce(options: GenerateApiOptions): GenerateApiResult {
+  const contractPath = resolve(options.contract);
+  const spec = compileContract(contractPath);
+  log.step(`parsed ${contractPath}: ${spec.types.length} type(s), ${spec.services.length} service(s)`);
+
+  const { files } = generateFromSpec(spec, options);
+
+  const outDir = resolve(options.out ?? 'src');
+  const summary = writeFiles(files, {
