@@ -115,3 +115,11 @@ export function generateApi(options: GenerateApiOptions): GenerateApiResult {
       },
       { onError: (err: unknown) => log.error(String(err)) },
     );
+    process.on('SIGINT', () => {
+      handle.close();
+      process.exit(0);
+    });
+  }
+
+  return result;
+}
