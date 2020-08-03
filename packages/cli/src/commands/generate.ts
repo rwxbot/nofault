@@ -15,3 +15,13 @@ import { generate, generateDataLayer, writeFiles, validateSpec, watchFile } from
 import type { GeneratedFile, WritePolicy } from '@nofault/codegen';
 import { parseContractFile } from '@nofault/parser';
 import { log, printSummary } from '../log';
+
+export interface GenerateApiOptions {
+  /** 契约文件路径 */
+  contract: string;
+  /** 输出根目录，默认 `src` */
+  out?: string;
+  /** 模板覆盖目录 */
+  templates?: string;
+  /** 是否额外生成根模块 */
+  rootModule?: boolean;
