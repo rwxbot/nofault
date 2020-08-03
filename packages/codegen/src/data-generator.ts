@@ -42,3 +42,15 @@ function entityTypes(spec: ApiSpec, only?: string[]): TypeSpec[] {
 export function generateDataLayer(spec: ApiSpec, options: DataLayerOptions = {}): GeneratedFile[] {
   const dir = options.dir ?? 'data';
   const types = entityTypes(spec, options.only);
+
+  const files: GeneratedFile[] = types.map((type) => ({
+    kind: 'entity' as const,
+    path: `${dir}/entities/${kebabCase(type.name)}.entity.ts`,
+    content: renderEntity(type),
+  }));
+
+  for (const type of types) {
+    files.push({
+      kind: 'repository' as const,
+      path: `${dir}/repositories/${kebabCase(type.name)}.repository.ts`,
+      content: renderRepository(type),
