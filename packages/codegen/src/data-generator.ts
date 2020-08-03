@@ -32,3 +32,13 @@ function entityTypes(spec: ApiSpec, only?: string[]): TypeSpec[] {
   const referenced = new Set<string>();
   for (const service of spec.services) {
     for (const route of service.routes) {
+      if (route.responseType) referenced.add(route.responseType.replace(/\[\]$/, '').trim());
+    }
+  }
+  const matched = spec.types.filter((t) => referenced.has(t.name));
+  return matched.length > 0 ? matched : [];
+}
+
+export function generateDataLayer(spec: ApiSpec, options: DataLayerOptions = {}): GeneratedFile[] {
+  const dir = options.dir ?? 'data';
+  const types = entityTypes(spec, options.only);
