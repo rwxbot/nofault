@@ -51,3 +51,13 @@ export function compileContract(file: string): ApiSpec {
   }
   return parseContractFile(file);
 }
+
+export function generateFromSpec(
+  spec: ApiSpec,
+  options: Omit<GenerateApiOptions, 'contract'> = {},
+): { files: GeneratedFile[]; warnings: string[] } {
+  const diagnostics = validateSpec(spec);
+  const errors = diagnostics.filter((d) => d.severity === 'error');
+
+  if (errors.length > 0) {
+    for (const d of errors) log.error(`${d.at}: ${d.message}`);
