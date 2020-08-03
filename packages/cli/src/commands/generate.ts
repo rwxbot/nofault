@@ -69,3 +69,12 @@ export function generateFromSpec(
   for (const d of diagnostics.filter((w) => w.severity === 'warning')) {
     log.warn(`${d.at}: ${d.message}`);
   }
+
+  const { files, warnings } = generate(spec, {
+    templatesDir: options.templates,
+    rootModule: options.rootModule,
+  });
+  if (options.withOrm) files.push(...generateDataLayer(spec));
+  for (const w of warnings) log.warn(w);
+  return { files, warnings };
+}
