@@ -120,3 +120,13 @@ function renderRepository(type: TypeSpec): string {
     '  }',
     '}',
     '',
+  ].join('\n');
+}
+
+function tableName(type: TypeSpec): string {
+  return kebabCase(type.name).replace(/-/g, '_');
+}
+
+function propertyName(field: FieldSpec): string {
+  return field.key || field.name;
+}
