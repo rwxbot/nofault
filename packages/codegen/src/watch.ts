@@ -16,3 +16,7 @@ export interface WatchOptions {
 }
 
 export interface WatchHandle {
+  close(): void;
+}
+
+export function watchFile(
