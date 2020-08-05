@@ -20,3 +20,8 @@ export interface WatchHandle {
 }
 
 export function watchFile(
+  file: string,
+  onChange: (file: string) => void | Promise<void>,
+  options: WatchOptions = {},
+): WatchHandle {
+  const debounceMs = options.debounceMs ?? 120;
