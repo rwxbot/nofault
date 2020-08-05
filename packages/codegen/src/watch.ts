@@ -12,3 +12,7 @@ export interface WatchOptions {
   /** 防抖窗口（毫秒），默认 120 */
   debounceMs?: number;
   /** 出错时回调（不中断监听） */
+  onError?: (err: unknown) => void;
+}
+
+export interface WatchHandle {
