@@ -7,3 +7,8 @@
  * 2. 只认真正的内容变化（内容没变就不重复生成，避免无意义的输出）
  */
 import { watch } from 'node:fs';
+
+export interface WatchOptions {
+  /** 防抖窗口（毫秒），默认 120 */
+  debounceMs?: number;
+  /** 出错时回调（不中断监听） */
