@@ -25,3 +25,7 @@ export function watchFile(
   options: WatchOptions = {},
 ): WatchHandle {
   const debounceMs = options.debounceMs ?? 120;
+  let timer: NodeJS.Timeout | undefined;
+
+  const fire = (): void => {
+    if (timer) clearTimeout(timer);
