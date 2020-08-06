@@ -42,3 +42,7 @@ export function watchFile(
 
   const watcher = watch(file, fire);
   return {
+    close(): void {
+      if (timer) clearTimeout(timer);
+      watcher?.close();
+    },
