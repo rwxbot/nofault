@@ -46,3 +46,8 @@ export function watchFile(
       if (timer) clearTimeout(timer);
       watcher?.close();
     },
+  };
+}
+
+/** 纯函数版防抖，便于单测（不需要真的文件系统事件） */
+export function debounce<T extends unknown[]>(fn: (...args: T) => void, ms: number): (...args: T) => void {
