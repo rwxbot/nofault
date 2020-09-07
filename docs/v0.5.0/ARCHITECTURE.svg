@@ -10,3 +10,15 @@
 
   <rect x="32" y="92" width="200" height="70" rx="9" fill="#eef2ff" stroke="#6366f1" stroke-width="1.6"/>
   <text x="132" y="118" font-size="13.5" font-weight="600" fill="#3730a3" text-anchor="middle">实体映射装饰器</text>
+  <text x="132" y="138" font-size="11.5" fill="#4b5563" text-anchor="middle">@Entity @Column @PrimaryGeneratedColumn</text>
+  <text x="132" y="153" font-size="11.5" fill="#4b5563" text-anchor="middle">列名默认 snake_case，类型由 design:type 推断</text>
+
+  <rect x="286" y="92" width="180" height="70" rx="9" fill="#f0fdfa" stroke="#0d9488" stroke-width="1.6"/>
+  <text x="376" y="118" font-size="13.5" font-weight="600" fill="#0f766e" text-anchor="middle">Repository / QueryBuilder</text>
+  <text x="376" y="138" font-size="11.5" fill="#4b5563" text-anchor="middle">save / find / paginate</text>
+  <text x="376" y="153" font-size="11.5" fill="#4b5563" text-anchor="middle">where 分组、排序、分页</text>
+
+  <line x1="234" y1="127" x2="282" y2="127" stroke="#6b7280" stroke-width="1.6" marker-end="url(#ar)"/>
+
+  <rect x="520" y="92" width="160" height="70" rx="9" fill="#fffbeb" stroke="#d97706" stroke-width="1.6"/>
+  <text x="600" y="118" font-size="13.5" font-weight="600" fill="#92400e" text-anchor="middle">Dialect（纯字符串）</text>
