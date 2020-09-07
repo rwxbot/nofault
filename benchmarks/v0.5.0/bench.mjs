@@ -42,3 +42,47 @@ class Row {
 Entity({ table: 'bench_rows' })(Row);
 PrimaryGeneratedColumn()(Row.prototype, 'id');
 Column({ name: 'name', type: 'string' })(Row.prototype, 'name');
+Column({ name: 'score', type: 'int' })(Row.prototype, 'score');
+
+const source = new MemoryDataSource();
+const repo = new Repository(Row, source);
+await repo.sync();
+
+async function bench(name, fn, iterations = opts.iterations) {
+  for (let i = 0; i < Math.min(100, iterations); i++) await fn(i);
+  const samples = [];
+  for (let i = 0; i < iterations; i++) {
+    const t = process.hrtime.bigint();
+    await fn(i);
+    samples.push(Number(process.hrtime.bigint() - t) / 1e6);
+  }
+  samples.sort((a, b) => a - b);
+  const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  const p95 = samples[Math.floor(samples.length * 0.95)];
+  return { name, meanMs: round(mean), p95Ms: round(p95), opsPerSec: round(1000 / mean) };
+}
+
+function round(n) {
+  return Math.round(n * 100) / 100;
+}
+
+const insert = await bench('insert', async (i) => {
+  const row = new Row();
+  row.name = `user-${i}`;
+  row.score = i % 100;
+  await repo.save(row);
+});
+
+const findById = await bench('findById', async (i) => {
+  await repo.findById((i % 500) + 1);
+});
+
+const findWithQuery = await bench('query (where + order + limit)', async () => {
+  await repo.createQueryBuilder().andWhere('score', '>=', 50).orderBy('score', 'DESC').limit(10).getMany();
+});
+
+const paginate = await bench('paginate', async (i) => {
+  await repo.paginate((i % 5) + 1, 20);
+});
+
+const transaction = await bench('transaction (commit)', async () => {
