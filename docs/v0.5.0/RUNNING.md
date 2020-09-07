@@ -56,3 +56,21 @@ node ../../packages/cli/bin/nofaultctl.js generate api api/user.api.ts --out src
 ## 跑基准测试
 
 ```bash
+pnpm bench v0.5.0
+pnpm bench v0.5.0 --iterations=800 --report
+```
+
+## 目录导航
+
+```
+packages/orm/src/decorators.ts      实体与列装饰器
+packages/orm/src/dialect.ts         SQL 方言（纯字符串，可单测）
+packages/orm/src/data-source.ts     内存 / SQL 两种数据源
+packages/orm/src/memory-sql.ts      迁移所需的迷你 SQL 引擎
+packages/orm/src/repository.ts      Repository + QueryBuilder + 映射
+packages/orm/src/migration.ts       迁移执行器
+packages/orm/src/orm.module.ts      OrmModule.forRoot / forFeature
+packages/cache/src/memory-cache.ts  TTL + LRU + 抖动 + single-flight
+examples/v0.5.0-data-user-api/      可运行示例
+tests/integration/v0.5.0/           端到端
+```
