@@ -69,3 +69,26 @@ Repository / QueryBuilder ──> Dialect ──> SQL 字符串 + 参数 ──>
 `--with-orm` 额外产出 `data/entities/*.entity.ts` 与 `data/repositories/*.repository.ts`。
 
 两条规则很关键：
+
+1. **只为"被当作响应类型用过"的类型建表**。请求 DTO 是传输对象，给它建表毫无意义
+2. **契约里的 `id` 字段要跳过**：主键由生成器统一提供，否则生成两个同名的 `id`
+
+骨架只给三件套（`findById` / `paginate` / `create`），业务查询由人接管——
+删掉首行生成标记即宣告接管，此后再生成也不会覆盖。
+
+## 七、本版踩到的坑
+
+1. **自增主键上的 `0` 是占位，不是值** —— TS 里 `new User().id` 恒为 0，
+   照原样写入会让所有记录撞主键。现在 `save()` 会把 0 当作"未设置"
+2. **布尔在库里是 1/0，实体上是 true/false** —— 比较前必须归一化，
+   否则"能存进去却查不出来"（极难察觉）
+3. **事务回滚要覆盖 raw 表** —— 见上
+4. **生成的模块不知道手写的 DataModule** —— 模块装配注定由人做，
+   所以 `user.module.ts` 通常是第一个被接管的生成物
+
+## 八、已知限制
+
+- SQL 方言只覆盖单表 CRUD，无 JOIN（多表请用 raw 或自己在 repository 里写）
+- 内存数据源的 WHERE 只支持迁移用到的简单形式
+- LRU 淘汰是 O(n log n) 排序，`max` 设很大时会痛
+- 无连接池（交给驱动 / executor）
