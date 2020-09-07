@@ -36,3 +36,23 @@ curl -s http://127.0.0.1:3000/api/user/users/1
 # 删除（同时失效缓存，避免读到幽灵数据）
 curl -s -X DELETE http://127.0.0.1:3000/api/user/users/1
 curl -s http://127.0.0.1:3000/api/user/users/1    # 404
+
+# 分页 + 校验
+curl -s "http://127.0.0.1:3000/api/user/users?page=1&pageSize=10"
+curl -s "http://127.0.0.1:3000/api/user/users?page=0&pageSize=10"   # 422
+```
+
+### 重新生成（含数据层）
+
+```bash
+node ../../packages/cli/bin/nofaultctl.js generate api api/user.api.ts --out src --with-orm
+# --watch 可让它在契约变更时自动重跑
+```
+
+只会被覆盖的是**仍带生成标记**的文件；
+`user.service.ts` / `user.module.ts` / `data/repositories/user-resp.repository.ts`
+已删掉标记，属于手工接管，不会被覆盖。
+
+## 跑基准测试
+
+```bash
