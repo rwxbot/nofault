@@ -105,3 +105,38 @@ const source = new MemoryDataSource();
   ],
   controllers: [NoteController],
   providers: [NoteService],
+})
+class TestAppModule {}
+
+let app: RestApplication;
+let base: string;
+
+beforeAll(async () => {
+  const migrator = new Migrator(source, [
+    {
+      version: '001_create_notes',
+      up: async (ctx) => {
+        await ctx.createTable(Note);
+      },
+      down: async (ctx) => {
+        await ctx.dropTable(Note);
+      },
+    },
+  ]);
+  await migrator.up();
+  expect(await migrator.applied()).toEqual(['001_create_notes']);
+
+  app = await RestApplication.create(TestAppModule, { quiet: true, middleware: [bodyParser()] });
+  const { port } = await app.listen(0, '127.0.0.1');
+  base = `http://127.0.0.1:${port}`;
+});
+
+afterAll(async () => {
+  await app?.close();
+});
+
+describe('orm + cache over http', () => {
+  it('creates and reads a record through the container', async () => {
+    const res = await fetch(`${base}/notes`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
