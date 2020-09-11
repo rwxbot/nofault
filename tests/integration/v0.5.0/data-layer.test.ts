@@ -69,3 +69,39 @@ class NoteService {
 }
 
 @Controller('/notes')
+class NoteController {
+  constructor(private readonly service: NoteService) {}
+
+  @Post('/')
+  async create(@Body() body: { title: string }): Promise<Note> {
+    return this.service.create(body.title);
+  }
+
+  @Post('/fail')
+  async createAndFail(@Body() body: { title: string }): Promise<Note> {
+    return this.service.createAndFail(body.title);
+  }
+
+  @Get('/count')
+  async count(): Promise<{ total: number }> {
+    return { total: await this.service.count() };
+  }
+
+  @Get('/:id')
+  async get(@Param('id') id: number): Promise<Note | undefined> {
+    // 参数**必须**带装饰器：框架靠它知道值从哪儿来，
+    // 少了装饰器就会拿到 undefined（表现为 204 空响应，非常难查）
+    return this.service.get(Number(id));
+  }
+}
+
+const source = new MemoryDataSource();
+
+@Module({
+  imports: [
+    OrmModule.forRoot({ dataSource: source }),
+    OrmModule.forFeature([Note]),
+    CacheModule.forRoot({ memory: { ttl: 5000, max: 100 } }),
+  ],
+  controllers: [NoteController],
+  providers: [NoteService],
