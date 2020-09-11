@@ -140,3 +140,37 @@ describe('orm + cache over http', () => {
     const res = await fetch(`${base}/notes`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title: 'hello' }),
+    });
+    const created = (await res.json()) as { data?: { id?: number }; id?: number };
+    expect(created.data?.id ?? created.id).toBeTruthy();
+
+    const read = await (await fetch(`${base}/notes/1`)).json();
+    expect(JSON.stringify(read)).toContain('hello');
+  });
+
+  it('rolls back a failed transaction — no phantom rows', async () => {
+    const before = (await (await fetch(`${base}/notes/count`)).json()) as { data: { total: number } };
+
+    const res = await fetch(`${base}/notes/fail`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ title: 'ghost' }),
+    });
+    expect(res.status).toBe(500);
+
+    const after = (await (await fetch(`${base}/notes/count`)).json()) as { data: { total: number } };
+    expect(after.data.total).toBe(before.data.total);
+  });
+
+  it('serves concurrent reads with a single load (cache stampede protection)', async () => {
+    const cache = new MemoryCache();
+    let loads = 0;
+    const loader = async () => {
+      loads++;
+      return 'value';
+    };
+    await Promise.all([cache.getOrSet('k', loader), cache.getOrSet('k', loader), cache.getOrSet('k', loader)]);
+    expect(loads).toBe(1);
+  });
+});
