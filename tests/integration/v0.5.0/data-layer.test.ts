@@ -34,3 +34,38 @@ class Note {
 @Injectable()
 class NoteService {
   constructor(
+    @InjectRepository(Note) private readonly notes: Repository<Note>,
+    @Inject(CACHE as never) private readonly cache: Cache,
+  ) {}
+
+  async create(title: string): Promise<Note> {
+    const note = new Note();
+    note.title = title;
+    return this.notes.save(note);
+  }
+
+  async get(id: number): Promise<Note | undefined> {
+    return this.cache.getOrSet(`note:${id}`, () => this.notes.findById(id));
+  }
+
+  /** 故意写一半再抛错，用来验证事务回滚 */
+  async createAndFail(title: string): Promise<Note> {
+    return this.source.transaction(async () => {
+      await this.create(title);
+      throw new Error('boom');
+    });
+  }
+
+  async count(): Promise<number> {
+    return this.notes.count();
+  }
+
+  /** 测试注入用 */
+  setSource(source: MemoryDataSource): void {
+    this.source = source;
+  }
+
+  private source!: MemoryDataSource;
+}
+
+@Controller('/notes')
