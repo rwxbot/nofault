@@ -70,3 +70,18 @@ const cold = await bench(
     await fresh.close();
   },
   Math.min(300, args.iterations),
+);
+
+// C. 并发
+const concurrencyStart = process.hrtime.bigint();
+const batches = args.concurrency;
+await Promise.all(
+  Array.from({ length: batches }, async () => {
+    const perBatch = Math.max(1, Math.floor(args.iterations / batches));
+    for (let i = 0; i < perBatch; i++) await client.call('bench', 'add', { a: i, b: i });
+  }),
+);
+const concurrentMs = Number(process.hrtime.bigint() - concurrencyStart) / 1e6;
+const concurrentTotal = Math.floor(args.iterations / batches) * batches;
+const concurrent = {
+  concurrency: batches,
