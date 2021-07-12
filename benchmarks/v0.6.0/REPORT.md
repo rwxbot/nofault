@@ -33,3 +33,9 @@ pnpm bench v0.6.0 --iterations=2000 --concurrency=50 --report
 ```
 
 ## 已知限制
+
+- 本机回环，不含真实网络延迟与丢包
+- JSON 编解码开销已计入，但未与二进制协议（protobuf / msgpack）对比
+- 未测大 payload（>1MB）下的分帧与背压行为
+
+## 一个被数字掩盖的事实
