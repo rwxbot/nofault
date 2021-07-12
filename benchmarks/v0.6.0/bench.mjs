@@ -56,3 +56,17 @@ async function bench(name, fn, iterations = args.iterations) {
 }
 
 // A. 串行调用（连接已建立）
+const client = new RpcClient({ registry, service: 'bench', timeoutMs: 5000, poolSize: 4 });
+const serial = await bench('serial call (warm connection)', async (i) => {
+  await client.call('bench', 'add', { a: i, b: 1 });
+});
+
+// B. 池化收益：每次新建客户端（含建连）vs 复用
+const cold = await bench(
+  'call with fresh client (incl. connect)',
+  async () => {
+    const fresh = new RpcClient({ registry, service: 'bench', timeoutMs: 5000 });
+    await fresh.call('bench', 'echo', { v: 1 });
+    await fresh.close();
+  },
+  Math.min(300, args.iterations),
