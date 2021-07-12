@@ -41,3 +41,18 @@ await registry.register({ id: 'b1', name: 'bench', host: '127.0.0.1', port });
 function round(n) {
   return Math.round(n * 100) / 100;
 }
+
+async function bench(name, fn, iterations = args.iterations) {
+  for (let i = 0; i < Math.min(200, iterations); i++) await fn(i);
+  const samples = [];
+  for (let i = 0; i < iterations; i++) {
+    const t = process.hrtime.bigint();
+    await fn(i);
+    samples.push(Number(process.hrtime.bigint() - t) / 1e6);
+  }
+  samples.sort((a, b) => a - b);
+  const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  return { name, meanMs: round(mean), p95Ms: round(samples[Math.floor(samples.length * 0.95)]), opsPerSec: round(1000 / mean) };
+}
+
+// A. 串行调用（连接已建立）
