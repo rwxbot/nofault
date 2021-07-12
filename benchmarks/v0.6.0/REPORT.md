@@ -27,3 +27,9 @@
    要么退化成"一调用一连接"（池被打爆）。
 
 ## 复现
+
+```bash
+pnpm bench v0.6.0 --iterations=2000 --concurrency=50 --report
+```
+
+## 已知限制
