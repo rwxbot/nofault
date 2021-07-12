@@ -26,3 +26,18 @@ for (const a of process.argv.slice(2)) {
 }
 
 const { RpcServer, RpcClient, InMemoryRegistry } = await import(join(repoRoot, 'packages/rpc/dist/index.js'));
+
+const server = new RpcServer();
+server.register('bench', 'echo', (payload) => payload);
+server.register('bench', 'add', (payload) => {
+  const { a, b } = payload;
+  return a + b;
+});
+const { port } = await server.listen(0, '127.0.0.1');
+
+const registry = new InMemoryRegistry();
+await registry.register({ id: 'b1', name: 'bench', host: '127.0.0.1', port });
+
+function round(n) {
+  return Math.round(n * 100) / 100;
+}
