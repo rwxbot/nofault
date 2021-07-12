@@ -85,3 +85,17 @@ const concurrentMs = Number(process.hrtime.bigint() - concurrencyStart) / 1e6;
 const concurrentTotal = Math.floor(args.iterations / batches) * batches;
 const concurrent = {
   concurrency: batches,
+  calls: concurrentTotal,
+  totalMs: round(concurrentMs),
+  opsPerSec: round((concurrentTotal / concurrentMs) * 1000),
+};
+
+const pooled = { size: client.poolStats.size };
+
+console.log(`\n[v0.6.0] rpc benchmark — ${args.iterations} iterations\n`);
+console.log('A. 串行调用（连接已就绪）');
+console.log(`   ${serial.meanMs} ms  (${serial.opsPerSec} ops/sec, p95 ${serial.p95Ms} ms)`);
+console.log('B. 建连成本');
+console.log(`   每次新建客户端 ${cold.meanMs} ms  vs  复用连接 ${serial.meanMs} ms`);
+console.log(`   池化省下 ${round(cold.meanMs - serial.meanMs)} ms/次（${round(cold.meanMs / Math.max(serial.meanMs, 0.001))}x）`);
+console.log('C. 并发');
