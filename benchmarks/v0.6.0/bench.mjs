@@ -99,3 +99,16 @@ console.log('B. 建连成本');
 console.log(`   每次新建客户端 ${cold.meanMs} ms  vs  复用连接 ${serial.meanMs} ms`);
 console.log(`   池化省下 ${round(cold.meanMs - serial.meanMs)} ms/次（${round(cold.meanMs / Math.max(serial.meanMs, 0.001))}x）`);
 console.log('C. 并发');
+console.log(`   ${concurrent.concurrency} 并发 / ${concurrent.calls} 次调用：${concurrent.totalMs} ms，${concurrent.opsPerSec} ops/sec`);
+console.log(`   连接池实际大小：${pooled.size}\n`);
+
+if (args.report) {
+  writeFileSync(
+    join(here, 'results.json'),
+    JSON.stringify({ generatedAt: new Date().toISOString(), serial, cold, concurrent, pooled }, null, 2),
+  );
+  console.log('结果已写入 benchmarks/v0.6.0/results.json');
+}
+
+await client.close();
+await server.close();
