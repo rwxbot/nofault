@@ -16,3 +16,10 @@ pnpm vitest run tests/integration/v0.6.0     # HTTP 网关 → RPC（traceId 透
 pnpm example v0.6.0-rpc-gateway
 pnpm example v0.6.0-rpc-gateway PORT=3360
 ```
+
+一个进程里同时起 **RPC 后端** 与 **HTTP 网关**，curl 打网关：
+
+```bash
+curl -s http://127.0.0.1:3000/api/ping                  # 经 RPC 返回 {pong:true}
+curl -s -X POST http://127.0.0.1:3000/api/users \
+  -H 'content-type: application/json' -d '{"name":"alice"}'
