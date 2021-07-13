@@ -5,3 +5,9 @@
 ## 跑测试
 
 ```bash
+pnpm test                                    # 全部
+pnpm vitest run packages/rpc                 # 分帧 / 往返 / 超时 / 重试 / 注册发现 / 负载均衡
+pnpm vitest run tests/integration/v0.6.0     # HTTP 网关 → RPC（traceId 透传、超时 504）
+```
+
+## 跑示例
