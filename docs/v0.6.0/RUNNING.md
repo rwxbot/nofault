@@ -29,3 +29,9 @@ curl -s http://127.0.0.1:3000/api/slow/900              # 504（上游超时）
 ```
 
 ## 跑基准测试
+
+```bash
+pnpm bench v0.6.0 --iterations=2000 --concurrency=50 --report
+```
+
+## 目录导航
