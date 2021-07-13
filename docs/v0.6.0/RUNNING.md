@@ -11,3 +11,8 @@ pnpm vitest run tests/integration/v0.6.0     # HTTP 网关 → RPC（traceId 透
 ```
 
 ## 跑示例
+
+```bash
+pnpm example v0.6.0-rpc-gateway
+pnpm example v0.6.0-rpc-gateway PORT=3360
+```
