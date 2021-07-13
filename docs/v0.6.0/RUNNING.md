@@ -35,3 +35,9 @@ pnpm bench v0.6.0 --iterations=2000 --concurrency=50 --report
 ```
 
 ## 目录导航
+
+```
+packages/rpc/src/protocol.ts      帧格式、请求/响应、错误码
+packages/rpc/src/server.ts        TCP 服务端 + 分发
+packages/rpc/src/client.ts        连接池 / 超时 / 重试
+packages/rpc/src/registry.ts      注册发现 + 加权轮询
