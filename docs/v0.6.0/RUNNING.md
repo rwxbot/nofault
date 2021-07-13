@@ -41,3 +41,8 @@ packages/rpc/src/protocol.ts      帧格式、请求/响应、错误码
 packages/rpc/src/server.ts        TCP 服务端 + 分发
 packages/rpc/src/client.ts        连接池 / 超时 / 重试
 packages/rpc/src/registry.ts      注册发现 + 加权轮询
+packages/rpc/src/interceptor.ts   拦截器链
+packages/rpc/src/http-bridge.ts   RPC 错误 → HTTP 状态
+examples/v0.6.0-rpc-gateway/      HTTP 网关调 RPC 的示例
+tests/integration/v0.6.0/         端到端
+```
