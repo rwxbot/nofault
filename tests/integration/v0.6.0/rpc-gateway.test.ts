@@ -49,3 +49,19 @@ class GatewayController {
 
   @Post('/slow')
   async slow(@Body() body: { ms: number }): Promise<unknown> {
+    try {
+      return await this.rpc.call('backend', 'slow', body);
+    } catch (err) {
+      const mapped = rpcErrorToStatus(err);
+      throw new HttpException(mapped.status, mapped.message, mapped.status);
+    }
+  }
+}
+
+@Module({
+  imports: [RpcModule.forClient({ registry, service: 'backend', timeoutMs: 200, retries: 0, poolSize: 2 })],
+  controllers: [GatewayController],
+})
+class GatewayModule {}
+
+let rpcServer: RpcServer;
