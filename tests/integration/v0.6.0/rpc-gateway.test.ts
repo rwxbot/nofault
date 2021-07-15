@@ -32,3 +32,20 @@ class Backend {
     await new Promise((resolve) => setTimeout(resolve, input.ms));
     return { waited: input.ms };
   }
+}
+
+const registry = new InMemoryRegistry({ ttlMs: 30_000 });
+const seenTraceIds: Array<string | undefined> = [];
+
+@Controller('/api')
+class GatewayController {
+  constructor(@InjectRpcClient() private readonly rpc: RpcClient) {}
+
+  @Get('/echo')
+  async echo(): Promise<unknown> {
+    const traceId = currentContext()?.traceId;
+    return this.rpc.call('backend', 'echo', { value: 'hi', traceId }, traceId);
+  }
+
+  @Post('/slow')
+  async slow(@Body() body: { ms: number }): Promise<unknown> {
