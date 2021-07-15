@@ -82,3 +82,20 @@ describe('http gateway over rpc', () => {
         async (payload, ctx, next) => {
           seenTraceIds.push(ctx.request.traceId);
           return next(payload);
+        },
+      ],
+    });
+    rpcServer.registerService('backend', new Backend());
+    const { port: rpcPort } = await rpcServer.listen(0, '127.0.0.1');
+    await registry.register({ id: 'b1', name: 'backend', host: '127.0.0.1', port: rpcPort });
+
+    app = await RestApplication.create(GatewayModule, { quiet: true, middleware: [requestContext(), bodyParser()] });
+    const { port } = await app.listen(0, '127.0.0.1');
+    base = `http://127.0.0.1:${port}`;
+
+    const res = await fetch(`${base}/api/echo`);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { data: { value: string; traceId?: string } };
+    expect(body.data.value).toBe('hi');
+
+    // HTTP 侧的 traceId 必须原样出现在 RPC 后端 —— 链路才串得起来
