@@ -15,3 +15,20 @@ import {
   InMemoryRegistry,
   rpcErrorToStatus,
   loggingInterceptor,
+  RpcClient,
+  RpcError,
+  RpcModule,
+  RpcServer,
+  RPC_ERROR,
+  InjectRpcClient,
+} from '@nofault/rpc';
+
+class Backend {
+  async echo(input: { value: string; traceId?: string }): Promise<{ value: string; traceId?: string }> {
+    return { value: input.value, traceId: input.traceId };
+  }
+
+  async slow(input: { ms: number }): Promise<{ waited: number }> {
+    await new Promise((resolve) => setTimeout(resolve, input.ms));
+    return { waited: input.ms };
+  }
