@@ -99,3 +99,20 @@ describe('http gateway over rpc', () => {
     expect(body.data.value).toBe('hi');
 
     // HTTP 侧的 traceId 必须原样出现在 RPC 后端 —— 链路才串得起来
+    expect(body.data.traceId).toBeTruthy();
+    expect(seenTraceIds).toContain(body.data.traceId);
+  });
+
+  it('gives up at the timeout instead of waiting for the backend', async () => {
+    const started = Date.now();
+    const res = await fetch(`${base}/api/slow`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ms: 1500 }),
+    });
+    const elapsed = Date.now() - started;
+
+    // 超时是 504（Gateway Timeout），而不是笼统的 500
+    expect(res.status).toBe(504);
+    // 200ms 超时：即便后端要 1.5s，网关也必须在 200ms 量级返回
+    expect(elapsed).toBeLessThan(900);
