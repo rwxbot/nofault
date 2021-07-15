@@ -65,3 +65,20 @@ class GatewayController {
 class GatewayModule {}
 
 let rpcServer: RpcServer;
+let app: RestApplication;
+let base: string;
+
+afterAll(async () => {
+  await app?.close();
+  await rpcServer?.close();
+  await registry.close();
+});
+
+describe('http gateway over rpc', () => {
+  it('boots the backend, registers it and serves requests through the gateway', async () => {
+    rpcServer = new RpcServer({
+      interceptors: [
+        loggingInterceptor({ info: () => {} }),
+        async (payload, ctx, next) => {
+          seenTraceIds.push(ctx.request.traceId);
+          return next(payload);
