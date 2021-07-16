@@ -116,3 +116,18 @@ describe('http gateway over rpc', () => {
     expect(res.status).toBe(504);
     // 200ms 超时：即便后端要 1.5s，网关也必须在 200ms 量级返回
     expect(elapsed).toBeLessThan(900);
+  });
+
+  it('reports an unreachable upstream with 502 semantics', async () => {
+    const missing = new RpcClient({ registry, service: 'nope', timeoutMs: 200 });
+    await expect(missing.call('nope', 'go')).rejects.toThrow(/no instance/);
+    await missing.close();
+
+    // 错误码要能区分"业务没找到"和"框架没这个方法"
+    expect(RPC_ERROR.METHOD_NOT_FOUND).not.toBe(RPC_ERROR.TIMEOUT);
+    expect(new RpcError(RPC_ERROR.TIMEOUT, 't').code).toBe(RPC_ERROR.TIMEOUT);
+    expect(() => {
+      throw new HttpException(502, 'bad', 502);
+    }).toThrow();
+  });
+});
