@@ -44,3 +44,12 @@ function bench(name, fn, iterations = args.iterations) {
 
 const bucket = new TokenBucket({ capacity: 1_000_000, refillPerSecond: 1_000_000 });
 const tokenCheck = bench('token bucket check', () => bucket.tryRemove());
+
+const limiter = new KeyedRateLimiter({ capacity: 1_000_000, refillPerSecond: 1_000_000 });
+const keyedCheck = bench('keyed rate limit check', (i) => limiter.check(`key-${i % 1000}`));
+
+const breaker = new CircuitBreaker({ failureThreshold: 1e9, resetTimeoutMs: 1000 });
+const closedRun = bench('circuit breaker (closed, sync)', () => breaker.currentState);
+
+const guard = new Bulkhead({ concurrency: 1000, queueLimit: 0 });
+const bulkheadStats = bench('bulkhead stats', () => guard.stats);
