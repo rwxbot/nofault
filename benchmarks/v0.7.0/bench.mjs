@@ -62,3 +62,11 @@ for (const r of [tokenCheck, keyedCheck, closedRun, bulkheadStats, backoff]) {
   console.log(`   ${r.name.padEnd(30)} ${r.meanMs} µs  (${r.opsPerSec} ops/sec, p95 ${r.p95Us} µs)`);
 }
 console.log('');
+
+if (args.report) {
+  writeFileSync(
+    join(here, 'results.json'),
+    JSON.stringify({ generatedAt: new Date().toISOString(), primitives: [tokenCheck, keyedCheck, closedRun, bulkheadStats, backoff] }, null, 2),
+  );
+  console.log('结果已写入 benchmarks/v0.7.0/results.json');
+}
