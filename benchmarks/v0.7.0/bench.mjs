@@ -53,3 +53,12 @@ const closedRun = bench('circuit breaker (closed, sync)', () => breaker.currentS
 
 const guard = new Bulkhead({ concurrency: 1000, queueLimit: 0 });
 const bulkheadStats = bench('bulkhead stats', () => guard.stats);
+
+const backoff = bench('backoff delay', (i) => backoffDelay(i % 8));
+
+console.log(`\n[v0.7.0] resilience benchmark — ${args.iterations} iterations\n`);
+console.log('每次判定的开销（微秒级才是合格的）：');
+for (const r of [tokenCheck, keyedCheck, closedRun, bulkheadStats, backoff]) {
+  console.log(`   ${r.name.padEnd(30)} ${r.meanMs} µs  (${r.opsPerSec} ops/sec, p95 ${r.p95Us} µs)`);
+}
+console.log('');
