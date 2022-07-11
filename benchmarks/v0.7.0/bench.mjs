@@ -35,3 +35,12 @@ function bench(name, fn, iterations = args.iterations) {
   for (let i = 0; i < iterations; i++) {
     const t = process.hrtime.bigint();
     fn(i);
+    samples.push(Number(process.hrtime.bigint() - t) / 1e6);
+  }
+  samples.sort((a, b) => a - b);
+  const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  return { name, meanMs: round(mean * 1000), opsPerSec: round(1000 / mean), p95Us: round(samples[Math.floor(samples.length * 0.95)] * 1000) };
+}
+
+const bucket = new TokenBucket({ capacity: 1_000_000, refillPerSecond: 1_000_000 });
+const tokenCheck = bench('token bucket check', () => bucket.tryRemove());
