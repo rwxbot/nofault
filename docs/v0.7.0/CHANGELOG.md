@@ -5,3 +5,9 @@
 ## 新增包 `@nofault/resilience`
 
 - **限流**：`TokenBucket`（匀速补充，无窗口尖峰）+ `KeyedRateLimiter`（按 IP/用户/租户）
+- **熔断**：`CircuitBreaker` 三态机，`halfOpenMaxCalls` 限制探针数，`isFailure` 可排除业务错误
+- **舱壁**：`Bulkhead` 并发隔离 + **有界队列**（排满即快速失败）
+- **退避**：`backoffDelay()` 指数退避 + 抖动（默认 ±50%）、`retryWithBackoff()`
+- **中间件**：`rateLimit()` / `circuitBreaker()` / `bulkhead()`，含 429 的 `Retry-After`
+
+## 关键设计决策
