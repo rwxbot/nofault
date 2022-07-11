@@ -26,3 +26,12 @@ const { TokenBucket, KeyedRateLimiter, CircuitBreaker, Bulkhead, backoffDelay } 
 );
 
 function round(n) {
+  return Math.round(n * 100) / 100;
+}
+
+function bench(name, fn, iterations = args.iterations) {
+  for (let i = 0; i < Math.min(2000, iterations); i++) fn(i);
+  const samples = [];
+  for (let i = 0; i < iterations; i++) {
+    const t = process.hrtime.bigint();
+    fn(i);
