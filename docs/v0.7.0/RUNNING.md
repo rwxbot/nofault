@@ -39,3 +39,11 @@ curl -s http://127.0.0.1:3000/faulty/state               # -> closed
 ```
 
 ## 跑基准测试
+
+```bash
+pnpm bench v0.7.0 --iterations=50000 --report
+```
+
+## 目录导航
+
+```
