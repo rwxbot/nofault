@@ -47,3 +47,10 @@ pnpm bench v0.7.0 --iterations=50000 --report
 ## 目录导航
 
 ```
+packages/resilience/src/rate-limiter.ts      令牌桶 + 按 key 限流
+packages/resilience/src/circuit-breaker.ts  三态熔断
+packages/resilience/src/bulkhead.ts          并发隔离 + 指数退避
+packages/resilience/src/middleware.ts        接进 HTTP 链（含顺序约定）
+examples/v0.7.0-resilient-api/               可切换故障的示例
+tests/integration/v0.7.0/                    端到端
+```
