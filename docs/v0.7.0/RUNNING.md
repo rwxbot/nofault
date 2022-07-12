@@ -31,3 +31,11 @@ curl -s -D - -o /dev/null http://127.0.0.1:3000/faulty/state | grep -i retry-aft
 curl -s "http://127.0.0.1:3000/faulty/break?mode=down"   # 人为打挂下游
 for i in 1 2 3 4; do curl -s -o /dev/null -w "%{http_code} " http://127.0.0.1:3000/faulty/call; done
 curl -s http://127.0.0.1:3000/faulty/state               # -> open，且 dependencyCalls 不再增长
+
+curl -s "http://127.0.0.1:3000/faulty/break?mode=ok"     # 恢复
+sleep 3.2
+curl -s http://127.0.0.1:3000/faulty/call                # 半开探针成功 -> 200
+curl -s http://127.0.0.1:3000/faulty/state               # -> closed
+```
+
+## 跑基准测试
