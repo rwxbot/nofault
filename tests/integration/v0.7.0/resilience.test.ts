@@ -10,3 +10,15 @@ import 'reflect-metadata';
 import { Module } from '@nofault/core';
 import { Controller, Get, RestApplication, type Middleware } from '@nofault/rest';
 import { KeyedRateLimiter, CircuitBreaker, CircuitOpenError, rateLimit } from '@nofault/resilience';
+
+let calls = 0;
+let mode: 'ok' | 'down' = 'ok';
+
+const breaker = new CircuitBreaker({ failureThreshold: 2, resetTimeoutMs: 300, halfOpenMaxCalls: 1 });
+
+@Controller('/api')
+class ApiController {
+  @Get('/ping')
+  async ping(): Promise<{ ok: true }> {
+    return { ok: true };
+  }
