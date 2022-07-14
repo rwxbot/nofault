@@ -47,3 +47,15 @@ describe('resilience over http', () => {
   it('rate limits per client and returns 429 with retry-after', async () => {
     app = await RestApplication.create(AppModule, {
       quiet: true,
+      middleware: [rateLimit({ capacity: 3, refillPerSecond: 1 }) as unknown as Middleware],
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
+    base = `http://127.0.0.1:${port}`;
+
+    const codes: number[] = [];
+    for (let i = 0; i < 5; i++) {
+      // 每个用例用自己的 IP，避免共享同一个限流桶（否则后面的用例一上来就被 429）
+      const res = await fetch(`${base}/api/ping`, { headers: { 'x-forwarded-for': '10.0.0.1' } });
+      codes.push(res.status);
+    }
+    expect(codes.slice(0, 3)).toEqual([200, 200, 200]);
