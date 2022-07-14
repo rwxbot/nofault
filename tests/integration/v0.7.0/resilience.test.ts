@@ -59,3 +59,15 @@ describe('resilience over http', () => {
       codes.push(res.status);
     }
     expect(codes.slice(0, 3)).toEqual([200, 200, 200]);
+    expect(codes.slice(3)).toEqual([429, 429]);
+
+    const limited = await fetch(`${base}/api/ping`, { headers: { 'x-forwarded-for': '10.0.0.1' } });
+    expect(limited.headers.get('retry-after')).toBeTruthy();
+  });
+
+  it('opens the circuit and stops calling the dependency', async () => {
+    mode = 'down';
+    const before = calls;
+    for (let i = 0; i < 2; i++) {
+      await fetch(`${base}/api/flaky`, { headers: { 'x-forwarded-for': '10.0.0.2' } });
+    }
