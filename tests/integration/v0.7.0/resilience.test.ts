@@ -22,3 +22,16 @@ class ApiController {
   async ping(): Promise<{ ok: true }> {
     return { ok: true };
   }
+
+  @Get('/flaky')
+  async flaky(): Promise<{ ok: true }> {
+    return breaker.run(async () => {
+      calls++;
+      if (mode === 'down') throw new Error('down');
+      return { ok: true };
+    });
+  }
+}
+
+@Module({ controllers: [ApiController] })
+class AppModule {}
