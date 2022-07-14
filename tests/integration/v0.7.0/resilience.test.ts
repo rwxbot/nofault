@@ -35,3 +35,15 @@ class ApiController {
 
 @Module({ controllers: [ApiController] })
 class AppModule {}
+
+let app: RestApplication;
+let base: string;
+
+afterAll(async () => {
+  await app?.close();
+});
+
+describe('resilience over http', () => {
+  it('rate limits per client and returns 429 with retry-after', async () => {
+    app = await RestApplication.create(AppModule, {
+      quiet: true,
