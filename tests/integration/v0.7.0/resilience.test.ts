@@ -71,3 +71,15 @@ describe('resilience over http', () => {
     for (let i = 0; i < 2; i++) {
       await fetch(`${base}/api/flaky`, { headers: { 'x-forwarded-for': '10.0.0.2' } });
     }
+    expect(calls - before).toBeGreaterThanOrEqual(2);
+
+    // 熔断打开后：请求还是能进来，但**不会再打下游**
+    const openBefore = calls;
+    await expect(breaker.run(async () => 'x')).rejects.toBeInstanceOf(CircuitOpenError);
+    expect(calls).toBe(openBefore);
+  });
+
+  it('recovers through half-open', async () => {
+    mode = 'ok';
+    await new Promise((r) => setTimeout(r, 320));
+    expect(breaker.currentState).toBe('half-open');
