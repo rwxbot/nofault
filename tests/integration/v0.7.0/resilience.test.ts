@@ -83,3 +83,14 @@ describe('resilience over http', () => {
     mode = 'ok';
     await new Promise((r) => setTimeout(r, 320));
     expect(breaker.currentState).toBe('half-open');
+    await expect(breaker.run(async () => 'ok')).resolves.toBe('ok');
+    expect(breaker.currentState).toBe('closed');
+  });
+
+  it('keeps separate buckets per key', () => {
+    const limiter = new KeyedRateLimiter({ capacity: 1, refillPerSecond: 1 });
+    expect(limiter.check('ip-a').allowed).toBe(true);
+    expect(limiter.check('ip-a').allowed).toBe(false);
+    expect(limiter.check('ip-b').allowed).toBe(true);
+  });
+});
