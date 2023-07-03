@@ -103,3 +103,8 @@ for (const r of results) {
   console.log(`   ${r.name.padEnd(32)} ${r.meanUs} µs  (${r.opsPerSec} ops/sec, p95 ${r.p95Us} µs)`);
 }
 console.log('');
+console.log(`   导出待处理：${tracer.pendingCount} 条（批量导出未触发）`);
+
+if (args.report) {
+  writeFileSync(
+    join(here, 'results.json'),
