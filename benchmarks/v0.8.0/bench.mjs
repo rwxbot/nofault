@@ -97,3 +97,9 @@ const serialize = {
 };
 
 const results = [spanOverhead, notSampled, withAttrs, counterInc, histogramObserve, serialize];
+
+console.log(`\n[v0.8.0] telemetry benchmark — ${args.iterations} iterations\n`);
+for (const r of results) {
+  console.log(`   ${r.name.padEnd(32)} ${r.meanUs} µs  (${r.opsPerSec} ops/sec, p95 ${r.p95Us} µs)`);
+}
+console.log('');
