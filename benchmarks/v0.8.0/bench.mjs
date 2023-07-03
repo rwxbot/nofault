@@ -31,3 +31,9 @@ function round(n) {
 }
 
 function bench(name, fn, iterations = args.iterations) {
+  for (let i = 0; i < Math.min(1000, iterations); i++) fn(i);
+  const samples = [];
+  for (let i = 0; i < iterations; i++) {
+    const t = process.hrtime.bigint();
+    fn(i);
+    samples.push(Number(process.hrtime.bigint() - t) / 1e6);
