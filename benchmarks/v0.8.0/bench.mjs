@@ -81,3 +81,8 @@ const histogramObserve = bench('histogram observe', (i) => histogram.observe(i %
 for (let i = 0; i < 500; i++) {
   counter.inc({ route: `/r/${i % 20}`, status: '200' });
   histogram.observe(i % 300, { route: `/r/${i % 20}`, status: '200' });
+}
+const samples = [];
+for (let i = 0; i < 200; i++) {
+  const t = process.hrtime.bigint();
+  registry.toPrometheus();
