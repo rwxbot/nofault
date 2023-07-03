@@ -64,3 +64,9 @@ const notSampled = bench('span when not sampled', () => {
 // --- C. 带属性的 Span（属性是排查时的全部线索） ---
 const withAttrs = bench('span + 4 attributes', (i) => {
   const span = tracer.startSpan('bench');
+  span?.setAttributes({ route: '/api/x', status: 200, durationMs: i, cached: false });
+  span?.end();
+});
+
+// --- D. 计数器（每条请求都会 inc 好几次） ---
+const registry = new MetricRegistry();
