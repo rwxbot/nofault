@@ -59,3 +59,8 @@ const spanOverhead = bench('span start + end', () => {
 const offTracer = new Tracer(new InMemoryExporter(), () => false, 1_000_000);
 const notSampled = bench('span when not sampled', () => {
   offTracer.startSpan('bench');
+});
+
+// --- C. 带属性的 Span（属性是排查时的全部线索） ---
+const withAttrs = bench('span + 4 attributes', (i) => {
+  const span = tracer.startSpan('bench');
