@@ -92,3 +92,8 @@ samples.sort((a, b) => a - b);
 const serialize = {
   name: 'prometheus serialize (500 series)',
   meanUs: round((samples.reduce((a, b) => a + b, 0) / samples.length) * 1000),
+  opsPerSec: round(1000 / (samples.reduce((a, b) => a + b, 0) / samples.length)),
+  p95Us: round(samples[Math.floor(samples.length * 0.95)] * 1000),
+};
+
+const results = [spanOverhead, notSampled, withAttrs, counterInc, histogramObserve, serialize];
