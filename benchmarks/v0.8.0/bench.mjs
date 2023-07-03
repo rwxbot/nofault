@@ -25,3 +25,9 @@ for (const a of process.argv.slice(2)) {
 const { Tracer, InMemoryExporter, MetricRegistry } = await import(
   join(repoRoot, 'packages/telemetry/dist/index.js')
 );
+
+function round(n) {
+  return Math.round(n * 100) / 100;
+}
+
+function bench(name, fn, iterations = args.iterations) {
