@@ -53,3 +53,9 @@ const tracer = new Tracer(new InMemoryExporter(), () => true, 1_000_000);
 const spanOverhead = bench('span start + end', () => {
   const span = tracer.startSpan('bench');
   span.end();
+});
+
+// --- B. 不采样时（应当接近零开销） ---
+const offTracer = new Tracer(new InMemoryExporter(), () => false, 1_000_000);
+const notSampled = bench('span when not sampled', () => {
+  offTracer.startSpan('bench');
