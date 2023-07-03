@@ -9,3 +9,8 @@
  * 用法：node bench.mjs [--iterations=20000] [--report]
  */
 import { writeFileSync } from 'node:fs';
+import { join, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(here, '../..');
