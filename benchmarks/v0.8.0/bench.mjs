@@ -70,3 +70,8 @@ const withAttrs = bench('span + 4 attributes', (i) => {
 
 // --- D. 计数器（每条请求都会 inc 好几次） ---
 const registry = new MetricRegistry();
+const counter = registry.counter('bench_total', 'bench');
+const counterInc = bench('counter inc', () => counter.inc({ route: '/api/x' }));
+
+// --- E. 直方图（比计数器贵，因为要找桶） ---
+const histogram = registry.histogram('bench_ms', 'bench');
