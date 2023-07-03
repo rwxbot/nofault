@@ -14,3 +14,9 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '../..');
+
+const args = { iterations: 20000, report: false };
+for (const a of process.argv.slice(2)) {
+  const [k, v] = a.replace(/^--/, '').split('=');
+  if (k === 'report') args.report = true;
+  else if (k === 'iterations') args.iterations = Number(v);
