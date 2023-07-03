@@ -37,3 +37,8 @@ function bench(name, fn, iterations = args.iterations) {
     const t = process.hrtime.bigint();
     fn(i);
     samples.push(Number(process.hrtime.bigint() - t) / 1e6);
+  }
+  samples.sort((a, b) => a - b);
+  const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  return {
+    name,
