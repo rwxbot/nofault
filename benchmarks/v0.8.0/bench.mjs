@@ -86,3 +86,9 @@ const samples = [];
 for (let i = 0; i < 200; i++) {
   const t = process.hrtime.bigint();
   registry.toPrometheus();
+  samples.push(Number(process.hrtime.bigint() - t) / 1e6);
+}
+samples.sort((a, b) => a - b);
+const serialize = {
+  name: 'prometheus serialize (500 series)',
+  meanUs: round((samples.reduce((a, b) => a + b, 0) / samples.length) * 1000),
