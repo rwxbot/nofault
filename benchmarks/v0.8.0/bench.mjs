@@ -75,3 +75,9 @@ const counterInc = bench('counter inc', () => counter.inc({ route: '/api/x' }));
 
 // --- E. 直方图（比计数器贵，因为要找桶） ---
 const histogram = registry.histogram('bench_ms', 'bench');
+const histogramObserve = bench('histogram observe', (i) => histogram.observe(i % 500, { route: '/api/x' }));
+
+// --- F. Prometheus 序列化（抓取时才做，但要快） ---
+for (let i = 0; i < 500; i++) {
+  counter.inc({ route: `/r/${i % 20}`, status: '200' });
+  histogram.observe(i % 300, { route: `/r/${i % 20}`, status: '200' });
