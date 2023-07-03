@@ -42,3 +42,8 @@ function bench(name, fn, iterations = args.iterations) {
   const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
   return {
     name,
+    meanUs: round(mean * 1000),
+    opsPerSec: round(1000 / mean),
+    p95Us: round(samples[Math.floor(samples.length * 0.95)] * 1000),
+  };
+}
