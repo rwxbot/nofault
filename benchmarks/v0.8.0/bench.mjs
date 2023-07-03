@@ -47,3 +47,9 @@ function bench(name, fn, iterations = args.iterations) {
     p95Us: round(samples[Math.floor(samples.length * 0.95)] * 1000),
   };
 }
+
+// --- A. 起一个 Span 并结束 ---
+const tracer = new Tracer(new InMemoryExporter(), () => true, 1_000_000);
+const spanOverhead = bench('span start + end', () => {
+  const span = tracer.startSpan('bench');
+  span.end();
