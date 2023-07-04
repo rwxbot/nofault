@@ -108,3 +108,7 @@ console.log(`   导出待处理：${tracer.pendingCount} 条（批量导出未�
 if (args.report) {
   writeFileSync(
     join(here, 'results.json'),
+    JSON.stringify({ generatedAt: new Date().toISOString(), primitives: results }, null, 2),
+  );
+  console.log('结果已写入 benchmarks/v0.8.0/results.json');
+}
