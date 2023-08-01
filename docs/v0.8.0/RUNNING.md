@@ -15,3 +15,11 @@ pnpm vitest run tests/integration/v0.8.0     # 父子 Span 同 trace、错误记
 ```bash
 pnpm example v0.8.0-observability
 pnpm example v0.8.0-observability PORT=3380
+```
+
+### 试一试
+
+```bash
+# 打几个请求
+curl -s -o /dev/null http://127.0.0.1:3000/api/work/30
+curl -s -o /dev/null http://127.0.0.1:3000/api/boom
