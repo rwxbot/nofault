@@ -38,3 +38,11 @@ curl -s http://127.0.0.1:3000/ops/metrics | grep http_requests_total
 
 注意 `route` 已经是**收敛后**的（`/api/work/:id` 而不是 `/api/work/10`）——
 不收敛的话每个 id 都是一个独立序列，上线后必然基数爆炸。
+
+## 跑基准测试
+
+```bash
+pnpm bench v0.8.0 --iterations=20000 --report
+```
+
+## 目录导航
