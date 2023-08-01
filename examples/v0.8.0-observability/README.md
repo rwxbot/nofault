@@ -31,3 +31,11 @@ curl -s http://127.0.0.1:3000/ops/metrics | grep http_requests_total
 ```
 
 ## 文件说明
+
+| 文件 | 说明 |
+| --- | --- |
+| `src/telemetry.setup.ts` | Tracer（内存导出器）与 MetricRegistry |
+| `src/ops.controller.ts` | `/ops/spans`（先 flush 再看）与 `/ops/metrics` |
+| `src/main.ts` | 挂 `observability()` 中间件，**路由标签收敛** |
+
+## 这个示例证明了什么
