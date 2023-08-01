@@ -46,3 +46,11 @@ pnpm bench v0.8.0 --iterations=20000 --report
 ```
 
 ## 目录导航
+
+```
+packages/telemetry/src/tracer.ts      Span / 采样 / 导出 / 活动 Span 传递
+packages/telemetry/src/metrics.ts     Counter / Gauge / Histogram + Prometheus 文本
+packages/telemetry/src/middleware.ts  每请求一个服务端 Span + 三个指标
+examples/v0.8.0-observability/        可运行示例（含 /ops/spans 与 /ops/metrics）
+tests/integration/v0.8.0/             端到端
+```
