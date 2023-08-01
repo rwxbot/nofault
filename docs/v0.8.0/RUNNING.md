@@ -31,3 +31,10 @@ curl -s -D - -o /dev/null http://127.0.0.1:3000/api/work/10 | grep -i x-trace-id
 curl -s http://127.0.0.1:3000/ops/spans
 
 # Prometheus 指标
+curl -s http://127.0.0.1:3000/ops/metrics | grep http_requests_total
+# → http_requests_total{route="/api/work/:id",status="200"} 2
+#   http_requests_total{route="/api/boom",status="500"} 1
+```
+
+注意 `route` 已经是**收敛后**的（`/api/work/:id` 而不是 `/api/work/10`）——
+不收敛的话每个 id 都是一个独立序列，上线后必然基数爆炸。
