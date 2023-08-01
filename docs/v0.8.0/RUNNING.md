@@ -23,3 +23,11 @@ pnpm example v0.8.0-observability PORT=3380
 # 打几个请求
 curl -s -o /dev/null http://127.0.0.1:3000/api/work/30
 curl -s -o /dev/null http://127.0.0.1:3000/api/boom
+
+# traceId 回给客户端（用户报错时可据此对齐日志）
+curl -s -D - -o /dev/null http://127.0.0.1:3000/api/work/10 | grep -i x-trace-id
+
+# 看上报上来的 Span（子 Span 与父 Span 共享 traceId）
+curl -s http://127.0.0.1:3000/ops/spans
+
+# Prometheus 指标
