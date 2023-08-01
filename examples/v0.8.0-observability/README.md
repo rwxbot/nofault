@@ -25,3 +25,9 @@ curl -s http://127.0.0.1:3000/ops/spans
 #   {"name":"GET /api/work/:id",...,"traceId":"d8df1de7..."}
 
 # 指标（route 已收敛成 /api/work/:id）
+curl -s http://127.0.0.1:3000/ops/metrics | grep http_requests_total
+# → http_requests_total{route="/api/work/:id",status="200"} 2
+#   http_requests_total{route="/api/boom",status="500"} 1
+```
+
+## 文件说明
