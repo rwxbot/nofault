@@ -10,3 +10,7 @@ import { exporter, registry, tracer } from './telemetry.setup';
 @Controller('/ops')
 export class OpsController {
   @Get('/metrics')
+  metrics(@Ctx() ctx: RestContext): void {
+    ctx.response.status(200).header('content-type', 'text/plain; version=0.0.4; charset=utf-8');
+    ctx.response.text(registry.toPrometheus());
+  }
