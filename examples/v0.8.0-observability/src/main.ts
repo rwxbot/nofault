@@ -15,3 +15,11 @@ class DemoController {
     const delay = Math.min(2000, Math.max(0, Number(ms) || 0));
     // 子 Span：一次业务操作内部还能再拆
     await tracer.trace('simulated-work', async (span) => {
+      span?.setAttributes({ delayMs: delay });
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    });
+    return { waited: delay };
+  }
+
+  @Get('/boom')
+  async boom(): Promise<never> {
