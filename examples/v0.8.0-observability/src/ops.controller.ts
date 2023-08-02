@@ -22,3 +22,7 @@ export class OpsController {
     const recent = exporter.spans.slice(-20).map((span) => ({
       name: span.name,
       durationMs: span.durationMs,
+      status: span.status,
+      traceId: span.traceId,
+    }));
+    return { total: exporter.spans.length, recent };
