@@ -23,3 +23,10 @@ class DemoController {
 
   @Get('/boom')
   async boom(): Promise<never> {
+    // 会被 Span 记成 error，并在指标里计一次错误
+    throw new Error('intentional failure');
+  }
+}
+
+@Module({ controllers: [DemoController, OpsController] })
+class AppModule {}
