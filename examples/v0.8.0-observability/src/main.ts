@@ -47,3 +47,12 @@ async function bootstrap(): Promise<void> {
       }).use,
     ],
   });
+
+  app.enableShutdownHooks();
+  const { port } = await app.listen(Number(process.env.PORT ?? 3000), '127.0.0.1');
+  app.markReady();
+
+  logger.info('observability demo ready', { port });
+  for (const route of app.getRoutes()) {
+    logger.info(`  ${route.method.padEnd(6)} ${route.path}`);
+  }
