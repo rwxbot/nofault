@@ -6,3 +6,7 @@
  */
 import { Controller, Get, Ctx, type RestContext } from '@nofault/rest';
 import { exporter, registry, tracer } from './telemetry.setup';
+
+@Controller('/ops')
+export class OpsController {
+  @Get('/metrics')
