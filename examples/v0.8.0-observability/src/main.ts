@@ -30,3 +30,13 @@ class DemoController {
 
 @Module({ controllers: [DemoController, OpsController] })
 class AppModule {}
+
+async function bootstrap(): Promise<void> {
+  const app = await RestApplication.create(AppModule, {
+    name: 'observability-demo',
+    logger,
+    middleware: [
+      requestContext(),
+      bodyParser(),
+      observability({
+        tracer,
