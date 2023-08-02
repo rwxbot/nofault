@@ -26,3 +26,5 @@ export class OpsController {
       traceId: span.traceId,
     }));
     return { total: exporter.spans.length, recent };
+  }
+}
