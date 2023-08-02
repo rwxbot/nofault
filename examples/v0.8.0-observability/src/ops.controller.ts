@@ -14,3 +14,7 @@ export class OpsController {
     ctx.response.status(200).header('content-type', 'text/plain; version=0.0.4; charset=utf-8');
     ctx.response.text(registry.toPrometheus());
   }
+
+  @Get('/spans')
+  async spans(): Promise<{ total: number; recent: Array<{ name: string; durationMs: number; status: string; traceId: string }> }> {
+    // 先看再 flush：否则缓冲区没满时看到的是空数据
