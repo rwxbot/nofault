@@ -44,3 +44,14 @@ afterAll(async () => {
 
 describe('observability over http', () => {
   it('creates a server span with a nested child on the same trace', async () => {
+    app = await RestApplication.create(AppModule, {
+      quiet: true,
+      middleware: [observability({ tracer, metrics: registry }).use],
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
+    base = `http://127.0.0.1:${port}`;
+
+    const res = await fetch(`${base}/api/work`);
+    expect(res.status).toBe(200);
+    // traceId 回给客户端，便于把用户投诉和日志对上
+    expect(res.headers.get('x-trace-id')).toBeTruthy();
