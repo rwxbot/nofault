@@ -55,3 +55,15 @@ describe('observability over http', () => {
     expect(res.status).toBe(200);
     // traceId 回给客户端，便于把用户投诉和日志对上
     expect(res.headers.get('x-trace-id')).toBeTruthy();
+
+    await tracer.flush();
+    const server = exporter.byName('GET /api/work')[0]!;
+    const child = exporter.byName('child-work')[0]!;
+    expect(child.traceId).toBe(server.traceId);
+    expect(child.parentSpanId).toBe(server.spanId);
+  });
+
+  it('records failures as 500, not the default 200', async () => {
+    const res = await fetch(`${base}/api/boom`);
+    expect(res.status).toBe(500);
+    await tracer.flush();
