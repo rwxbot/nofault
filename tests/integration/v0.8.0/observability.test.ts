@@ -21,3 +21,15 @@ class ApiController {
   @Get('/work')
   async work(): Promise<{ ok: true }> {
     await tracer.trace('child-work', async () => {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    });
+    return { ok: true };
+  }
+
+  @Get('/boom')
+  async boom(): Promise<never> {
+    throw new Error('nope');
+  }
+}
+
+@Module({ controllers: [ApiController] })
