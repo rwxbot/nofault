@@ -33,3 +33,14 @@ class ApiController {
 }
 
 @Module({ controllers: [ApiController] })
+class AppModule {}
+
+let app: RestApplication;
+let base: string;
+
+afterAll(async () => {
+  await app?.close();
+});
+
+describe('observability over http', () => {
+  it('creates a server span with a nested child on the same trace', async () => {
