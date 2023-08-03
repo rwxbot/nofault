@@ -10,3 +10,14 @@ import { afterAll, describe, expect, it } from 'vitest';
 import 'reflect-metadata';
 import { Module } from '@nofault/core';
 import { Controller, Get, RestApplication } from '@nofault/rest';
+import { InMemoryExporter, MetricRegistry, Tracer, observability } from '@nofault/telemetry';
+
+const exporter = new InMemoryExporter();
+const tracer = new Tracer(exporter, () => true, 1);
+const registry = new MetricRegistry();
+
+@Controller('/api')
+class ApiController {
+  @Get('/work')
+  async work(): Promise<{ ok: true }> {
+    await tracer.trace('child-work', async () => {
