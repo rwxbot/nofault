@@ -78,3 +78,14 @@ describe('observability over http', () => {
     expect(text).toContain('http_requests_total{route="/api/boom",status="500"}');
     expect(text).toContain('http_request_errors_total{route="/api/boom",status="500"}');
     expect(text).toContain('http_request_duration_ms_count');
+
+    // 桶必须是**累积**的：le 越大，计数只能增加
+    const buckets = [...text.matchAll(/http_request_duration_ms_bucket\{le="(\d+)",route="\/api\/work",status="200"\} (\d+)/g)].map(
+      (m) => Number(m[2]),
+    );
+    expect(buckets.length).toBeGreaterThan(1);
+    for (let i = 1; i < buckets.length; i++) {
+      expect(buckets[i]!).toBeGreaterThanOrEqual(buckets[i - 1]!);
+    }
+  });
+});
