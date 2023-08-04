@@ -67,3 +67,14 @@ describe('observability over http', () => {
     const res = await fetch(`${base}/api/boom`);
     expect(res.status).toBe(500);
     await tracer.flush();
+
+    const failed = exporter.byName('GET /api/boom')[0]!;
+    expect(failed.status).toBe('error');
+  });
+
+  it('exposes metrics in prometheus text format', async () => {
+    const text = registry.toPrometheus();
+    expect(text).toContain('http_requests_total{route="/api/work",status="200"}');
+    expect(text).toContain('http_requests_total{route="/api/boom",status="500"}');
+    expect(text).toContain('http_request_errors_total{route="/api/boom",status="500"}');
+    expect(text).toContain('http_request_duration_ms_count');
