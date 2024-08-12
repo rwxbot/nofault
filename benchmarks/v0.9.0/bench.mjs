@@ -54,3 +54,17 @@ const bigintId = bench('snowflake -> bigint', () => gen.nextId());
 const stringId = bench('snowflake -> string', () => gen.nextIdString());
 
 // --- B. 分布式锁（无竞争） ---
+const backend = new MemoryLockBackend();
+const lock = new DistributedLock('bench', backend, { autoRenew: false });
+const samples2 = [];
+const n = Math.min(args.iterations, 5000);
+for (let i = 0; i < 500; i++) {
+  const h = await lock.tryAcquire();
+  await h.release();
+}
+for (let i = 0; i < n; i++) {
+  const t = process.hrtime.bigint();
+  const h = await lock.tryAcquire();
+  await h.release();
+  samples2.push(Number(process.hrtime.bigint() - t) / 1e6);
+}
