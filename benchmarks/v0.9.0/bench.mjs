@@ -40,3 +40,17 @@ function bench(name, fn, iterations = args.iterations) {
   }
   samples.sort((a, b) => a - b);
   const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  return {
+    name,
+    meanUs: round(mean * 1000),
+    opsPerSec: round(1000 / mean),
+    p95Us: round(samples[Math.floor(samples.length * 0.95)] * 1000),
+  };
+}
+
+// --- A. Snowflake ---
+const gen = new Snowflake({ workerId: 1, datacenterId: 1 });
+const bigintId = bench('snowflake -> bigint', () => gen.nextId());
+const stringId = bench('snowflake -> string', () => gen.nextIdString());
+
+// --- B. 分布式锁（无竞争） ---
