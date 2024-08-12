@@ -68,3 +68,17 @@ for (let i = 0; i < n; i++) {
   await h.release();
   samples2.push(Number(process.hrtime.bigint() - t) / 1e6);
 }
+samples2.sort((a, b) => a - b);
+const lockRoundTrip = {
+  name: 'lock acquire + release',
+  meanUs: round((samples2.reduce((a, b) => a + b, 0) / samples2.length) * 1000),
+  opsPerSec: round(1000 / (samples2.reduce((a, b) => a + b, 0) / samples2.length)),
+  p95Us: round(samples2[Math.floor(samples2.length * 0.95)] * 1000),
+};
+
+// --- C. 事件总线 ---
+const bus = new EventBus();
+bus.subscribe('e', () => {});
+bus.subscribe('e', () => {});
+const publish2 = await (async () => {
+  const s2 = [];
