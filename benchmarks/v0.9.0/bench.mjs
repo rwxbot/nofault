@@ -95,3 +95,17 @@ const publish2 = await (async () => {
 })();
 
 const results = [bigintId, stringId, lockRoundTrip, publish2];
+
+console.log(`\n[v0.9.0] micro benchmark — ${args.iterations} iterations\n`);
+for (const r of results) {
+  console.log(`   ${r.name.padEnd(30)} ${r.meanUs} µs  (${r.opsPerSec} ops/sec, p95 ${r.p95Us} µs)`);
+}
+console.log('');
+
+if (args.report) {
+  writeFileSync(
+    join(here, 'results.json'),
+    JSON.stringify({ generatedAt: new Date().toISOString(), primitives: results }, null, 2),
+  );
+  console.log('结果已写入 benchmarks/v0.9.0/results.json');
+}
