@@ -82,3 +82,16 @@ bus.subscribe('e', () => {});
 bus.subscribe('e', () => {});
 const publish2 = await (async () => {
   const s2 = [];
+  const m = Math.min(args.iterations, 20000);
+  for (let i = 0; i < 1000; i++) await bus.publish('e', i);
+  for (let i = 0; i < m; i++) {
+    const t = process.hrtime.bigint();
+    await bus.publish('e', i);
+    s2.push(Number(process.hrtime.bigint() - t) / 1e6);
+  }
+  s2.sort((a, b) => a - b);
+  const mean = s2.reduce((a, b) => a + b, 0) / s2.length;
+  return { name: 'event publish (2 subscribers)', meanUs: round(mean * 1000), opsPerSec: round(1000 / mean), p95Us: round(s2[Math.floor(s2.length * 0.95)] * 1000) };
+})();
+
+const results = [bigintId, stringId, lockRoundTrip, publish2];
