@@ -29,3 +29,9 @@
    只占 v0.2.0 测得的 HTTP 全链路（500µs）的 **1.4%**
 
 ## 复现
+
+```bash
+pnpm bench v0.9.0 --iterations=20000 --report
+```
+
+## 已知限制
