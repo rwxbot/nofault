@@ -11,3 +11,17 @@
 import { writeFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(here, '../..');
+
+const args = { iterations: 50000, report: false };
+for (const a of process.argv.slice(2)) {
+  const [k, v] = a.replace(/^--/, '').split('=');
+  if (k === 'report') args.report = true;
+  else if (k === 'iterations') args.iterations = Number(v);
+}
+
+const { Snowflake, MemoryLockBackend, DistributedLock, EventBus } = await import(
+  join(repoRoot, 'packages/micro/dist/index.js')
+);
