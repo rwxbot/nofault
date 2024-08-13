@@ -15,3 +15,12 @@
 - **调度器** `Scheduler`：5 段 cron（`*`/步长/区间/列表）+ `every` / `fixedDelay` / `after`
   - cron 的日与周是**或**关系（与 Unix cron 一致）
   - 默认不补跑、不允许重叠
+- **事件总线** `EventBus`：订阅者错误隔离、退订函数、`sequential` 选项、可插拔 Bridge
+- **一键装配** `Microservice`：按序执行钩子，逆序停机，启动失败自动回滚
+
+## 关键设计决策
+
+| 决策 | 理由 |
+| --- | --- |
+| ID 返回字符串而非 number | 63 位超过 MAX_SAFE_INTEGER，转 number 会静默丢精度 |
+| 序列号耗尽要等待而不是回绕 | 回绕产生重复 ID，要几个月后才被发现 |
