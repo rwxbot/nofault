@@ -32,3 +32,10 @@ curl -s http://127.0.0.1:3000/orders/$ID
 for i in 1 2 3; do curl -s -o /dev/null -w "%{http_code} " \
   -X POST http://127.0.0.1:3000/orders/$ID/settle; done
 # → 200 409 409
+
+# 参数错误在最外层就挡住（400，不是 500）
+curl -s -X POST http://127.0.0.1:3000/orders \
+  -H 'content-type: application/json' -d '{"amount":-1}'
+```
+
+启动日志能看出装配顺序：
