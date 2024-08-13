@@ -15,3 +15,12 @@ pnpm vitest run tests/integration/v0.9.0     # 装配后的服务：并发只结
 ```bash
 pnpm example v0.9.0-microservice-kit
 pnpm example v0.9.0-microservice-kit PORT=3390
+```
+
+### 试一试
+
+```bash
+# 建单（ID 是 Snowflake，63 位，能反解出机器号）
+CREATE=$(curl -s -X POST http://127.0.0.1:3000/orders \
+  -H 'content-type: application/json' -d '{"amount":120}')
+ID=$(echo "$CREATE" | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['id'])")
