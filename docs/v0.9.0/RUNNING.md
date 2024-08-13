@@ -48,3 +48,12 @@ curl -s -X POST http://127.0.0.1:3000/orders \
 ```
 
 ## 跑基准测试
+
+```bash
+pnpm bench v0.9.0 --iterations=20000 --report
+```
+
+## 目录导航
+
+```
+packages/micro/src/id.ts          Snowflake（时钟回拨 / 序列号耗尽）
