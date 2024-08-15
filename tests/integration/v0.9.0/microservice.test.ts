@@ -159,3 +159,29 @@ describe('microservice kit over http', () => {
     });
     expect(res.status).toBe(200);
     const { id } = ((await res.json()) as { data: { id: string } }).data;
+
+    // 63 位 > MAX_SAFE_INTEGER，所以走字符串；反解能看出是哪台机器发的
+    expect(BigInt(id)).toBeGreaterThan(BigInt(Number.MAX_SAFE_INTEGER));
+    expect(snowflake.parse(id)).toMatchObject({ workerId: 7, datacenterId: 3 });
+
+    // 事件订阅者与业务逻辑解耦：加消费者不用改 OrderService
+    expect(seenEvents.some((e) => e.id === id)).toBe(true);
+  });
+
+  it('settles an order exactly once under concurrent requests', async () => {
+    const created = await fetch(`${base}/orders`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ amount: 10 }),
+    });
+    const { id } = ((await created.json()) as { data: { id: string } }).data;
+
+    const responses = await Promise.all(
+      Array.from({ length: 3 }, () => fetch(`${base}/orders/${id}/settle`)),
+    );
+    const codes = responses.map((r) => r.status);
+
+    expect(codes.filter((c) => c === 200).length).toBe(1);
+    // 其余必须是 409（已被结算），不能是 200 —— 那就是重复扣款了
+    expect(codes.filter((c) => c === 409).length).toBe(2);
+  });
