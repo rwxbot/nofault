@@ -105,3 +105,30 @@ class AppModule {}
 
 let app: RestApplication;
 let base = '';
+
+afterAll(async () => {
+  await app?.close();
+});
+
+describe('microservice kit over http', () => {
+  it('starts in the prescribed order and only then reports ready', async () => {
+    const trace: string[] = [];
+    const svc = new Microservice({
+      name: 'it-service',
+      shutdown: { captureSignals: false },
+      bootstrap: [
+        async () => {
+          const applied = await new Migrator(source, [
+            {
+              version: '001-orders',
+              async up(h) {
+                await h.createTable(Order);
+              },
+              async down(h) {
+                await h.dropTable(Order);
+              },
+            },
+          ]).up();
+          trace.push(`migrate:${applied.length}`);
+        },
+        async () => {
