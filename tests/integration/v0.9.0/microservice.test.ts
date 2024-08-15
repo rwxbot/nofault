@@ -25,3 +25,30 @@ import {
   Entity,
   MemoryDataSource,
   Migrator,
+  PrimaryGeneratedColumn,
+  getEntityMeta,
+} from '@nofault/orm';
+import { EventBus, MemoryLockBackend, DistributedLock, Microservice, Snowflake } from '@nofault/micro';
+
+@Entity({ table: 'orders9' })
+class Order {
+  @PrimaryGeneratedColumn()
+  id!: number;
+  @Column({ name: 'public_id' })
+  publicId!: string;
+  @Column({ name: 'status' })
+  status!: string;
+}
+
+const meta = getEntityMeta(Order);
+const source = new MemoryDataSource();
+const events = new EventBus();
+const settleLock = new DistributedLock('it-settle', new MemoryLockBackend(), {
+  ttlMs: 2000,
+  waitMs: 2000,
+  retryMs: 2,
+});
+const snowflake = new Snowflake({ workerId: 7, datacenterId: 3 });
+
+const seenEvents: Array<{ id: string }> = [];
+events.subscribe('order.created', (payload) => {
