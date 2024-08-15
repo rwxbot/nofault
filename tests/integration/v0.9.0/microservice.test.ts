@@ -79,3 +79,29 @@ class OrderService {
 
       // 慢一点，让并发的第二个请求有机会进来 —— 不然测不出互斥
       await new Promise((resolve) => setTimeout(resolve, 30));
+      await source.update(meta, current.id, { status: 'settled' });
+      return { id: publicId, status: 'settled' };
+    });
+  }
+}
+
+@Controller('/orders')
+class OrderController {
+  constructor(private readonly service: OrderService) {}
+
+  @Post('/')
+  async create(@Body() body: { amount: number }): Promise<{ id: string; status: string }> {
+    return this.service.create(body.amount);
+  }
+
+  @Get('/:id/settle')
+  async settle(@Param('id') id: string): Promise<{ id: string; status: string }> {
+    return this.service.settle(id);
+  }
+}
+
+@Module({ controllers: [OrderController], providers: [OrderService] })
+class AppModule {}
+
+let app: RestApplication;
+let base = '';
