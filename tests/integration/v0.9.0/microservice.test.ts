@@ -52,3 +52,30 @@ const snowflake = new Snowflake({ workerId: 7, datacenterId: 3 });
 
 const seenEvents: Array<{ id: string }> = [];
 events.subscribe('order.created', (payload) => {
+  seenEvents.push(payload as { id: string });
+});
+
+@Injectable()
+class OrderService {
+  async create(amount: number): Promise<{ id: string; status: string }> {
+    const order = new Order();
+    order.publicId = snowflake.nextIdString();
+    order.status = 'created';
+    await source.insert(meta, { public_id: order.publicId, status: order.status });
+    await events.publish('order.created', { id: order.publicId, amount });
+    return { id: order.publicId, status: 'created' };
+  }
+
+  async settle(publicId: string): Promise<{ id: string; status: string }> {
+    return settleLock.run(async () => {
+      // select() 直接返回行数组（不是 { rows } 包一层）
+      const rows = await source.select(meta, {
+        where: { conditions: [{ column: 'public_id', operator: '=', value: publicId }] },
+      });
+      if (rows.length === 0) throw new HttpException(404, 'not found', 404);
+
+      const current = rows[0] as { id: number; status: string };
+      if (current.status !== 'created') throw new HttpException(409, 'already settled', 409);
+
+      // 慢一点，让并发的第二个请求有机会进来 —— 不然测不出互斥
+      await new Promise((resolve) => setTimeout(resolve, 30));
