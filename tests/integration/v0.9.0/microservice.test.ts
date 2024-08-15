@@ -132,3 +132,30 @@ describe('microservice kit over http', () => {
           trace.push(`migrate:${applied.length}`);
         },
         async () => {
+          app = await RestApplication.create(AppModule, { quiet: true, middleware: [bodyParser()] });
+          const { port } = await app.listen(0, '127.0.0.1');
+          base = `http://127.0.0.1:${port}`;
+          trace.push('listen');
+        },
+      ],
+      beforeReady: [
+        (ctx) => {
+          // 此刻探针必须还说不健康：否则就有流量打进半初始化的实例
+          trace.push(`ready-during-boot:${ctx.ready()}`);
+        },
+      ],
+    });
+
+    await svc.start();
+    expect(trace).toEqual(['migrate:1', 'listen', 'ready-during-boot:false']);
+    expect(svc.ready()).toBe(true);
+  });
+
+  it('issues snowflake ids that carry the machine number', async () => {
+    const res = await fetch(`${base}/orders`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ amount: 99 }),
+    });
+    expect(res.status).toBe(200);
+    const { id } = ((await res.json()) as { data: { id: string } }).data;
