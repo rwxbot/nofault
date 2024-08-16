@@ -185,3 +185,29 @@ describe('microservice kit over http', () => {
     // 其余必须是 409（已被结算），不能是 200 —— 那就是重复扣款了
     expect(codes.filter((c) => c === 409).length).toBe(2);
   });
+
+  it('runs stop hooks in reverse registration order', async () => {
+    const trace: string[] = [];
+    const svc = new Microservice({
+      name: 'reverse',
+      shutdown: { captureSignals: false },
+      bootstrap: [
+        (ctx) => {
+          ctx.onStop(() => {
+            trace.push('first-registered');
+          });
+          ctx.onStop(() => {
+            trace.push('last-registered');
+          });
+        },
+      ],
+    });
+
+    await svc.start();
+    await svc.stop();
+
+    // 后装的最先卸：否则先卸的东西可能还被依赖它的东西用着
+    expect(trace).toEqual(['last-registered', 'first-registered']);
+    expect(svc.phase()).toBe('stopped');
+  });
+});
