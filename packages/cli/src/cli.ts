@@ -77,3 +77,13 @@ export function run(argv: string[]): CliResult {
 
   const [command, sub] = args.positional;
   try {
+    return dispatch(command!, sub, args);
+  } catch (err) {
+    log.error(err instanceof Error ? err.message : String(err));
+    return { exitCode: 1 };
+  }
+}
+
+function dispatch(command: string, sub: string | undefined, args: ParsedArgs): CliResult {
+  switch (command) {
+    case 'new':
