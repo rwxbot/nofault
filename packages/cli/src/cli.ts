@@ -107,3 +107,12 @@ function dispatch(command: string, sub: string | undefined, args: ParsedArgs): C
     default:
       log.error(`unknown command "${command}"`);
       process.stdout.write(`${HELP}\n`);
+      return { exitCode: 1 };
+  }
+}
+
+// --------------------------------------------------------------------- 命令
+
+function newCommand(args: ParsedArgs): CliResult {
+  const name = args.positional[1];
+  if (!name) throw new Error('missing project name: nofaultctl new <project>');
