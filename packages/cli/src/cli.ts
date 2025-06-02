@@ -135,3 +135,14 @@ function newCommand(args: ParsedArgs): CliResult {
   log.info(log.dim(`next:  cd ${resolve(dir)} && npm install && npm run dev`));
   return { exitCode: 0 };
 }
+
+function generateCommand(sub: string | undefined, args: ParsedArgs): CliResult {
+  if (sub !== 'api') throw new Error('usage: nofaultctl generate api <contract>');
+  const contract = args.positional.slice(2)[0] ?? stringOption(args, 'contract');
+  if (!contract) throw new Error('missing contract file');
+
+  const spec = compileContract(contract);
+  // 先跑一遍校验：契约有错就在此失败，不会走到写盘
+  generateFromSpec(spec, {
+    templates: stringOption(args, 'templates'),
+    rootModule: booleanOption(args, 'root-module'),
