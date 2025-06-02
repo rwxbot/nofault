@@ -116,3 +116,14 @@ function dispatch(command: string, sub: string | undefined, args: ParsedArgs): C
 function newCommand(args: ParsedArgs): CliResult {
   const name = args.positional[1];
   if (!name) throw new Error('missing project name: nofaultctl new <project>');
+
+  const dir = stringOption(args, 'dir', name);
+  scaffold(name, { dir });
+
+  // 立刻按示例契约生成一遍，让工程开箱可跑
+  if (!booleanOption(args, 'skip-generate')) {
+    const result = generateFromSpec(compileContract(resolve(dir, 'api', contractFileName(name))), {
+      templates: stringOption(args, 'templates'),
+      rootModule: true,
+    });
+    const outDir = resolve(dir, stringOption(args, 'out', 'src'));
