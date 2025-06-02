@@ -127,3 +127,11 @@ function newCommand(args: ParsedArgs): CliResult {
       rootModule: true,
     });
     const outDir = resolve(dir, stringOption(args, 'out', 'src'));
+    writeFiles(result.files, { outDir, policy: 'generated' });
+    log.success(`${result.files.length} file(s) generated`);
+  }
+
+  log.success(`project "${name}" ready at ${resolve(dir)}`);
+  log.info(log.dim(`next:  cd ${resolve(dir)} && npm install && npm run dev`));
+  return { exitCode: 0 };
+}
