@@ -28,3 +28,13 @@ ${log.bold('nofaultctl')} ${VERSION} — nofault 工程脚手架与代码生成
 命令:
   new <project>              新建工程（含示例契约，并立刻生成一遍代码）
   mcp new <project>          新建 MCP 服务器工程（stdio，JSON-RPC）
+  generate api <contract>    由契约生成 controller / service / module / dto
+  validate <contract>        只做契约校验，不生成
+  routes <contract>          列出契约里的全部路由
+  openapi <contract>         由契约生成 OpenAPI 3.0 文档
+  dev                        监听源码变化并自动重启
+  doctor                     检查环境（Node / tsconfig / 依赖）
+
+选项:
+  --out <dir>                输出目录，默认 src
+  --templates <dir>          模板覆盖目录（放 dto.tpl / controller.tpl 等）
