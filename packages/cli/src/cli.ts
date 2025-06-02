@@ -48,3 +48,13 @@ ${log.bold('nofaultctl')} ${VERSION} — nofault 工程脚手架与代码生成
   --cmd <command>            dev 模式要跑的命令，默认 node dist/main.js
   -h, --help                 显示帮助
   -v, --version              显示版本
+
+示例:
+  nofaultctl new user-service
+  nofaultctl mcp new echo-server
+  nofaultctl generate api api/user.api.ts --out src --root-module
+  nofaultctl generate api api/user.api.ts --out src --with-orm --watch
+  nofaultctl generate api user.api --out src --dry-run
+  nofaultctl openapi api/user.api.ts --out openapi.json
+  nofaultctl dev --cmd "node dist/main.js"
+  nofaultctl doctor
