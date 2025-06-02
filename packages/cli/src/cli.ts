@@ -176,3 +176,13 @@ function validateCommand(sub: string | undefined, args: ParsedArgs): CliResult {
   for (const d of diagnostics) {
     (d.severity === 'error' ? log.error : log.warn)(`${d.at}: ${d.message}`);
   }
+  return { exitCode: diagnostics.some((d) => d.severity === 'error') ? 1 : 0 };
+}
+
+function routesCommand(sub: string | undefined, args: ParsedArgs): CliResult {
+  const contract = sub ?? args.positional[1];
+  if (!contract) throw new Error('missing contract file');
+
+  const spec = compileContract(contract);
+  for (const service of spec.services) {
+    log.info(log.bold(`service ${service.name}`) + log.dim(`  prefix=${service.prefix ?? '/'} group=${service.group}`));
