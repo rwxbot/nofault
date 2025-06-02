@@ -58,3 +58,12 @@ ${log.bold('nofaultctl')} ${VERSION} — nofault 工程脚手架与代码生成
   nofaultctl openapi api/user.api.ts --out openapi.json
   nofaultctl dev --cmd "node dist/main.js"
   nofaultctl doctor
+`;
+
+export interface CliResult {
+  exitCode: number;
+}
+
+export function run(argv: string[]): CliResult {
+  const args = parseArgs(argv);
+  if (booleanOption(args, 'help') || args.flags.has('h') || args.positional.length === 0) {
