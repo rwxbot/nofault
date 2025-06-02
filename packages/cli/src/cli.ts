@@ -146,3 +146,13 @@ function generateCommand(sub: string | undefined, args: ParsedArgs): CliResult {
   generateFromSpec(spec, {
     templates: stringOption(args, 'templates'),
     rootModule: booleanOption(args, 'root-module'),
+    withOrm: booleanOption(args, 'with-orm'),
+    force: booleanOption(args, 'force'),
+  });
+
+  void generateApi({
+    contract,
+    out: stringOption(args, 'out', 'src'),
+    templates: stringOption(args, 'templates'),
+    rootModule: booleanOption(args, 'root-module'),
+    withOrm: booleanOption(args, 'with-orm'),
