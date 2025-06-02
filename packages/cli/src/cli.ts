@@ -186,3 +186,13 @@ function routesCommand(sub: string | undefined, args: ParsedArgs): CliResult {
   const spec = compileContract(contract);
   for (const service of spec.services) {
     log.info(log.bold(`service ${service.name}`) + log.dim(`  prefix=${service.prefix ?? '/'} group=${service.group}`));
+    for (const route of service.routes) {
+      const req = route.requestType ?? '-';
+      const res = route.responseType ?? 'void';
+      log.info(`  ${route.method.padEnd(6)} ${route.path.padEnd(28)} ${route.handler}(${req}) -> ${res}`);
+    }
+  }
+  return { exitCode: 0 };
+}
+
+function contractFileName(name: string): string {
