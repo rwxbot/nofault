@@ -97,3 +97,13 @@ function dispatch(command: string, sub: string | undefined, args: ParsedArgs): C
     case 'validate':
       return validateCommand(sub, args);
     case 'routes':
+      return routesCommand(sub, args);
+    case 'openapi':
+      return openApiCommand(sub, args);
+    case 'dev':
+      return devCommand(args);
+    case 'doctor':
+      return doctorCommand();
+    default:
+      log.error(`unknown command "${command}"`);
+      process.stdout.write(`${HELP}\n`);
