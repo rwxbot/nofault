@@ -166,3 +166,13 @@ function generateCommand(sub: string | undefined, args: ParsedArgs): CliResult {
 function validateCommand(sub: string | undefined, args: ParsedArgs): CliResult {
   const contract = sub ?? args.positional[1];
   if (!contract) throw new Error('missing contract file');
+
+  const spec = compileContract(contract);
+  const diagnostics = validateSpec(spec);
+  if (diagnostics.length === 0) {
+    log.success(`${contract}: ${spec.types.length} type(s), ${spec.services.length} service(s), no problems`);
+    return { exitCode: 0 };
+  }
+  for (const d of diagnostics) {
+    (d.severity === 'error' ? log.error : log.warn)(`${d.at}: ${d.message}`);
+  }
