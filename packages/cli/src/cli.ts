@@ -156,3 +156,13 @@ function generateCommand(sub: string | undefined, args: ParsedArgs): CliResult {
     templates: stringOption(args, 'templates'),
     rootModule: booleanOption(args, 'root-module'),
     withOrm: booleanOption(args, 'with-orm'),
+    watch: booleanOption(args, 'watch') || args.flags.has('w'),
+    force: booleanOption(args, 'force'),
+    dryRun: booleanOption(args, 'dry-run'),
+  });
+  return { exitCode: 0 };
+}
+
+function validateCommand(sub: string | undefined, args: ParsedArgs): CliResult {
+  const contract = sub ?? args.positional[1];
+  if (!contract) throw new Error('missing contract file');
