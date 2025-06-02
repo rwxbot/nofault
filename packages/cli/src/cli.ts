@@ -38,3 +38,13 @@ ${log.bold('nofaultctl')} ${VERSION} — nofault 工程脚手架与代码生成
 选项:
   --out <dir>                输出目录，默认 src
   --templates <dir>          模板覆盖目录（放 dto.tpl / controller.tpl 等）
+  --root-module              额外生成根 app.module.ts
+  --with-orm                 额外生成 entity / repository 数据层骨架
+  --watch, -w                监听契约变化，自动重新生成
+  --force                    契约有错也继续生成；覆盖时无视生成标记
+  --dry-run                  只报告要做什么，不写盘
+  --openapi                  生成时顺带产出 openapi.json
+  --title <t> / --version <v>  OpenAPI 文档里的标题与版本
+  --cmd <command>            dev 模式要跑的命令，默认 node dist/main.js
+  -h, --help                 显示帮助
+  -v, --version              显示版本
