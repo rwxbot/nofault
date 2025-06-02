@@ -87,3 +87,13 @@ export function run(argv: string[]): CliResult {
 function dispatch(command: string, sub: string | undefined, args: ParsedArgs): CliResult {
   switch (command) {
     case 'new':
+      return newCommand(args);
+    case 'mcp':
+      return mcpCommand(sub, args);
+    case 'g':
+    case 'gen':
+    case 'generate':
+      return generateCommand(sub, args);
+    case 'validate':
+      return validateCommand(sub, args);
+    case 'routes':
