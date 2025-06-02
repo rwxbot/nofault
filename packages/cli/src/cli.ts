@@ -67,3 +67,13 @@ export interface CliResult {
 export function run(argv: string[]): CliResult {
   const args = parseArgs(argv);
   if (booleanOption(args, 'help') || args.flags.has('h') || args.positional.length === 0) {
+    process.stdout.write(`${HELP}\n`);
+    return { exitCode: 0 };
+  }
+  if (booleanOption(args, 'version') || args.flags.has('v')) {
+    process.stdout.write(`${VERSION}\n`);
+    return { exitCode: 0 };
+  }
+
+  const [command, sub] = args.positional;
+  try {
