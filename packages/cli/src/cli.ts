@@ -205,3 +205,13 @@ function contractFileName(name: string): string {
 }
 
 function openApiCommand(sub: string | undefined, args: ParsedArgs): CliResult {
+  const contract = sub ?? args.positional[1];
+  if (!contract) throw new Error('missing contract file');
+
+  const spec = compileContract(contract);
+  const options: OpenApiOptions = {
+    title: stringOption(args, 'title'),
+    version: stringOption(args, 'version'),
+    serverUrl: stringOption(args, 'server-url'),
+  };
+  const doc = openApiDocument(spec, options);
