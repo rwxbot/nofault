@@ -215,3 +215,13 @@ function openApiCommand(sub: string | undefined, args: ParsedArgs): CliResult {
     serverUrl: stringOption(args, 'server-url'),
   };
   const doc = openApiDocument(spec, options);
+
+  const out = stringOption(args, 'out', 'openapi.json');
+  if (booleanOption(args, 'dry-run')) {
+    process.stdout.write(`${JSON.stringify(doc, null, 2)}\n`);
+    return { exitCode: 0 };
+  }
+  writeFileSync(resolve(out), `${JSON.stringify(doc, null, 2)}\n`);
+  log.success(`${out}: ${Object.keys(doc.paths).length} path(s), ${Object.keys(doc.components.schemas).length} schema(s)`);
+  return { exitCode: 0 };
+}
