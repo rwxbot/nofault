@@ -245,3 +245,13 @@ function devCommand(args: ParsedArgs): CliResult {
     watchDirs: dirs,
     debounceMs: Number(stringOption(args, 'debounce', '150')),
     onLog: (line) => process.stdout.write(`${line}\n`),
+  });
+
+  log.info(`watching ${dirs.join(', ')} — ${command}`);
+  // dev 是长驻进程：这里不 await，直接把控制权交回 shell
+  void runner.start();
+  return { exitCode: 0 };
+}
+
+function doctorCommand(): CliResult {
+  const report = doctor();
