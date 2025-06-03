@@ -225,3 +225,13 @@ function openApiCommand(sub: string | undefined, args: ParsedArgs): CliResult {
   log.success(`${out}: ${Object.keys(doc.paths).length} path(s), ${Object.keys(doc.components.schemas).length} schema(s)`);
   return { exitCode: 0 };
 }
+
+function mcpCommand(sub: string | undefined, args: ParsedArgs): CliResult {
+  if (sub !== 'new') throw new Error('usage: nofaultctl mcp new <project>');
+  const name = args.positional[2];
+  if (!name) throw new Error('missing project name: nofaultctl mcp new <project>');
+  scaffoldMcp(name, { dir: stringOption(args, 'dir', name) });
+  log.success(`mcp server "${name}" ready at ${resolve(stringOption(args, 'dir', name))}`);
+  log.info(log.dim(`next:  cd ${resolve(stringOption(args, 'dir', name))} && npm install && npm run build && npm start`));
+  return { exitCode: 0 };
+}
