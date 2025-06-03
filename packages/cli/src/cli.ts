@@ -196,3 +196,12 @@ function routesCommand(sub: string | undefined, args: ParsedArgs): CliResult {
 }
 
 function contractFileName(name: string): string {
+  // 与 commands/new.ts 里的契约文件名保持一致
+  const kebab = name
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/[_\s]+/g, '-')
+    .toLowerCase();
+  return `${kebab}.api.ts`;
+}
+
+function openApiCommand(sub: string | undefined, args: ParsedArgs): CliResult {
