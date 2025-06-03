@@ -255,3 +255,11 @@ function devCommand(args: ParsedArgs): CliResult {
 
 function doctorCommand(): CliResult {
   const report = doctor();
+  for (const check of report.checks) {
+    const mark = check.status === 'ok' ? log.green('ok  ') : check.status === 'warn' ? log.yellow('warn') : log.red('fail');
+    process.stdout.write(`${mark}  ${check.name.padEnd(22)} ${check.message}\n`);
+    if (check.hint) process.stdout.write(`        ${log.dim(check.hint)}\n`);
+  }
+  process.stdout.write(`\n${report.failures} failure(s), ${report.warnings} warning(s)\n`);
+  return { exitCode: report.ok ? 0 : 1 };
+}
