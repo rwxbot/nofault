@@ -235,3 +235,13 @@ function mcpCommand(sub: string | undefined, args: ParsedArgs): CliResult {
   log.info(log.dim(`next:  cd ${resolve(stringOption(args, 'dir', name))} && npm install && npm run build && npm start`));
   return { exitCode: 0 };
 }
+
+function devCommand(args: ParsedArgs): CliResult {
+  const command = stringOption(args, 'cmd', 'node dist/main.js');
+  const dirs = stringOption(args, 'watch')?.split(',') ?? ['src'];
+
+  const runner = new DevRunner({
+    command,
+    watchDirs: dirs,
+    debounceMs: Number(stringOption(args, 'debounce', '150')),
+    onLog: (line) => process.stdout.write(`${line}\n`),
