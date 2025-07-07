@@ -39,3 +39,10 @@ async function bench(name, fn, iterations = args.iterations) {
   for (let i = 0; i < iterations; i++) {
     const t = process.hrtime.bigint();
     await fn();
+    samples.push(Number(process.hrtime.bigint() - t) / 1e6);
+  }
+  samples.sort((a, b) => a - b);
+  const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
+  return {
+    name,
+    meanMs: round(mean),
