@@ -46,3 +46,10 @@ async function bench(name, fn, iterations = args.iterations) {
   return {
     name,
     meanMs: round(mean),
+    opsPerSec: round(1000 / mean),
+    p95Ms: round(samples[Math.floor(samples.length * 0.95)]),
+  };
+}
+
+const parse = await bench('parse contract', async () => {
+  await parseContractFile(contract, 'user.api.ts');
