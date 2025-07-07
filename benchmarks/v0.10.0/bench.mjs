@@ -19,3 +19,10 @@ for (const a of process.argv.slice(2)) {
   const [k, v] = a.replace(/^--/, '').split('=');
   if (k === 'report') args.report = true;
   else if (k === 'iterations') args.iterations = Number(v);
+}
+
+const { parseContractFile } = await import(join(repoRoot, 'packages/parser/dist/index.js'));
+const { openApiDocument } = await import(join(repoRoot, 'packages/codegen/dist/index.js'));
+const { doctor } = await import(join(repoRoot, 'packages/cli/dist/commands/doctor.js'));
+
+const contract = join(repoRoot, 'examples/v0.4.0-codegen-user-api/api/user.api.ts');
