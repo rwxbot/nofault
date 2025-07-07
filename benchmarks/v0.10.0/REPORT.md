@@ -30,3 +30,5 @@
 ## 复现
 
 ```bash
+pnpm bench v0.10.0 --iterations=200 --report
+```
