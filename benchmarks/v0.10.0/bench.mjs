@@ -32,3 +32,10 @@ function round(n) {
 }
 
 async function bench(name, fn, iterations = args.iterations) {
+  const spec = await parseContractFile(contract, 'user.api.ts');
+  void spec;
+  await fn();
+  const samples = [];
+  for (let i = 0; i < iterations; i++) {
+    const t = process.hrtime.bigint();
+    await fn();
