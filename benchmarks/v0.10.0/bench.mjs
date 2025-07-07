@@ -26,3 +26,9 @@ const { openApiDocument } = await import(join(repoRoot, 'packages/codegen/dist/i
 const { doctor } = await import(join(repoRoot, 'packages/cli/dist/commands/doctor.js'));
 
 const contract = join(repoRoot, 'examples/v0.4.0-codegen-user-api/api/user.api.ts');
+
+function round(n) {
+  return Math.round(n * 100) / 100;
+}
+
+async function bench(name, fn, iterations = args.iterations) {
