@@ -20,3 +20,8 @@ OpenAPI 生成、开发热重载、环境自检。
 几个必须转对的地方：
 
 | 契约 | OpenAPI | 错了会怎样 |
+| --- | --- | --- |
+| `/users/:id` | `/users/{id}` | 工具解析不了路径参数 |
+| `@Path` 字段 | `in: path` + `required: true` | 参数跑到 query 里 |
+| `@Query` 字段 | `in: query` | 参数跑到 body 里 |
+| 无必填字段 | **省略** `required` 键 | 空数组在部分工具里被当成"全部必填" |
