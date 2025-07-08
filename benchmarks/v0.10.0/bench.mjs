@@ -59,3 +59,10 @@ const spec = await parseContractFile(contract, 'user.api.ts');
 const openapi = await bench('generate openapi', async () => {
   openApiDocument(spec);
 });
+
+const serialize = await bench('openapi -> json', async () => {
+  JSON.stringify(openApiDocument(spec), null, 2);
+});
+
+const check = await bench('doctor', async () => {
+  doctor(repoRoot);
