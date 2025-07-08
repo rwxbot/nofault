@@ -80,3 +80,10 @@ console.log(`   全链路（解析 + 生成 + 序列化）：${round(parse.meanM
 if (args.report) {
   writeFileSync(
     join(here, 'results.json'),
+    JSON.stringify(
+      {
+        generatedAt: new Date().toISOString(),
+        primitives: results,
+        pipelineMs: round(parse.meanMs + openapi.meanMs + serialize.meanMs),
+      },
+      null,
