@@ -56,3 +56,10 @@ OpenAPI 生成、开发热重载、环境自检。
 不解析会大面积**误报**：绝大多数工程的 tsconfig 都是
 `extends: "../../tsconfig.base.json"`，装饰器元数据写在基配置里。
 只检查子文件就会把"配置正确"报成"未开启"。
+
+**假阴性比漏检更糟**——它会让人直接不信任这个工具。
+
+## 四、检查项的名字必须稳定
+
+第一版把 `emitDecoratorMetadata` 和 `experimentalDecorators`
+塞在同一个检查里，结果"两项都开"时检查项的名字会变，
