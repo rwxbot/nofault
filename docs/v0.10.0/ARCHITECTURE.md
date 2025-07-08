@@ -63,3 +63,8 @@ OpenAPI 生成、开发热重载、环境自检。
 
 第一版把 `emitDecoratorMetadata` 和 `experimentalDecorators`
 塞在同一个检查里，结果"两项都开"时检查项的名字会变，
+调用方按名字就找不到它了。
+
+**检查项的名字是 API 的一部分**，不能随状态变化。
+
+## 五、已知限制
