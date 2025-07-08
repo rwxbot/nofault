@@ -66,3 +66,10 @@ const serialize = await bench('openapi -> json', async () => {
 
 const check = await bench('doctor', async () => {
   doctor(repoRoot);
+});
+
+const results = [parse, openapi, serialize, check];
+
+console.log(`\n[v0.10.0] tooling benchmark — ${args.iterations} iterations\n`);
+for (const r of results) {
+  console.log(`   ${r.name.padEnd(22)} ${r.meanMs} ms  (${r.opsPerSec} ops/sec, p95 ${r.p95Ms} ms)`);
