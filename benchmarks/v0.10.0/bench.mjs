@@ -73,3 +73,10 @@ const results = [parse, openapi, serialize, check];
 console.log(`\n[v0.10.0] tooling benchmark — ${args.iterations} iterations\n`);
 for (const r of results) {
   console.log(`   ${r.name.padEnd(22)} ${r.meanMs} ms  (${r.opsPerSec} ops/sec, p95 ${r.p95Ms} ms)`);
+}
+console.log('');
+console.log(`   全链路（解析 + 生成 + 序列化）：${round(parse.meanMs + openapi.meanMs + serialize.meanMs)} ms`);
+
+if (args.report) {
+  writeFileSync(
+    join(here, 'results.json'),
