@@ -87,3 +87,8 @@ if (args.report) {
         pipelineMs: round(parse.meanMs + openapi.meanMs + serialize.meanMs),
       },
       null,
+      2,
+    ),
+  );
+  console.log('结果已写入 benchmarks/v0.10.0/results.json');
+}
