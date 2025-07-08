@@ -7,3 +7,7 @@
 ### `nofaultctl openapi`
 - 由同一份契约产出 OpenAPI 3.0 文档（纯函数 `openApiDocument()`）
 - `:id` → `{id}`；`@Path` → `in: path`；`@Query` → `in: query`
+- 无必填字段时**省略** `required` 键（空数组语义相反）
+- 无响应类型用 204；所有操作都带上 422
+
+### `nofaultctl dev`
