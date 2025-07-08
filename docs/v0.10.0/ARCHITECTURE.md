@@ -52,3 +52,7 @@ OpenAPI 生成、开发热重载、环境自检。
 所以可以随便跑，放进 pre-commit 和 CI 都安全（0.38ms）。
 
 ### 必须解析 tsconfig 的 extends
+
+不解析会大面积**误报**：绝大多数工程的 tsconfig 都是
+`extends: "../../tsconfig.base.json"`，装饰器元数据写在基配置里。
+只检查子文件就会把"配置正确"报成"未开启"。
