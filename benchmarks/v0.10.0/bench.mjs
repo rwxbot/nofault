@@ -53,3 +53,9 @@ async function bench(name, fn, iterations = args.iterations) {
 
 const parse = await bench('parse contract', async () => {
   await parseContractFile(contract, 'user.api.ts');
+});
+
+const spec = await parseContractFile(contract, 'user.api.ts');
+const openapi = await bench('generate openapi', async () => {
+  openApiDocument(spec);
+});
