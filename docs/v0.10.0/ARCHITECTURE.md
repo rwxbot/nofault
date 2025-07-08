@@ -68,3 +68,7 @@ OpenAPI 生成、开发热重载、环境自检。
 **检查项的名字是 API 的一部分**，不能随状态变化。
 
 ## 五、已知限制
+
+- `dev` 不编译，只重启（编译交给 `tsc --watch` 或你的构建脚本）
+- doctor 不检查运行时问题（端口占用、数据库连接）
+- OpenAPI 只支持 3.0，未生成 examples / securitySchemes
