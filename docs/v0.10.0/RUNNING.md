@@ -34,3 +34,6 @@ ok    source directory       src, api
 ## 跑测试
 
 ```bash
+pnpm test
+pnpm vitest run packages/cli          # 含 OpenAPI 生成与 doctor 检查
+```
