@@ -25,3 +25,8 @@ ok    emitDecoratorMetadata  已开启
 ok    experimentalDecorators 已开启
 ok    reflect-metadata       已安装
 ok    source directory       src, api
+
+0 failure(s), 1 warning(s)
+```
+
+有 fail 时退出码为 1，可以直接放进 CI。
