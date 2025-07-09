@@ -14,3 +14,7 @@ nofaultctl dev
 nofaultctl dev --cmd "node dist/main.js" --watch src,api
 
 # 环境自检：Node 版本 / tsconfig / 依赖
+nofaultctl doctor
+```
+
+`doctor` 的输出示例：
