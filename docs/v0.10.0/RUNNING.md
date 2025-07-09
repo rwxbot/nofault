@@ -22,3 +22,6 @@ nofaultctl doctor
 ```
 warn  package.json           type=commonjs
 ok    emitDecoratorMetadata  已开启
+ok    experimentalDecorators 已开启
+ok    reflect-metadata       已安装
+ok    source directory       src, api
