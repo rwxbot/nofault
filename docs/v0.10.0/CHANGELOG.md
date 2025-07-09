@@ -36,3 +36,6 @@
 
 - +8：OpenAPI 路径参数/query 拆分/required 语义/数组引用/204 与 422；
   doctor 的失败项、通过项、**extends 解析**、缺失依赖提示
+- 全量全通过；`tsc --noEmit` 与 `eslint` 全清
+
+## 性能
