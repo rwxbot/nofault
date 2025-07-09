@@ -10,3 +10,7 @@ nofaultctl openapi api/user.api.ts --out openapi.json --title "User API" --versi
 nofaultctl openapi api/user.api.ts --dry-run        # 打到 stdout，不写盘
 
 # 监听源码变化并自动重启（默认 node dist/main.js）
+nofaultctl dev
+nofaultctl dev --cmd "node dist/main.js" --watch src,api
+
+# 环境自检：Node 版本 / tsconfig / 依赖
