@@ -30,3 +30,7 @@ ok    source directory       src, api
 ```
 
 有 fail 时退出码为 1，可以直接放进 CI。
+
+## 跑测试
+
+```bash
