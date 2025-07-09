@@ -19,3 +19,6 @@
 ### `nofaultctl doctor`
 - 检查 Node 版本、`package.json` 的 type、装饰器元数据、`reflect-metadata`、源码目录
 - **解析 tsconfig 的 `extends` 链**（不解析会大面积误报）
+- 每项都给出可执行的修复建议；有 fail 时退出码 1，可直接进 CI
+
+## 关键设计决策
