@@ -51,3 +51,7 @@
 0.5ms 的意义：工具快到可以挂在文件保存钩子上，每次保存都重新生成。
 
 ## 已知限制
+
+- `dev` 不编译，只重启
+- doctor 不检查运行时问题（端口占用、数据库连接）
+- OpenAPI 未生成 securitySchemes 与 examples
