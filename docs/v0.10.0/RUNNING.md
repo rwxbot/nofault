@@ -6,3 +6,7 @@
 
 ```bash
 # 由契约生成 OpenAPI 3.0 文档
+nofaultctl openapi api/user.api.ts --out openapi.json --title "User API" --version 1.2.0
+nofaultctl openapi api/user.api.ts --dry-run        # 打到 stdout，不写盘
+
+# 监听源码变化并自动重启（默认 node dist/main.js）
