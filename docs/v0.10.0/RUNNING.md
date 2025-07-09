@@ -18,3 +18,7 @@ nofaultctl doctor
 ```
 
 `doctor` 的输出示例：
+
+```
+warn  package.json           type=commonjs
+ok    emitDecoratorMetadata  已开启
