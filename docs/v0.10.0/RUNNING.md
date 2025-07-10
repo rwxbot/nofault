@@ -42,3 +42,6 @@ pnpm vitest run packages/cli          # 含 OpenAPI 生成与 doctor 检查
 
 ```bash
 pnpm bench v0.10.0 --iterations=200 --report
+```
+
+## 目录导航
