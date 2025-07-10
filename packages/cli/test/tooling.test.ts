@@ -24,3 +24,16 @@ function service(routes: RouteSpec[], overrides: Partial<ServiceSpec> = {}): Ser
 
 function spec(services: ServiceSpec[], types: TypeSpec[]): ApiSpec {
   return { name: 'demo', types, services };
+}
+
+const User: TypeSpec = {
+  name: 'User',
+  fields: [field('id', 'number'), field('name', 'string'), field('bio', 'string', FieldSource.BODY, true)],
+};
+
+const GetUserReq: TypeSpec = {
+  name: 'GetUserReq',
+  fields: [field('id', 'number', FieldSource.PATH), field('verbose', 'boolean', FieldSource.QUERY, true)],
+};
+
+describe('openapi generation', () => {
