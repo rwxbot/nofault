@@ -62,3 +62,16 @@ describe('openapi generation', () => {
     const id = operation.parameters.find((p) => p.name === 'id');
     expect(id).toMatchObject({ in: 'path', required: true, schema: { type: 'number' } });
   });
+
+  it('splits query params out of the body', () => {
+    const operation = doc.paths['/api/user/users/{id}']!.get!;
+    const verbose = operation.parameters.find((p) => p.name === 'verbose');
+    expect(verbose).toMatchObject({ in: 'query', required: false, schema: { type: 'boolean' } });
+    // GET 不该有 requestBody
+    expect(operation.requestBody).toBeUndefined();
+  });
+
+  it('puts required fields in required and omits the key when nothing is required', () => {
+    const user = doc.components.schemas.User!;
+    expect(user.required).toEqual(['id', 'name']);
+    expect(user.properties!).toHaveProperty('bio');
