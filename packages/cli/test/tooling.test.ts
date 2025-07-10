@@ -37,3 +37,16 @@ const GetUserReq: TypeSpec = {
 };
 
 describe('openapi generation', () => {
+  const doc = openApiDocument(
+    spec(
+      [
+        service([
+          { handler: 'getUser', method: 'GET', path: '/users/:id', requestType: 'GetUserReq', responseType: 'User' },
+          { handler: 'createUser', method: 'POST', path: '/users', requestType: 'User', responseType: 'User' },
+          { handler: 'deleteUser', method: 'DELETE', path: '/users/:id', requestType: 'GetUserReq' },
+        ]),
+      ],
+      [User, GetUserReq],
+    ),
+    { title: 'Demo API', version: '2.1.0' },
+  );
