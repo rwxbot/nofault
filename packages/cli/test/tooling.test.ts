@@ -50,3 +50,15 @@ describe('openapi generation', () => {
     ),
     { title: 'Demo API', version: '2.1.0' },
   );
+
+  it('renders path params with braces, not colons', () => {
+    // `:id` 在 OpenAPI 里是非法的；Swagger UI / codegen 都会解析失败
+    expect(Object.keys(doc.paths)).toContain('/api/user/users/{id}');
+    expect(Object.keys(doc.paths)).not.toContain('/api/user/users/:id');
+  });
+
+  it('marks path params as required and in:path', () => {
+    const operation = doc.paths['/api/user/users/{id}']!.get!;
+    const id = operation.parameters.find((p) => p.name === 'id');
+    expect(id).toMatchObject({ in: 'path', required: true, schema: { type: 'number' } });
+  });
