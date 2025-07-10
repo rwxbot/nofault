@@ -45,3 +45,8 @@ pnpm bench v0.10.0 --iterations=200 --report
 ```
 
 ## 目录导航
+
+```
+packages/codegen/src/openapi.ts    契约 → OpenAPI 3.0（纯函数）
+packages/cli/src/commands/dev.ts   热重载（防抖 / 等退出 / 不丢变更）
+packages/cli/src/commands/doctor.ts 环境自检（解析 tsconfig extends）
