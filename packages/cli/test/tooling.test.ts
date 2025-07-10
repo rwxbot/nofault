@@ -11,3 +11,16 @@ import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { FieldSource, type ApiSpec, type RouteSpec, type ServiceSpec, type TypeSpec } from '@nofault/dsl';
+import { openApiDocument } from '@nofault/codegen';
+import { doctor } from '../src/commands/doctor';
+
+function field(name: string, type: string, source: FieldSource = FieldSource.BODY, optional = false) {
+  return { name, key: name, type, source, optional, rules: [] };
+}
+
+function service(routes: RouteSpec[], overrides: Partial<ServiceSpec> = {}): ServiceSpec {
+  return { name: 'user-api', group: 'user', prefix: '/api', middleware: [], routes, ...overrides };
+}
+
+function spec(services: ServiceSpec[], types: TypeSpec[]): ApiSpec {
+  return { name: 'demo', types, services };
