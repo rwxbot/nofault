@@ -75,3 +75,17 @@ describe('openapi generation', () => {
     const user = doc.components.schemas.User!;
     expect(user.required).toEqual(['id', 'name']);
     expect(user.properties!).toHaveProperty('bio');
+
+    const optionalOnly: TypeSpec = {
+      name: 'Loose',
+      fields: [field('a', 'string', FieldSource.BODY, true)],
+    };
+    const looseDoc = openApiDocument(spec([], [optionalOnly]));
+    // 空 required 数组在部分工具里会被当成"全部必填"，所以整个键要省掉
+    expect(looseDoc.components.schemas.Loose!.required).toBeUndefined();
+  });
+
+  it('references known types and inlines arrays of them', () => {
+    const listDoc = openApiDocument(
+      spec(
+        [service([{ handler: 'list', method: 'GET', path: '/users', responseType: 'User[]' }])],
