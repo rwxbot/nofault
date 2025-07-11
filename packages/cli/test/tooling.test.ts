@@ -89,3 +89,16 @@ describe('openapi generation', () => {
     const listDoc = openApiDocument(
       spec(
         [service([{ handler: 'list', method: 'GET', path: '/users', responseType: 'User[]' }])],
+        [User],
+      ),
+    );
+    const schema = listDoc.paths['/api/user/users']!.get!.responses['200']!.content![
+      'application/json'
+    ]!.schema;
+    expect(schema).toEqual({ type: 'array', items: { $ref: '#/components/schemas/User' } });
+  });
+
+  it('uses 204 for void responses and always documents 422', () => {
+    const operation = doc.paths['/api/user/users/{id}']!.delete!;
+    expect(operation.responses['204']).toEqual({ description: 'No Content' });
+    expect(operation.responses['422']).toBeDefined();
