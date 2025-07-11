@@ -154,3 +154,15 @@ describe('doctor', () => {
     expect(report.checks.find((c) => c.name === 'emitDecoratorMetadata')?.status).toBe('ok');
     expect(report.failures).toBe(0);
   });
+
+  it('follows tsconfig extends into the base config', () => {
+    // 不解析 extends 会大面积误报：绝大多数工程把装饰器元数据写在基配置里。
+    // 假阴性比漏检更糟 —— 它会让人直接不信任这个工具
+    const dir = project({
+      'package.json': JSON.stringify({ type: 'module' }),
+      'tsconfig.json': JSON.stringify({ extends: './config/tsconfig.base.json' }),
+      'config/tsconfig.base.json': JSON.stringify({
+        compilerOptions: { emitDecoratorMetadata: true, experimentalDecorators: true },
+      }),
+      'src/main.ts': '',
+    }, ['reflect-metadata']);
