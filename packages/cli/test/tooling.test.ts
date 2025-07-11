@@ -128,3 +128,16 @@ describe('doctor', () => {
     const dir = project({
       'package.json': JSON.stringify({ type: 'module' }),
       'tsconfig.json': JSON.stringify({ compilerOptions: { target: 'ES2022' } }),
+      'src/main.ts': '',
+    });
+    const report = doctor(dir);
+    const check = report.checks.find((c) => c.name === 'emitDecoratorMetadata');
+    expect(check?.status).toBe('fail');
+    expect(check?.hint).toContain('emitDecoratorMetadata');
+    expect(report.ok).toBe(false);
+  });
+
+  it('passes a correctly configured project', () => {
+    const dir = project({
+      'package.json': JSON.stringify({ type: 'module' }),
+      'tsconfig.json': JSON.stringify({
