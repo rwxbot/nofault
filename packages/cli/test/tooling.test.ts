@@ -102,3 +102,17 @@ describe('openapi generation', () => {
     const operation = doc.paths['/api/user/users/{id}']!.delete!;
     expect(operation.responses['204']).toEqual({ description: 'No Content' });
     expect(operation.responses['422']).toBeDefined();
+  });
+
+  it('carries the info block through', () => {
+    expect(doc.openapi).toBe('3.0.3');
+    expect(doc.info).toEqual({ title: 'Demo API', version: '2.1.0' });
+  });
+});
+
+describe('doctor', () => {
+  function project(files: Record<string, string>, deps: string[] = []): string {
+    const dir = mkdtempSync(join(tmpdir(), 'nf-doctor-'));
+    for (const [name, content] of Object.entries(files)) {
+      const path = join(dir, name);
+      mkdirSync(join(path, '..'), { recursive: true });
