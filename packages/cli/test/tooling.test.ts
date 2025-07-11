@@ -141,3 +141,16 @@ describe('doctor', () => {
     const dir = project({
       'package.json': JSON.stringify({ type: 'module' }),
       'tsconfig.json': JSON.stringify({
+        // 故意带注释：tsconfig 允许注释，解析器必须容错
+        compilerOptions: {
+          /* 装饰器元数据 */
+          experimentalDecorators: true,
+          emitDecoratorMetadata: true,
+        },
+      }),
+      'src/main.ts': '',
+    }, ['reflect-metadata']);
+    const report = doctor(dir);
+    expect(report.checks.find((c) => c.name === 'emitDecoratorMetadata')?.status).toBe('ok');
+    expect(report.failures).toBe(0);
+  });
