@@ -116,3 +116,15 @@ describe('doctor', () => {
     for (const [name, content] of Object.entries(files)) {
       const path = join(dir, name);
       mkdirSync(join(path, '..'), { recursive: true });
+      writeFileSync(path, content);
+    }
+    for (const dep of deps) mkdirSync(join(dir, 'node_modules', dep), { recursive: true });
+    return dir;
+  }
+
+  it('fails when decorator metadata is off', () => {
+    // 这是本项目最常见的一类"跑不起来"：@Inject / @Column 拿不到类型，
+    // 而报错信息完全指不到 tsconfig
+    const dir = project({
+      'package.json': JSON.stringify({ type: 'module' }),
+      'tsconfig.json': JSON.stringify({ compilerOptions: { target: 'ES2022' } }),
