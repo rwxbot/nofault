@@ -166,3 +166,16 @@ describe('doctor', () => {
       }),
       'src/main.ts': '',
     }, ['reflect-metadata']);
+
+    const report = doctor(dir);
+    expect(report.checks.find((c) => c.name === 'emitDecoratorMetadata')?.status).toBe('ok');
+    expect(report.failures).toBe(0);
+  });
+
+  it('reports missing reflect-metadata with an actionable hint', () => {
+    const dir = project({ 'package.json': '{}', 'tsconfig.json': '{}' });
+    const check = doctor(dir).checks.find((c) => c.name === 'reflect-metadata');
+    expect(check?.status).toBe('fail');
+    expect(check?.hint).toContain('reflect-metadata');
+  });
+});
