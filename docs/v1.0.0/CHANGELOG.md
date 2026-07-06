@@ -96,3 +96,51 @@
 2. **时钟偏移容差让"过期测试"失效** —— 过期 1 秒/10 秒的 token 落在 30 秒容差内，
    是**故意放行**的。测试必须过期得更久
 3. **`Error` 子类不能用 `name` 当构造参数**（v0.9.0 已踩一次，这里避开）
+4. 装饰器元数据需要 `import 'reflect-metadata'`，否则**构建时报** TS2339
+   （跑测试时因为别处已导入而不报，只在单独构建该包时暴露）
+
+## 性能
+
+| 操作 | 开销 |
+| --- | --- |
+| JWT 签发 | 0.02 ms |
+| JWT 验签 | 0.02 ms |
+| scrypt 哈希（N=2048） | 45.78 ms |
+| scrypt 校验 | 45.32 ms |
+
+哈希慢是**设计目标**（快 = 能被爆破）；
+代价是登录接口会占住线程 ~45ms，需要用限流或队列保护。
+
+## 追加：链路打通与工程收尾
+
+1. **`RestContext.route`** —— 框架把当前匹配到的路由挂上上下文，
+   `authMiddleware` 直接读 handler 的 `@Public` / `@Roles`，
+   不再需要调用方维护一份 path -> handler 映射（必然漂移）。
+   注意必须挂 **instance/prototype** 而不是类：方法装饰器的元数据在 prototype 上，
+   挂类会让公开路由被一起 401
+2. **`withTraceFields()`** —— 包装一次日志器，之后所有调用自动带
+   `{ traceId, spanId }`。v0.8.0 的已知限制"日志与 Trace 未自动关联"就此关闭
+3. **17 个包的 README** —— `package.json` 声明了 `files: ["dist","README.md"]`，
+   缺文档发包就是空的；由 `scripts/gen-package-readmes.mjs` 集中生成
+4. **示例 `v1.0.0-security-demo`** —— 真实登录（scrypt）+ 角色接口 + traceId 日志，
+   全部端点 curl 验证
+
+## 全量对齐
+
+见 [`FEATURE-MATRIX.md`](./FEATURE-MATRIX.md)：七大板块能力对照。
+
+## 随版本演进的 README
+
+根 README 现在跟着版本走：`scripts/readme-history/<tag>.md` 保存每个版本"当时"的快照，
+`scripts/gen-history.mjs` 重建历史时按版本取用。因此：
+
+```bash
+git show v0.4.0:README.md    # 2019 年的样子，不含 v0.5.0 才有的 @nofault/orm
+git show v1.0.0:README.md    # 发布时的样子
+```
+
+在这之前，历史上每个 tag 的 README 都是同一份（停在 v0.1.0，且包名用的是规划名
+`@nofault/sqlx` / `breaker` / `limit` / `queue` / `sync`，而非实际实现的
+`orm` / `resilience` / `micro`）—— 会误导任何 `git checkout <tag>` 的人。
+已对齐核心运行时、Web 全栈、RPC 骨架、数据访问、代码生成、治理四件套、可观测性。
+明确不做：二进制协议、JOIN/多数据源、自适应限流、选主。
