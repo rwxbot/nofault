@@ -41,3 +41,46 @@ backend.register('users', 'get', async (payload) => {
   const { id } = payload;
   return cache.getOrSet(`user:${id}`, async () => store.get(String(id)) ?? undefined);
 });
+backend.register('users', 'create', async (payload) => {
+  const id = String(store.size + 1);
+  const user = { id: Number(id), name: payload.name ?? `user-${id}` };
+  store.set(id, user);
+  return user;
+});
+const backendInfo = await backend.listen(0, '127.0.0.1');
+
+// ---------- 网关：rest 应用 → RPC 客户端 ----------
+const rpc = new RpcClient({ host: '127.0.0.1', port: backendInfo.port, timeoutMs: 5000 });
+
+class GatewayModule {}
+Module({ controllers: [], providers: [] })(GatewayModule);
+
+const app = await RestApplication.create(GatewayModule, {
+  quiet: true,
+  middleware: [bodyParser()],
+});
+app.addRoute('GET', '/users/:id', (ctx) => rpc.call('users', 'get', { id: ctx.request.params.id }));
+app.addRoute('POST', '/users', (ctx) => rpc.call('users', 'create', ctx.request.body));
+const gateway = await app.listen(0, '127.0.0.1');
+
+// ---------- 压测 ----------
+const base = `http://127.0.0.1:${gateway.port}`;
+
+function pct(sorted, p) {
+  return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length * p) / 100))];
+}
+
+async function run(name, fn, n = args.n, conc = args.conc) {
+  for (let i = 0; i < Math.min(50, n); i++) await fn(i); // 预热
+  const lat = [];
+  let failures = 0;
+  let next = 0;
+  const worker = async () => {
+    while (next < n) {
+      const i = next++;
+      const t = process.hrtime.bigint();
+      let ok = false;
+      let detail = '';
+      try {
+        ok = await fn(i);
+      } catch (err) {
