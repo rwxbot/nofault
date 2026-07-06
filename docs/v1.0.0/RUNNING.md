@@ -28,3 +28,33 @@ class AdminController {
   @Public()
   @Get('/health')
   health() { return { ok: true }; }
+
+  @Roles('admin')
+  @Get('/wipe')
+  wipe() { return { wiped: true }; }
+}
+
+// 挂中间件
+RestApplication.create(AppModule, {
+  middleware: [bodyParser(), authMiddleware({ jwt, handlerOf: () => currentHandler() })],
+});
+```
+
+## 跑示例
+
+```bash
+pnpm example v1.0.0-security-demo
+pnpm example v1.0.0-security-demo PORT=3400
+```
+
+一个带认证的最小服务：真实登录（scrypt 校验）、JWT 签发、角色授权、traceId 自动进日志。
+
+```bash
+# 公开路由（@Public）
+curl -s http://127.0.0.1:3000/auth/health
+
+# 登录（alice / correct-horse-battery）
+TOKEN=$(curl -s -X POST http://127.0.0.1:3000/auth/login \
+  -H 'content-type: application/json' \
+  -d '{"name":"alice","password":"correct-horse-battery"}' \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['data']['token'])")
