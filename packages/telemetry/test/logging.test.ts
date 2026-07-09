@@ -48,3 +48,28 @@ describe('withTraceFields', () => {
     requestContextStore.run(new RequestContext({ traceparent: { traceId: 'auto', spanId: 's1' } as never }), () => {
       traced.info('correlating another trace', { traceId: 'manual' });
     });
+
+    // 显式传的字段优先：偶尔要记另一条链路时不应被覆盖
+    expect(calls.info?.fields?.traceId).toBe('manual');
+  });
+
+  it('traces every level that the underlying logger supports', () => {
+    const { logger, calls } = capturingLogger();
+    const traced = withTraceFields(logger);
+
+    requestContextStore.run(new RequestContext({ traceparent: { traceId: 't', spanId: 's1' } as never }), () => {
+      traced.info('a');
+      traced.warn('b');
+      traced.error('c');
+      traced.debug?.('d');
+    });
+
+    for (const key of ['info', 'warn', 'error', 'debug']) {
+      expect(calls[key]?.fields).toMatchObject({ traceId: 't' });
+    }
+  });
+
+  it('reports empty fields when there is nothing to correlate', () => {
+    expect(traceFields()).toEqual({});
+  });
+});
