@@ -23,3 +23,28 @@ describe('withTraceFields', () => {
   it('injects the traceId from the request context', () => {
     const { logger, calls } = capturingLogger();
     const traced = withTraceFields(logger);
+
+    // 必须用**真实** RequestContext：traceFields() 会调 ctx.get()，
+    // 传裸对象会在那里炸掉——这正是这次要防的那类半真测试
+    requestContextStore.run(new RequestContext({ traceparent: { traceId: 'trace-123', spanId: 's1' } as never }), () => {
+      traced.info('hello');
+    });
+
+    expect(calls.info?.fields).toMatchObject({ traceId: 'trace-123' });
+  });
+
+  it('keeps working (without fields) outside a request context', () => {
+    const { logger, calls } = capturingLogger();
+    const traced = withTraceFields(logger);
+    traced.info('no request here');
+    expect(calls.info?.message).toBe('no request here');
+    expect(calls.info?.fields?.traceId).toBeUndefined();
+  });
+
+  it('lets the caller override the trace id explicitly', () => {
+    const { logger, calls } = capturingLogger();
+    const traced = withTraceFields(logger);
+
+    requestContextStore.run(new RequestContext({ traceparent: { traceId: 'auto', spanId: 's1' } as never }), () => {
+      traced.info('correlating another trace', { traceId: 'manual' });
+    });
