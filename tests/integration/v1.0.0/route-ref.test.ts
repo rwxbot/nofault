@@ -54,3 +54,59 @@ class AdminController {
   @Get('/health')
   health(): { ok: true } {
     return { ok: true };
+  }
+
+  // 登录接口**必须**公开：它就是用来换第一张 token 的。
+  // 漏标 @Public 的表现不是编译错，而是登录永远 401——轮询超时才暴露
+  @Public()
+  @Post('/login')
+  async login(@Body() body: { name: string; password: string }): Promise<{ token: string }> {
+    return this.service.login(body.name, body.password);
+  }
+
+  @Get('/me')
+  me(): { ok: true } {
+    return { ok: true };
+  }
+
+  @Roles('admin')
+  @Get('/wipe')
+  wipe(): { wiped: true } {
+    return { wiped: true };
+  }
+}
+
+@Module({ controllers: [AdminController], providers: [AuthService] })
+class AppModule {}
+
+let app: RestApplication;
+let base = '';
+
+/**
+ * scrypt 哈希一次 ~45ms，构造器里的预置是异步的：
+ * 固定 sleep 要么等不够、要么白等。轮询到成功为止才是确定性写法。
+ */
+async function waitForAccount(name: string, password: string): Promise<{ token: string }> {
+  for (let i = 0; i < 40; i++) {
+    const res = await fetch(`${base}/admin/login`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name, password }),
+    });
+    if (res.ok) {
+      const body = (await res.json()) as { data: { token: string } };
+      return body.data;
+    }
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  throw new Error(`account "${name}" was not seeded in time`);
+}
+
+afterAll(async () => {
+  await app?.close();
+});
+
+describe('ctx.route drives the auth middleware', () => {
+  it('reads the handler decorators straight from ctx.route', async () => {
+    app = await RestApplication.create(AppModule, {
+      quiet: true,
