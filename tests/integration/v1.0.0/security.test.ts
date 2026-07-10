@@ -37,3 +37,42 @@ function handlerFor(path: string) {
   const map: Record<string, { target: object; propertyKey: string }> = {
     '/admin/health': { target: AdminController.prototype, propertyKey: 'health' },
     '/admin/me': { target: AdminController.prototype, propertyKey: 'me' },
+    '/admin/wipe': { target: AdminController.prototype, propertyKey: 'wipe' },
+  };
+  return () => map[path];
+}
+
+@Module({ controllers: [AdminController] })
+class AppModule {}
+
+let app: RestApplication;
+let base = '';
+
+function makeApp(): Promise<RestApplication> {
+  return RestApplication.create(AppModule, {
+    quiet: true,
+    middleware: [
+      bodyParser(),
+      // 真实项目里 handlerOf 由框架提供；这里按路径模拟
+      (ctx: { request: { path?: string } }, next: () => Promise<void>) =>
+        authMiddleware({
+          jwt,
+          handlerOf: handlerFor(ctx.request.path ?? '') as () => { target: object; propertyKey: string } | undefined,
+        })(ctx as never, next),
+    ] as never[],
+  });
+}
+
+describe('auth over http', () => {
+  it('lets a public route through without a token', async () => {
+    app = await makeApp();
+    const { port } = await app.listen(0, '127.0.0.1');
+    base = `http://127.0.0.1:${port}`;
+
+    const res = await fetch(`${base}/admin/health`);
+    expect(res.status).toBe(200);
+  });
+
+  it('answers 401 when no token is present', async () => {
+    const res = await fetch(`${base}/admin/me`);
+    expect(res.status).toBe(401);
