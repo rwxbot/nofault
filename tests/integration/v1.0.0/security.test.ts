@@ -76,3 +76,40 @@ describe('auth over http', () => {
   it('answers 401 when no token is present', async () => {
     const res = await fetch(`${base}/admin/me`);
     expect(res.status).toBe(401);
+  });
+
+  it('answers 401 for a token signed by someone else', async () => {
+    const foreign = new Jwt('someone-elses-secret-value-9999', { issuer: 'it', audience: 'api' });
+    const token = foreign.sign({ sub: 'attacker', roles: ['admin'] }, 3600);
+    const res = await fetch(`${base}/admin/wipe`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.status).toBe(401);
+  });
+
+  it('answers 401 for a malformed token without leaking the reason', async () => {
+    const res = await fetch(`${base}/admin/wipe`, {
+      headers: { authorization: 'Bearer not.a.jwt' },
+    });
+    expect(res.status).toBe(401);
+    const body = await res.text();
+    // 不能回"签名不对"还是"过期了"：那是在给攻击者递信息
+    expect(body).not.toMatch(/signature|expired/i);
+  });
+
+  it('answers 403 when the role does not match', async () => {
+    const token = jwt.sign({ sub: 'u1', roles: ['user'] }, 3600);
+    const res = await fetch(`${base}/admin/wipe`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.status).toBe(403);
+  });
+
+  it('answers 200 for the right role', async () => {
+    const token = jwt.sign({ sub: 'u1', roles: ['admin'] }, 3600);
+    const res = await fetch(`${base}/admin/wipe`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.status).toBe(200);
+  });
+});
