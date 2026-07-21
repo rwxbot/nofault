@@ -83,3 +83,15 @@ function attributeValue(span: OtlpSpan, key: string): Record<string, string | nu
   expect(attribute, `attribute ${key} should exist`).toBeDefined();
   return attribute!.value;
 }
+
+// ---------------------------------------------------------------- 用例
+
+describe('otlp exporter', () => {
+  it('posts spans as otlp/json to the endpoint', async () => {
+    const collector = await startCollector();
+    const exporter = new OtlpExporter({ endpoint: collector.url, serviceName: 'demo-api' });
+    const tracer = new Tracer(exporter, undefined, 10);
+
+    const parent = tracer.startSpan('GET /users', 'server')!;
+    parent.setAttributes({ route: '/users', status: 200, cached: true });
+    const child = tracer.startSpan('db.query', 'client', {
