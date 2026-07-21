@@ -59,3 +59,15 @@ function startCollector(): Promise<{ url: string; requests: CapturedRequest[] }>
     let raw = '';
     req.on('data', (chunk) => (raw += chunk));
     req.on('end', () => {
+      requests.push({ url: req.url ?? '', headers: req.headers, body: JSON.parse(raw) as OtlpRequest });
+      res.writeHead(200).end();
+    });
+  });
+  servers.push(server);
+  return new Promise((resolve) => {
+    server.listen(0, '127.0.0.1', () => {
+      const { port } = server.address() as AddressInfo;
+      resolve({ url: `http://127.0.0.1:${port}/v1/traces`, requests });
+    });
+  });
+}
