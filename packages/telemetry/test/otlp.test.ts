@@ -35,3 +35,15 @@ interface OtlpRequest {
     scopeSpans: { scope: { name: string }; spans: OtlpSpan[] }[];
   }[];
 }
+
+interface CapturedRequest {
+  url: string;
+  headers: IncomingMessage['headers'];
+  body: OtlpRequest;
+}
+
+const servers: Server[] = [];
+
+afterAll(async () => {
+  await Promise.all(
+    servers.map(
