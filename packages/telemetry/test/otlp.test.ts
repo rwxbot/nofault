@@ -23,3 +23,15 @@ interface OtlpSpan {
   parentSpanId?: string;
   name: string;
   kind: number;
+  startTimeUnixNano: string;
+  endTimeUnixNano: string;
+  attributes: OtlpAttribute[];
+  status: { code: number; message?: string };
+}
+
+interface OtlpRequest {
+  resourceSpans: {
+    resource: { attributes: OtlpAttribute[] };
+    scopeSpans: { scope: { name: string }; spans: OtlpSpan[] }[];
+  }[];
+}
