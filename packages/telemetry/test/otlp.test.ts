@@ -11,3 +11,15 @@ import type { AddressInfo } from 'node:net';
 import { OtlpExporter, Tracer } from '../src/index';
 
 // ---------------------------------------------------------------- 测试用 collector
+
+interface OtlpAttribute {
+  key: string;
+  value: Record<string, string | number | boolean>;
+}
+
+interface OtlpSpan {
+  traceId: string;
+  spanId: string;
+  parentSpanId?: string;
+  name: string;
+  kind: number;
