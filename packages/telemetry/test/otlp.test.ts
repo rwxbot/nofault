@@ -71,3 +71,15 @@ function startCollector(): Promise<{ url: string; requests: CapturedRequest[] }>
     });
   });
 }
+
+function findSpan(request: CapturedRequest, name: string): OtlpSpan {
+  const span = request.body.resourceSpans[0]!.scopeSpans[0]!.spans.find((s) => s.name === name);
+  expect(span, `span ${name} should be exported`).toBeDefined();
+  return span!;
+}
+
+function attributeValue(span: OtlpSpan, key: string): Record<string, string | number | boolean> {
+  const attribute = span.attributes.find((a) => a.key === key);
+  expect(attribute, `attribute ${key} should exist`).toBeDefined();
+  return attribute!.value;
+}
