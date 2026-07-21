@@ -47,3 +47,15 @@ const servers: Server[] = [];
 afterAll(async () => {
   await Promise.all(
     servers.map(
+      (server) => new Promise<void>((resolve) => server.close(() => resolve())),
+    ),
+  );
+});
+
+/** 起一个把请求原样记录下来的假 OTLP collector */
+function startCollector(): Promise<{ url: string; requests: CapturedRequest[] }> {
+  const requests: CapturedRequest[] = [];
+  const server = createServer((req, res) => {
+    let raw = '';
+    req.on('data', (chunk) => (raw += chunk));
+    req.on('end', () => {
