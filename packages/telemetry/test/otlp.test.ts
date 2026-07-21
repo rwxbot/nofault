@@ -95,3 +95,16 @@ describe('otlp exporter', () => {
     const parent = tracer.startSpan('GET /users', 'server')!;
     parent.setAttributes({ route: '/users', status: 200, cached: true });
     const child = tracer.startSpan('db.query', 'client', {
+      traceId: parent.traceId,
+      spanId: tracer.newSpanId(),
+      parentSpanId: parent.spanId,
+    })!;
+    child.setAttributes({ attempts: 2 });
+    child.end();
+    parent.end();
+    await expect(
+      tracer.trace('failing', async () => {
+        throw new Error('boom');
+      }),
+    ).rejects.toThrow('boom');
+    await tracer.flush();
