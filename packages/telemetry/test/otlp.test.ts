@@ -108,3 +108,15 @@ describe('otlp exporter', () => {
       }),
     ).rejects.toThrow('boom');
     await tracer.flush();
+
+    expect(collector.requests).toHaveLength(1);
+    const request = collector.requests[0]!;
+    expect(request.url).toBe('/v1/traces');
+    expect(request.headers['content-type']).toBe('application/json');
+
+    // resource：service.name 必须在，Jaeger/Tempo 靠它分组服务
+    const resourceAttributes = request.body.resourceSpans[0]!.resource.attributes;
+    expect(resourceAttributes).toContainEqual({
+      key: 'service.name',
+      value: { stringValue: 'demo-api' },
+    });
