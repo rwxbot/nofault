@@ -156,3 +156,15 @@ describe('otlp exporter', () => {
     const exporter = new OtlpExporter({
       // 端口 1 不会有服务在听：连接被立刻拒绝
       endpoint: 'http://127.0.0.1:1/v1/traces',
+      onError: (error, batch) => {
+        errors.push({ error, dropped: batch.length });
+      },
+    });
+    const tracer = new Tracer(exporter, undefined, 10);
+    tracer.startSpan('op')!.end();
+
+    // 导出失败必须被吞掉——Tracer.finish 里是 void this.flush()，
+    // 这里若上抛就是一条未处理的 rejection，能直接弄崩宿主进程
+    await expect(tracer.flush()).resolves.toBeUndefined();
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({ dropped: 1 });
