@@ -143,3 +143,16 @@ describe('otlp exporter', () => {
     expect(clientSpan.parentSpanId).toBe(serverSpan.spanId);
     expect(clientSpan.traceId).toBe(serverSpan.traceId);
     expect(attributeValue(clientSpan, 'attempts')).toEqual({ intValue: '2' });
+
+    // 失败 span：默认 internal（kind=1），status.code=2 且带原因
+    const failing = findSpan(request, 'failing');
+    expect(failing.kind).toBe(1);
+    expect(failing.status.code).toBe(2);
+    expect(failing.status.message).toBe('boom');
+  });
+
+  it('never throws when the endpoint is down', async () => {
+    const errors: unknown[] = [];
+    const exporter = new OtlpExporter({
+      // 端口 1 不会有服务在听：连接被立刻拒绝
+      endpoint: 'http://127.0.0.1:1/v1/traces',
