@@ -168,3 +168,15 @@ describe('otlp exporter', () => {
     await expect(tracer.flush()).resolves.toBeUndefined();
     expect(errors).toHaveLength(1);
     expect(errors[0]).toMatchObject({ dropped: 1 });
+  });
+
+  it('skips the request for an empty batch', async () => {
+    const collector = await startCollector();
+    const exporter = new OtlpExporter({ endpoint: collector.url });
+    await exporter.export([]);
+    expect(collector.requests).toHaveLength(0);
+  });
+
+  it('sends custom headers (auth)', async () => {
+    const collector = await startCollector();
+    const exporter = new OtlpExporter({
