@@ -132,3 +132,14 @@ describe('otlp exporter', () => {
     expect(BigInt(serverSpan.endTimeUnixNano)).toBeGreaterThanOrEqual(
       BigInt(serverSpan.startTimeUnixNano),
     );
+    // 属性类型映射：字符串 → stringValue，整数 → intValue（字符串承载），布尔 → boolValue
+    expect(attributeValue(serverSpan, 'route')).toEqual({ stringValue: '/users' });
+    expect(attributeValue(serverSpan, 'status')).toEqual({ intValue: '200' });
+    expect(attributeValue(serverSpan, 'cached')).toEqual({ boolValue: true });
+
+    // client span：kind=3，挂到父 Span 上
+    const clientSpan = findSpan(request, 'db.query');
+    expect(clientSpan.kind).toBe(3);
+    expect(clientSpan.parentSpanId).toBe(serverSpan.spanId);
+    expect(clientSpan.traceId).toBe(serverSpan.traceId);
+    expect(attributeValue(clientSpan, 'attempts')).toEqual({ intValue: '2' });
