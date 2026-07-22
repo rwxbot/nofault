@@ -120,3 +120,15 @@ describe('otlp exporter', () => {
       key: 'service.name',
       value: { stringValue: 'demo-api' },
     });
+    expect(request.body.resourceSpans[0]!.scopeSpans[0]!.scope.name).toBe('@nofault/telemetry');
+    expect(request.body.resourceSpans[0]!.scopeSpans[0]!.spans).toHaveLength(3);
+
+    // server span：kind=2，ID 是定长 hex，时间戳是纳秒字符串
+    const serverSpan = findSpan(request, 'GET /users');
+    expect(serverSpan.kind).toBe(2);
+    expect(serverSpan.traceId).toMatch(/^[0-9a-f]{32}$/);
+    expect(serverSpan.spanId).toMatch(/^[0-9a-f]{16}$/);
+    expect(serverSpan.startTimeUnixNano).toMatch(/^\d+$/);
+    expect(BigInt(serverSpan.endTimeUnixNano)).toBeGreaterThanOrEqual(
+      BigInt(serverSpan.startTimeUnixNano),
+    );
