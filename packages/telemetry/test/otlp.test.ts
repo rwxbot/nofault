@@ -180,3 +180,14 @@ describe('otlp exporter', () => {
   it('sends custom headers (auth)', async () => {
     const collector = await startCollector();
     const exporter = new OtlpExporter({
+      endpoint: collector.url,
+      headers: { authorization: 'Bearer token-1' },
+    });
+    const tracer = new Tracer(exporter, undefined, 10);
+    tracer.startSpan('op')!.end();
+    await tracer.flush();
+
+    expect(collector.requests).toHaveLength(1);
+    expect(collector.requests[0]!.headers.authorization).toBe('Bearer token-1');
+  });
+});
