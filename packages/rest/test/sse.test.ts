@@ -37,3 +37,9 @@ describe('sse', () => {
       expect(body).toContain('event: tick');
       expect(body).toContain('data: {"n":1}');
       expect(body).toContain(': bye');
+      expect(body.match(/data: /g)).toHaveLength(3);
+    } finally {
+      await app.close();
+    }
+  });
+});
