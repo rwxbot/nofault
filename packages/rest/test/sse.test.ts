@@ -6,3 +6,11 @@
  */
 import { describe, expect, it } from 'vitest';
 import { Module } from '@nofault/core';
+import { RestApplication, openSse } from '../src/index';
+
+@Module({ controllers: [] })
+class SseModule {}
+
+describe('sse', () => {
+  it('streams server-sent events and ends the response on close', async () => {
+    const app = await RestApplication.create(SseModule, { quiet: true });
