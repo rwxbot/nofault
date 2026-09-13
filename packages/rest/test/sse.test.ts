@@ -14,3 +14,10 @@ class SseModule {}
 describe('sse', () => {
   it('streams server-sent events and ends the response on close', async () => {
     const app = await RestApplication.create(SseModule, { quiet: true });
+    app.addRoute('GET', '/sse', (ctx) => {
+      const sse = openSse(ctx);
+      let n = 0;
+      const timer = setInterval(() => {
+        n += 1;
+        sse.send('tick', { n });
+        if (n === 3) {
