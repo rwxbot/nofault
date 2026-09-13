@@ -21,3 +21,11 @@ describe('sse', () => {
         n += 1;
         sse.send('tick', { n });
         if (n === 3) {
+          clearInterval(timer);
+          sse.comment('bye');
+          sse.close();
+        }
+      }, 10);
+      return undefined;
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
