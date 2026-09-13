@@ -29,3 +29,11 @@ describe('sse', () => {
       return undefined;
     });
     const { port } = await app.listen(0, '127.0.0.1');
+    try {
+      const res = await fetch(`http://127.0.0.1:${port}/sse`);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toBe('text/event-stream');
+      const body = await res.text();
+      expect(body).toContain('event: tick');
+      expect(body).toContain('data: {"n":1}');
+      expect(body).toContain(': bye');
