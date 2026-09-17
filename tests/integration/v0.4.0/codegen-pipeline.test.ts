@@ -149,3 +149,77 @@ function rmrfSafe(target: string): void {
 }
 
 afterAll(() => {
+  // 只删本次自己创建的目录 —— 不动 `.tmp` 下别的历史残留。
+  rmrfSafe(PROJECT);
+});
+
+const TSCONFIG_FOR_GENERATED = {
+  compilerOptions: {
+    target: 'ES2022',
+    module: 'commonjs',
+    moduleResolution: 'node',
+    lib: ['ES2022'],
+    experimentalDecorators: true,
+    emitDecoratorMetadata: true,
+    strict: true,
+    skipLibCheck: true,
+    esModuleInterop: true,
+    noEmit: true,
+    baseUrl: '.',
+    paths: {
+      '@nofault/core': ['../../packages/core/src/index.ts'],
+      '@nofault/rest': ['../../packages/rest/src/index.ts'],
+      '@nofault/logger': ['../../packages/logger/src/index.ts'],
+      '@nofault/config': ['../../packages/config/src/index.ts'],
+      '@nofault/context': ['../../packages/context/src/index.ts'],
+      '@nofault/dsl': ['../../packages/dsl/src/index.ts'],
+      'reflect-metadata': ['../../node_modules/reflect-metadata/index.d.ts'],
+    },
+  },
+  include: ['src/**/*.ts'],
+};
+
+describe('v0.4.0 pipeline: contract -> code', () => {
+  it('generates the expected file set', () => {
+    expect(generatedFiles).toContain('dto/greet-req.dto.ts');
+    expect(generatedFiles).toContain('user/user.controller.ts');
+    expect(generatedFiles).toContain('user/user.service.ts');
+    expect(generatedFiles).toContain('user/user.module.ts');
+    expect(generatedFiles).toContain('dto/get-user-req.dto.ts');
+    // 第二种输入格式走同一条流水线，产出同样形态的文件
+    expect(generatedFiles).toContain('item/item.controller.ts');
+  });
+
+  it('produces TypeScript that actually compiles', () => {
+    // 这是整条流水线的验收标准：生成的东西必须能被 tsc 编译通过
+    const tsc = resolve(ROOT, 'node_modules/typescript/bin/tsc');
+    expect(existsSync(tsc)).toBe(true);
+    try {
+      execFileSync(process.execPath, [tsc, '-p', join(PROJECT, 'tsconfig.json')], {
+        cwd: PROJECT,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    } catch (err) {
+      const e = err as { stdout?: string; stderr?: string };
+      throw new Error(`generated code does not compile:\n${e.stdout ?? ''}${e.stderr ?? ''}`);
+    }
+  });
+
+  it('maps go scalar types onto TS types, keyed by the wire name', () => {
+    const dto = readFileSync(join(PROJECT, 'src/dto/greet-req.dto.ts'), 'utf8');
+    // 属性名取 json tag（`count` / `name`）而不是 Go 字段名（`Count` / `Name`），
+    // 否则 DTO 能编译但永远绑定不上 —— 见 generate.ts propName 的注释
+    expect(dto).toContain('count!: number');
+    expect(dto).toContain('name!: string');
+    // go int -> number
+    expect(dto).not.toContain('int');
+    // `,optional` 的 json tag 要变成 @IsOptional()
+    expect(dto).toContain('@IsOptional()');
+  });
+
+  it('loads the generated modules into a real running server', async () => {
+    const modulePath = resolve(PROJECT, 'src/user/user.module.ts');
+    const mod = (await import(pathToFileURL(modulePath).href)) as Record<string, ModuleCtor>;
+    const UserModule = mod.UserModule;
+    expect(UserModule).toBeTruthy();
