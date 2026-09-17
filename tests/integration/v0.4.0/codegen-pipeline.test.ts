@@ -223,3 +223,78 @@ describe('v0.4.0 pipeline: contract -> code', () => {
     const mod = (await import(pathToFileURL(modulePath).href)) as Record<string, ModuleCtor>;
     const UserModule = mod.UserModule;
     expect(UserModule).toBeTruthy();
+
+    const app = await RestApplication.create(UserModule, {
+      quiet: true,
+      middleware: [bodyParser()],
+    });
+    const { port } = await app.listen(0, '127.0.0.1');
+
+    try {
+      const routes = app.getRoutes().map((r) => `${r.method} ${r.path}`);
+      // 控制器前缀 + 方法路径真的拼上了，说明装饰器元数据被正确读取
+      expect(routes).toContain('GET /api/user/ping');
+      expect(routes).toContain('POST /api/user/greet');
+
+      // 路径变量的路由必须整体注册为 `/users/:id`
+      expect(routes).toContain('GET /api/user/users/:id');
+      const notFound = await fetch(`http://127.0.0.1:${port}/api/user/users`);
+      expect(notFound.status).toBe(404);
+      const byId = await fetch(`http://127.0.0.1:${port}/api/user/users/7`);
+      expect(byId.status).toBe(500);
+
+      const health = await fetch(`http://127.0.0.1:${port}/healthz`);
+      expect(health.status).toBe(200);
+
+      // 骨架方法抛 "not implemented"，所以路由命中就该是 500 而不是 404
+      const res = await fetch(`http://127.0.0.1:${port}/api/user/ping`);
+      expect(res.status).toBe(500);
+      const body = (await res.json()) as Record<string, unknown>;
+      expect(JSON.stringify(body)).toContain('not implemented');
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('validates query parameters too, not just the body', async () => {
+    // v0.4.0 之前 query DTO 完全不校验；现在框架按"DTO 绑在哪儿"取数据源
+    const mod = (await import(pathToFileURL(resolve(PROJECT, 'src/item/item.module.ts')).href)) as Record<string, ModuleCtor>;
+    const app = await RestApplication.create(mod.ItemModule!, { quiet: true, middleware: [bodyParser()] });
+    const { port } = await app.listen(0, '127.0.0.1');
+    try {
+      const bad = await fetch(`http://127.0.0.1:${port}/v2/item/search?page=abc`);
+      expect(bad.status).toBe(422);
+      // 合法数字要能通过（query 里的 "3" 会按声明类型强制成 3）
+      const okShape = await fetch(`http://127.0.0.1:${port}/v2/item/search?page=3`);
+      expect([200, 500]).toContain(okShape.status);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('validates the request body through the generated dto', async () => {
+    const mod = (await import(pathToFileURL(resolve(PROJECT, 'src/user/user.module.ts')).href)) as Record<string, ModuleCtor>;
+    const app = await RestApplication.create(mod.UserModule!, { quiet: true, middleware: [bodyParser()] });
+    const { port } = await app.listen(0, '127.0.0.1');
+    try {
+      // Count 带 @IsInt()（且 optional）：传非数字应当被 DTO 校验拦在框架层（422），
+      // 而不是流进尚不存在的业务实现
+      const bad = await fetch(`http://127.0.0.1:${port}/api/user/greet`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name: 'bob', count: 'not-a-number' }),
+      });
+      expect(bad.status).toBe(422);
+
+      // 合法入参不在 dto 里必填字段冲突时应走到业务实现（骨架抛 not-implemented）
+      const ok = await fetch(`http://127.0.0.1:${port}/api/user/greet`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name: 'bob' }),
+      });
+      expect(ok.status).toBe(500);
+    } finally {
+      await app.close();
+    }
+  });
+});
